@@ -1,4 +1,4 @@
-const CACHE_NAME = "dr-crispy-lab-v2";
+const CACHE_NAME = "dr-crispy-lab-v3";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
@@ -46,7 +46,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Para la página principal y navegación: siempre intenta red primero
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -57,12 +56,11 @@ self.addEventListener("fetch", (event) => {
           });
           return networkResponse;
         })
-        .catch(() => caches.match("/") )
+        .catch(() => caches.match("/"))
     );
     return;
   }
 
-  // Para archivos estáticos: cache first
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {

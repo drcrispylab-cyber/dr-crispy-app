@@ -1,38 +1,41 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
+import App from "./App";
 import "./index.css";
-import AppLoader from "./components/AppLoader.jsx";
-
-function RootApp() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2200);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return loading ? <AppLoader /> : <App />;
-}
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RootApp />
+    <App />
   </React.StrictMode>
 );
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        console.log("✅ Service Worker registrado:", registration.scope);
-      })
-      .catch((error) => {
-        console.log("❌ Error registrando Service Worker:", error);
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.register("/sw.js");
+      console.log("Service Worker registrado:", registration.scope);
+
+      registration.addEventListener("updatefound", () => {
+        const newWorker = registration.installing;
+
+        if (!newWorker) return;
+
+        newWorker.addEventListener("statechange", () => {
+          if (
+            newWorker.state === "installed" &&
+            navigator.serviceWorker.controller
+          ) {
+            console.log("Nueva versión disponible, recargando...");
+            window.location.reload();
+          }
+        });
       });
+
+      setInterval(() => {
+        registration.update();
+      }, 60000);
+    } catch (error) {
+      console.error("Error registrando Service Worker:", error);
+    }
   });
 }
