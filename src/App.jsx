@@ -137,12 +137,12 @@ function App() {
   const [repartidorUser, setRepartidorUser] = useState(null);
 
   const [loginAdmin, setLoginAdmin] = useState({
-    username: "",
-    password: "",
+    username: "Maria",
+    password: "244853",
   });
 
   const [loginRepartidor, setLoginRepartidor] = useState({
-    username: "",
+    username: "Repartidor",
     password: "",
   });
 
