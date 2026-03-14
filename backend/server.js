@@ -33,20 +33,27 @@ const PEDIDOS_FILE = path.join(DATA_DIR, "pedidos.json");
 const usuarios = [
   {
     id: 1,
-    username: "admin",
-    password: "1234",
-    nombre: "Administrador",
+    username: "maria",
+    password: "244853",
+    nombre: "Maria Isabel Mercado Rangel",
     role: "admin",
   },
   {
     id: 2,
+    username: "maldo",
+    password: "244853",
+    nombre: "Luis Ferney Maldonado Bolaños",
+    role: "admin",
+  },
+  {
+    id: 3,
     username: "dom1",
     password: "1234",
     nombre: "Domiciliario 1",
     role: "repartidor",
   },
   {
-    id: 3,
+    id: 4,
     username: "dom2",
     password: "1234",
     nombre: "Domiciliario 2",
@@ -173,6 +180,8 @@ app.post("/login", (req, res) => {
   try {
     const { username, password } = req.body;
 
+    console.log("LOGIN BODY:", req.body);
+
     if (!username || !password) {
       return res.status(400).json({
         error: "Usuario y contraseña son obligatorios",
@@ -180,7 +189,9 @@ app.post("/login", (req, res) => {
     }
 
     const user = usuarios.find(
-      (u) => u.username === username && u.password === password
+      (u) =>
+        String(u.username).trim().toLowerCase() === String(username).trim().toLowerCase() &&
+        String(u.password) === String(password)
     );
 
     if (!user) {
@@ -199,6 +210,7 @@ app.post("/login", (req, res) => {
       },
     });
   } catch (error) {
+    console.error("❌ Error en login:", error.message);
     return res.status(500).json({
       error: "Error interno en login",
     });
