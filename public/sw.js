@@ -1,4 +1,4 @@
-const CACHE_NAME = "dr-crispy-lab-v1";
+const CACHE_NAME = "dr-crispy-lab-v2";
 const urlsToCache = [
   "/",
   "/manifest.json",
