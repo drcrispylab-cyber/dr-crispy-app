@@ -116,6 +116,7 @@ const FILTROS_ESTADO = ["Todos", ...ESTADOS];
 
 function App() {
   const [vista, setVista] = useState("cliente");
+  const [rutaPrivada, setRutaPrivada] = useState("");
   const [ancho, setAncho] = useState(window.innerWidth);
 
   const [carrito, setCarrito] = useState([]);
@@ -137,8 +138,8 @@ function App() {
   const [repartidorUser, setRepartidorUser] = useState(null);
 
   const [loginAdmin, setLoginAdmin] = useState({
-    username: "Maria",
-    password: "244853",
+    username: "",
+    password: "",
   });
 
   const [loginRepartidor, setLoginRepartidor] = useState({
@@ -174,6 +175,8 @@ function App() {
   const pedidosInicialesCargadosRef = useRef(false);
 
   const esMovil = ancho < 900;
+  const puedeVerAdmin = rutaPrivada === "admin";
+  const puedeVerRepartidor = rutaPrivada === "repartidor";
 
   useEffect(() => {
     function handleResize() {
@@ -725,15 +728,15 @@ function App() {
   }
 
   useEffect(() => {
-    socket.on("connect", () => {
+    function manejarConnect() {
       setSocketConectado(true);
-    });
+    }
 
-    socket.on("disconnect", () => {
+    function manejarDisconnect() {
       setSocketConectado(false);
-    });
+    }
 
-    socket.on("pedidos:actualizados", (todosLosPedidos) => {
+    function manejarPedidosActualizados(todosLosPedidos) {
       const ordenados = Array.isArray(todosLosPedidos)
         ? [...todosLosPedidos].reverse()
         : [];
@@ -773,12 +776,16 @@ function App() {
       }
 
       pedidosInicialesCargadosRef.current = true;
-    });
+    }
+
+    socket.on("connect", manejarConnect);
+    socket.on("disconnect", manejarDisconnect);
+    socket.on("pedidos:actualizados", manejarPedidosActualizados);
 
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("pedidos:actualizados");
+      socket.off("connect", manejarConnect);
+      socket.off("disconnect", manejarDisconnect);
+      socket.off("pedidos:actualizados", manejarPedidosActualizados);
     };
   }, [
     adminLogueado,
@@ -793,6 +800,52 @@ function App() {
       cargarPedidosAdmin();
     }
   }, [adminLogueado]);
+
+  useEffect(() => {
+    setAdminLogueado(false);
+    setRepartidorLogueado(false);
+    setAdminUser(null);
+    setRepartidorUser(null);
+    setVista("cliente");
+  }, []);
+
+  useEffect(() => {
+    const aplicarVistaSegunHash = () => {
+      const hash = window.location.hash.toLowerCase();
+
+      if (hash === "#admin") {
+        setRutaPrivada("admin");
+        setVista("admin");
+        return;
+      }
+
+      if (hash === "#repartidor") {
+        setRutaPrivada("repartidor");
+        setVista("repartidor");
+        return;
+      }
+
+      setRutaPrivada("");
+      setVista("cliente");
+    };
+
+    aplicarVistaSegunHash();
+    window.addEventListener("hashchange", aplicarVistaSegunHash);
+
+    return () => {
+      window.removeEventListener("hashchange", aplicarVistaSegunHash);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!puedeVerAdmin && vista === "admin") {
+      setVista("cliente");
+    }
+
+    if (!puedeVerRepartidor && vista === "repartidor") {
+      setVista("cliente");
+    }
+  }, [vista, puedeVerAdmin, puedeVerRepartidor]);
 
   function renderFormulaCard(producto) {
     return (
@@ -824,7 +877,9 @@ function App() {
         <div style={styles.simpleEmoji}>{producto.emoji}</div>
         <h3 style={styles.simpleTitle}>{producto.nombre}</h3>
         <p style={styles.simpleDesc}>{producto.descripcion}</p>
-        <div style={styles.simplePrice}>${producto.precio.toLocaleString("es-CO")}</div>
+        <div style={styles.simplePrice}>
+          ${producto.precio.toLocaleString("es-CO")}
+        </div>
         <button style={styles.addBtnPro} onClick={() => agregarProducto(producto)}>
           Agregar al experimento
         </button>
@@ -838,7 +893,10 @@ function App() {
       <div style={styles.overlay}></div>
 
       {formulaSeleccionada && (
-        <div style={styles.modalBackdrop} onClick={() => setFormulaSeleccionada(null)}>
+        <div
+          style={styles.modalBackdrop}
+          onClick={() => setFormulaSeleccionada(null)}
+        >
           <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalTop}>
               <div>
@@ -860,7 +918,9 @@ function App() {
             <div
               style={{
                 ...styles.sauceVisualGrid,
-                gridTemplateColumns: esMovil ? "1fr" : "repeat(3, minmax(0, 1fr))",
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(3, minmax(0, 1fr))",
               }}
             >
               {SALSAS.map((salsa) => (
@@ -905,7 +965,9 @@ function App() {
             <div
               style={{
                 ...styles.sauceVisualGrid,
-                gridTemplateColumns: esMovil ? "1fr" : "repeat(3, minmax(0, 1fr))",
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(3, minmax(0, 1fr))",
               }}
             >
               {["Bajo", "Medio", "Alto"].map((nivel) => (
@@ -948,18 +1010,29 @@ function App() {
             <div style={styles.badge}>🧪 DR. CRISPY LAB ACTIVO</div>
             <h1 style={styles.title}>Dr. Crispy Lab</h1>
             <p style={styles.subtitle}>Sistema real conectado con backend</p>
-            <p style={{ marginTop: 8, color: socketConectado ? "#9ef0b8" : "#ffc1c1" }}>
-              {socketConectado ? "🟢 Tiempo real conectado" : "🔴 Tiempo real desconectado"}
+            <p
+              style={{
+                marginTop: 8,
+                color: socketConectado ? "#9ef0b8" : "#ffc1c1",
+              }}
+            >
+              {socketConectado
+                ? "🟢 Tiempo real conectado"
+                : "🔴 Tiempo real desconectado"}
             </p>
           </div>
 
           <div style={styles.navButtons}>
             <button
-              style={{ ...styles.navBtn, ...(vista === "cliente" ? styles.navBtnActive : {}) }}
+              style={{
+                ...styles.navBtn,
+                ...(vista === "cliente" ? styles.navBtnActive : {}),
+              }}
               onClick={() => setVista("cliente")}
             >
               Cliente
             </button>
+
             <button
               style={{
                 ...styles.navBtn,
@@ -968,21 +1041,6 @@ function App() {
               onClick={() => setVista("seguimiento")}
             >
               Seguimiento
-            </button>
-            <button
-              style={{ ...styles.navBtn, ...(vista === "admin" ? styles.navBtnActive : {}) }}
-              onClick={() => setVista("admin")}
-            >
-              Admin
-            </button>
-            <button
-              style={{
-                ...styles.navBtn,
-                ...(vista === "repartidor" ? styles.navBtnActive : {}),
-              }}
-              onClick={() => setVista("repartidor")}
-            >
-              Repartidor
             </button>
           </div>
         </header>
@@ -1062,10 +1120,12 @@ function App() {
 
                         <div style={styles.posterInfoList}>
                           <div style={styles.posterInfoItem}>
-                            <strong>BBQ REACTOR</strong> <span>(SALSA BBQ AHUMADA)</span>
+                            <strong>BBQ REACTOR</strong>{" "}
+                            <span>(SALSA BBQ AHUMADA)</span>
                           </div>
                           <div style={styles.posterInfoItem}>
-                            <strong>HONEY MUTANTE</strong> <span>(MIEL MOSTAZA)</span>
+                            <strong>HONEY MUTANTE</strong>{" "}
+                            <span>(MIEL MOSTAZA)</span>
                           </div>
                           <div style={styles.posterInfoItem}>
                             <strong>FUEGO ATÓMICO</strong>{" "}
@@ -1134,7 +1194,9 @@ function App() {
                     <div
                       style={{
                         ...styles.posterFormulaGrid,
-                        gridTemplateColumns: esMovil ? "1fr" : "repeat(2, minmax(0, 1fr))",
+                        gridTemplateColumns: esMovil
+                          ? "1fr"
+                          : "repeat(2, minmax(0, 1fr))",
                       }}
                     >
                       {FORMULAS.map(renderFormulaCard)}
@@ -1147,7 +1209,9 @@ function App() {
                     <div
                       style={{
                         ...styles.simpleGrid,
-                        gridTemplateColumns: esMovil ? "1fr" : "repeat(2, minmax(0, 1fr))",
+                        gridTemplateColumns: esMovil
+                          ? "1fr"
+                          : "repeat(2, minmax(0, 1fr))",
                       }}
                     >
                       {BEBIDAS.map(renderSimpleCard)}
@@ -1160,7 +1224,9 @@ function App() {
                     <div
                       style={{
                         ...styles.simpleGrid,
-                        gridTemplateColumns: esMovil ? "1fr" : "repeat(2, minmax(0, 1fr))",
+                        gridTemplateColumns: esMovil
+                          ? "1fr"
+                          : "repeat(2, minmax(0, 1fr))",
                       }}
                     >
                       {ADICIONALES.map(renderSimpleCard)}
@@ -1179,17 +1245,23 @@ function App() {
                   <Input
                     label="Teléfono"
                     value={cliente.telefono}
-                    onChange={(e) => actualizarCliente("telefono", e.target.value)}
+                    onChange={(e) =>
+                      actualizarCliente("telefono", e.target.value)
+                    }
                   />
                   <Input
                     label="Dirección"
                     value={cliente.direccion}
-                    onChange={(e) => actualizarCliente("direccion", e.target.value)}
+                    onChange={(e) =>
+                      actualizarCliente("direccion", e.target.value)
+                    }
                   />
                   <Input
                     label="Referencia"
                     value={cliente.referencia}
-                    onChange={(e) => actualizarCliente("referencia", e.target.value)}
+                    onChange={(e) =>
+                      actualizarCliente("referencia", e.target.value)
+                    }
                   />
 
                   <div style={{ marginBottom: 14 }}>
@@ -1207,7 +1279,9 @@ function App() {
                   <div style={styles.paymentInfoBox}>
                     <div style={styles.paymentInfoTitle}>💳 Datos de pago</div>
                     <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-                    <div style={styles.paymentInfoText}>Llave Breve: 3152487938</div>
+                    <div style={styles.paymentInfoText}>
+                      Llave Breve: 3152487938
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1231,10 +1305,13 @@ function App() {
                         <div>
                           <strong>{item.nombre}</strong>
                           {item.salsa && (
-                            <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
+                            <div style={styles.cartSub}>
+                              Fórmula: {item.salsa}
+                            </div>
                           )}
                           <div style={styles.cartSub}>
-                            ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                            ${item.precio.toLocaleString("es-CO")} x{" "}
+                            {item.cantidad}
                           </div>
                         </div>
 
@@ -1324,7 +1401,8 @@ function App() {
               <div>
                 <h2 style={styles.panelTitle}>📦 Mi seguimiento</h2>
                 <p style={{ color: "#cfcfcf", margin: 0 }}>
-                  Aquí solo puedes ver el seguimiento del pedido creado en este dispositivo
+                  Aquí solo puedes ver el seguimiento del pedido creado en este
+                  dispositivo
                 </p>
               </div>
             </div>
@@ -1438,11 +1516,13 @@ function App() {
           </section>
         )}
 
-        {vista === "admin" && !adminLogueado && (
+        {puedeVerAdmin && vista === "admin" && !adminLogueado && (
           <section style={styles.loginWrap}>
             <div style={styles.loginCard}>
               <h2 style={styles.panelTitle}>🔐 Acceso Admin</h2>
-              <p style={styles.loginText}>Ingresa tus credenciales reales del backend.</p>
+              <p style={styles.loginText}>
+                Ingresa tus credenciales reales del backend.
+              </p>
 
               <Input
                 label="Usuario"
@@ -1478,7 +1558,7 @@ function App() {
           </section>
         )}
 
-        {vista === "admin" && adminLogueado && (
+        {puedeVerAdmin && vista === "admin" && adminLogueado && (
           <section style={styles.panel}>
             <div style={styles.adminTop}>
               <div>
@@ -1514,6 +1594,9 @@ function App() {
                     setBusquedaAdmin("");
                     setModoCocina(false);
                     pedidosInicialesCargadosRef.current = false;
+                    window.location.hash = "";
+                    setRutaPrivada("");
+                    setVista("cliente");
                   }}
                 >
                   Cerrar sesión
@@ -1666,7 +1749,9 @@ function App() {
                   </div>
 
                   <div style={styles.filterItem}>
-                    <label style={styles.label}>Buscar por ID, nombre o teléfono</label>
+                    <label style={styles.label}>
+                      Buscar por ID, nombre o teléfono
+                    </label>
                     <input
                       style={styles.input}
                       value={busquedaAdmin}
@@ -1704,13 +1789,15 @@ function App() {
                         <strong>Dirección:</strong> {pedido.cliente.direccion}
                       </p>
                       <p>
-                        <strong>Referencia:</strong> {pedido.cliente.referencia || "N/A"}
+                        <strong>Referencia:</strong>{" "}
+                        {pedido.cliente.referencia || "N/A"}
                       </p>
                       <p>
                         <strong>Pago:</strong> {pedido.cliente.pago}
                       </p>
                       <p>
-                        <strong>Repartidor:</strong> {pedido.repartidor || "Sin asignar"}
+                        <strong>Repartidor:</strong>{" "}
+                        {pedido.repartidor || "Sin asignar"}
                       </p>
 
                       <div style={{ marginTop: 12 }}>
@@ -1764,7 +1851,14 @@ function App() {
                         </div>
                       </div>
 
-                      <div style={{ marginTop: 12, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                      <div
+                        style={{
+                          marginTop: 12,
+                          display: "flex",
+                          gap: 10,
+                          flexWrap: "wrap",
+                        }}
+                      >
                         <button
                           style={styles.printBtn}
                           onClick={() => imprimirTicketPedido(pedido)}
@@ -1795,11 +1889,13 @@ function App() {
           </section>
         )}
 
-        {vista === "repartidor" && !repartidorLogueado && (
+        {puedeVerRepartidor && vista === "repartidor" && !repartidorLogueado && (
           <section style={styles.loginWrap}>
             <div style={styles.loginCard}>
               <h2 style={styles.panelTitle}>🚚 Acceso Repartidor</h2>
-              <p style={styles.loginText}>Ingresa tus credenciales reales del backend.</p>
+              <p style={styles.loginText}>
+                Ingresa tus credenciales reales del backend.
+              </p>
 
               <Input
                 label="Usuario"
@@ -1841,7 +1937,7 @@ function App() {
           </section>
         )}
 
-        {vista === "repartidor" && repartidorLogueado && (
+        {puedeVerRepartidor && vista === "repartidor" && repartidorLogueado && (
           <section style={styles.panel}>
             <div style={styles.adminTop}>
               <div>
@@ -1865,6 +1961,7 @@ function App() {
                 >
                   Recargar
                 </button>
+
                 <button
                   style={styles.logoutBtn}
                   onClick={() => {
@@ -1872,6 +1969,9 @@ function App() {
                     setRepartidorUser(null);
                     setLoginRepartidor({ username: "", password: "" });
                     setPedidosRepartidor([]);
+                    window.location.hash = "";
+                    setRutaPrivada("");
+                    setVista("cliente");
                   }}
                 >
                   Cerrar sesión
@@ -1907,13 +2007,15 @@ function App() {
                     <strong>Dirección:</strong> {pedido.cliente.direccion}
                   </p>
                   <p>
-                    <strong>Referencia:</strong> {pedido.cliente.referencia || "N/A"}
+                    <strong>Referencia:</strong>{" "}
+                    {pedido.cliente.referencia || "N/A"}
                   </p>
                   <p>
                     <strong>Pago:</strong> {pedido.cliente.pago}
                   </p>
                   <p>
-                    <strong>Asignado a:</strong> {pedido.repartidor || "Sin asignar"}
+                    <strong>Asignado a:</strong>{" "}
+                    {pedido.repartidor || "Sin asignar"}
                   </p>
 
                   <button
@@ -2643,7 +2745,8 @@ const styles = {
     gap: 18,
   },
   simpleMenuCard: {
-    background: "linear-gradient(180deg, rgba(25,25,25,0.96), rgba(10,10,10,0.98))",
+    background:
+      "linear-gradient(180deg, rgba(25,25,25,0.96), rgba(10,10,10,0.98))",
     border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 20,
     padding: 18,
@@ -2808,7 +2911,7 @@ const styles = {
     flexWrap: "wrap",
     marginTop: 14,
   },
-   cocinaBtn: {
+  cocinaBtn: {
     background: "#1d1d1d",
     color: "#fff",
     border: "1px solid #333",
