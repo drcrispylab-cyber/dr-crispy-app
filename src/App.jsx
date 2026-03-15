@@ -977,8 +977,13 @@ function App() {
             <div style={styles.heroLogoWrap}>
               <img
                 src={drCrispyIcon}
-                alt="Dr. Crispy icono"
-                style={styles.heroLogoImage}
+                alt="Dr. Crispy Lab"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "50%"
+                }}
               />
             </div>
 
@@ -2451,8 +2456,8 @@ const styles = {
     borderRadius: "50%",
     overflow: "hidden",
     border: "2px solid #ff1a1a",
-    boxShadow: "0 10px 22px rgba(255,0,0,0.16)",
-    background: "#ff0000",
+    boxShadow: "0 0 18px rgba(255,0,0,0.45)",
+    background: "#000",
   },
   heroFullImage: {
   width: "100%",
