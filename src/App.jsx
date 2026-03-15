@@ -150,6 +150,7 @@ function App() {
   const [rutaPrivada, setRutaPrivada] = useState("");
   const [ancho, setAncho] = useState(window.innerWidth);
   const [seccionCliente, setSeccionCliente] = useState("inicio");
+  const [cardHover, setCardHover] = useState("");
 
   const [carrito, setCarrito] = useState([]);
   const [cliente, setCliente] = useState({
@@ -1040,7 +1041,16 @@ function renderCatalogoExperimentos() {
         }}
       >
         {EXPERIMENTOS.map((experimento) => (
-          <div key={experimento.id} style={styles.experimentCard}>
+          <div
+              key={experimento.id}
+              style={{
+                ...styles.experimentCard,
+                ...(experimento.id === "exp1" ? styles.experimentCardActive : {}),
+                ...(cardHover === experimento.id ? styles.experimentCardHover : {}),
+              }}
+              onMouseEnter={() => setCardHover(experimento.id)}
+              onMouseLeave={() => setCardHover("")}
+            >
             <div
               style={{
                 ...styles.experimentImage,
@@ -2747,7 +2757,16 @@ posterSauceDot3: {
     borderRadius: 20,
     overflow: "hidden",
     boxShadow: "0 14px 30px rgba(255,0,0,0.06)",
-    transition: "transform 0.18s ease, box-shadow 0.18s ease",
+    transition: "transform 0.25s ease, box-shadow 0.25s ease, border 0.25s ease",
+  },
+  experimentCardActive: {
+    border: "1px solid rgba(255,0,0,0.22)",
+    boxShadow: "0 18px 36px rgba(255,0,0,0.12)",
+  },
+  experimentCardHover: {
+    transform: "translateY(-6px)",
+    boxShadow: "0 22px 42px rgba(255,0,0,0.18)",
+    border: "1px solid rgba(255,0,0,0.28)",
   },
   experimentImage: {
     height: 190,
@@ -2759,6 +2778,7 @@ posterSauceDot3: {
     justifyContent: "flex-end",
     padding: 14,
     overflow: "hidden",
+    transition: "transform 0.35s ease, filter 0.35s ease",
   },
   experimentBadge: {
     padding: "8px 12px",
@@ -2768,13 +2788,15 @@ posterSauceDot3: {
     letterSpacing: 1,
   },
   experimentBadgeActive: {
-    background: "#ff0000",
+    background: "linear-gradient(135deg, #ff0000, #b30000)",
     color: "#fff",
+    boxShadow: "0 8px 18px rgba(255,0,0,0.22)",
   },
   experimentBadgeSoon: {
-    background: "rgba(255,196,0,0.18)",
+    background: "rgba(255,196,0,0.16)",
     color: "#ffd76b",
-    border: "1px solid rgba(255,196,0,0.30)",
+    border: "1px solid rgba(255,196,0,0.28)",
+    boxShadow: "0 6px 14px rgba(255,196,0,0.08)",
   },
   experimentBody: {
     padding: 20,
@@ -2811,6 +2833,8 @@ posterSauceDot3: {
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
+    boxShadow: "0 10px 20px rgba(255,0,0,0.18)",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
   },
   experimentGhostBtn: {
     width: "100%",
