@@ -1046,9 +1046,9 @@ function renderCatalogoExperimentos() {
                 ...styles.experimentImage,
                 backgroundImage:
                   experimento.id === "exp1"
-                    ? `linear-gradient(rgba(0,0,0,0.62), rgba(0,0,0,0.82)), url(${experimento.imagen})`
+                    ? `linear-gradient(rgba(0,0,0,0.48), rgba(0,0,0,0.72)), url(${experimento.imagen})`
                     : `linear-gradient(rgba(0,0,0,0.40), rgba(0,0,0,0.65)), url(${experimento.imagen})`,
-              }}
+                              }}
             >
               {experimento.id === "exp1" && (
                 <>
@@ -1137,7 +1137,7 @@ function renderCatalogoExperimentos() {
             <div
               style={{
                 ...styles.posterHero,
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${heroImage})`,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${alitasBg})`,
               }}
             >
               <div style={styles.posterOverlayContent}>
@@ -2780,7 +2780,7 @@ const styles = {
     position: "absolute",
     inset: 0,
     background:
-      "radial-gradient(circle at 70% 35%, rgba(255,0,0,0.30), transparent 30%), radial-gradient(circle at 28% 72%, rgba(255,80,0,0.18), transparent 24%)",
+      "radial-gradient(circle at 70% 35%, rgba(255,0,0,0.22), transparent 28%), radial-gradient(circle at 28% 72%, rgba(255,80,0,0.12), transparent 22%)",
     mixBlendMode: "screen",
     pointerEvents: "none",
   },
@@ -2789,30 +2789,30 @@ const styles = {
     position: "absolute",
     width: 180,
     height: 180,
-    right: -30,
-    bottom: -20,
+    right: -24,
+    bottom: -14,
     backgroundImage: `url(${alitasBg})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
-    opacity: 0.16,
-    filter: "blur(10px)",
-    transform: "rotate(-12deg) scale(1.08)",
+    opacity: 0.24,
+    filter: "blur(7px)",
+    transform: "rotate(-10deg) scale(1.06)",
     animation: "wingDrift 5.5s ease-in-out infinite",
     pointerEvents: "none",
   },
 
   exp1BlurWing2: {
     position: "absolute",
-    width: 160,
-    height: 160,
-    left: -28,
-    top: -18,
+    width: 150,
+    height: 150,
+    left: -22,
+    top: -10,
     backgroundImage: `url(${alitasBg})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
-    opacity: 0.14,
-    filter: "blur(12px)",
-    transform: "rotate(14deg) scale(1.05)",
+    opacity: 0.18,
+    filter: "blur(8px)",
+    transform: "rotate(12deg) scale(1.03)",
     animation: "wingDrift2 6s ease-in-out infinite",
     pointerEvents: "none",
   },
