@@ -4,6 +4,7 @@ import alertaSound from "./assets/alerta.mp3";
 import heroImage from "./assets/hero.png";
 import drCrispyFull from "./assets/drcrispy.png";
 import drCrispyIcon from "./assets/icono.jpg";
+import alitasBg from "./assets/alitas-bg.png";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const WHATSAPP_NUMBER = "573152487938";
@@ -118,7 +119,7 @@ const EXPERIMENTOS = [
     subtitulo: "Alitas Crispy",
     descripcion: "Fuego Atómico, Honey Mutante y BBQ Reactor",
     estado: "activo",
-    imagen: heroImage,
+    imagen: alitasBg,
     badge: "ACTIVO",
   },
   {
@@ -1020,70 +1021,89 @@ function App() {
   );
 }
 
-  function renderCatalogoExperimentos() {
-    return (
-      <section style={styles.panel}>
-        <div style={styles.catalogHeader}>
-          <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
-          <h2 style={styles.catalogTitle}>ELIGE TU EXPERIMENTO</h2>
-          <p style={styles.catalogText}>
-            El Experimento 1 ya está activo. Los siguientes se están preparando
-            en el laboratorio.
-          </p>
-        </div>
+function renderCatalogoExperimentos() {
+  return (
+    <section style={styles.panel}>
+      <div style={styles.catalogHeader}>
+        <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
+        <h2 style={styles.catalogTitle}>ELIGE TU EXPERIMENTO</h2>
+        <p style={styles.catalogText}>
+          El Experimento 1 ya está activo. Los siguientes se están preparando
+          en el laboratorio.
+        </p>
+      </div>
 
-        <div
-          style={{
-            ...styles.experimentosGrid,
-            gridTemplateColumns: esMovil ? "1fr" : "repeat(3, minmax(0, 1fr))",
-          }}
-        >
-          {EXPERIMENTOS.map((experimento) => (
-            <div key={experimento.id} style={styles.experimentCard}>
+      <div
+        style={{
+          ...styles.experimentosGrid,
+          gridTemplateColumns: esMovil ? "1fr" : "repeat(3, minmax(0, 1fr))",
+        }}
+      >
+        {EXPERIMENTOS.map((experimento) => (
+          <div key={experimento.id} style={styles.experimentCard}>
+            <div
+              style={{
+                ...styles.experimentImage,
+                backgroundImage:
+                  experimento.id === "exp1"
+                    ? `linear-gradient(rgba(0,0,0,0.62), rgba(0,0,0,0.82)), url(${experimento.imagen})`
+                    : `linear-gradient(rgba(0,0,0,0.40), rgba(0,0,0,0.65)), url(${experimento.imagen})`,
+              }}
+            >
+              {experimento.id === "exp1" && (
+                <>
+                  <div style={styles.exp1Glow}></div>
+                  <div style={styles.exp1BlurWing}></div>
+                  <div style={styles.exp1BlurWing2}></div>
+
+                  <span style={{ ...styles.salsaDot, ...styles.salsaDot1 }}></span>
+                  <span style={{ ...styles.salsaDot, ...styles.salsaDot2 }}></span>
+                  <span style={{ ...styles.salsaDot, ...styles.salsaDot3 }}></span>
+                  <span style={{ ...styles.salsaDot, ...styles.salsaDot4 }}></span>
+                </>
+              )}
+
               <div
                 style={{
-                  ...styles.experimentImage,
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.40), rgba(0,0,0,0.65)), url(${experimento.imagen})`,
+                  ...styles.experimentBadge,
+                  ...(experimento.estado === "activo"
+                    ? styles.experimentBadgeActive
+                    : styles.experimentBadgeSoon),
                 }}
               >
-                <div
-                  style={{
-                    ...styles.experimentBadge,
-                    ...(experimento.estado === "activo"
-                      ? styles.experimentBadgeActive
-                      : styles.experimentBadgeSoon),
-                  }}
-                >
-                  {experimento.badge}
-                </div>
-              </div>
-
-              <div style={styles.experimentBody}>
-                <h3 style={styles.experimentTitle}>{experimento.titulo}</h3>
-                <div style={styles.experimentSubtitle}>{experimento.subtitulo}</div>
-                <p style={styles.experimentDescription}>
-                  {experimento.descripcion}
-                </p>
-
-                {experimento.estado === "activo" ? (
-                  <button style={styles.experimentBtn} onClick={entrarExperimento1}>
-                    Entrar al experimento
-                  </button>
-                ) : (
-                  <button
-                    style={styles.experimentGhostBtn}
-                    onClick={() => notificarProximamente(experimento)}
-                  >
-                    Notificarme por WhatsApp
-                  </button>
-                )}
+                {experimento.badge}
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-    );
-  }
+
+            <div style={styles.experimentBody}>
+              <h3 style={styles.experimentTitle}>{experimento.titulo}</h3>
+              <div style={styles.experimentSubtitle}>{experimento.subtitulo}</div>
+              <p style={styles.experimentDescription}>
+                {experimento.descripcion}
+              </p>
+
+              {experimento.estado === "activo" ? (
+                <button
+                  style={styles.experimentBtn}
+                  onClick={entrarExperimento1}
+                >
+                  Entrar al experimento
+                </button>
+              ) : (
+                <button
+                  style={styles.experimentGhostBtn}
+                  onClick={() => notificarProximamente(experimento)}
+                >
+                  Notificarme por WhatsApp
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
   function renderExperimento1() {
     return (
@@ -2691,6 +2711,7 @@ const styles = {
     alignItems: "flex-start",
     justifyContent: "flex-end",
     padding: 14,
+    overflow: "hidden",
   },
   experimentBadge: {
     padding: "8px 12px",
@@ -2754,6 +2775,87 @@ const styles = {
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
+  },
+  exp1Glow: {
+    position: "absolute",
+    inset: 0,
+    background:
+      "radial-gradient(circle at 70% 35%, rgba(255,0,0,0.30), transparent 30%), radial-gradient(circle at 28% 72%, rgba(255,80,0,0.18), transparent 24%)",
+    mixBlendMode: "screen",
+    pointerEvents: "none",
+  },
+
+  exp1BlurWing: {
+    position: "absolute",
+    width: 180,
+    height: 180,
+    right: -30,
+    bottom: -20,
+    backgroundImage: `url(${alitasBg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    opacity: 0.16,
+    filter: "blur(10px)",
+    transform: "rotate(-12deg) scale(1.08)",
+    animation: "wingDrift 5.5s ease-in-out infinite",
+    pointerEvents: "none",
+  },
+
+  exp1BlurWing2: {
+    position: "absolute",
+    width: 160,
+    height: 160,
+    left: -28,
+    top: -18,
+    backgroundImage: `url(${alitasBg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    opacity: 0.14,
+    filter: "blur(12px)",
+    transform: "rotate(14deg) scale(1.05)",
+    animation: "wingDrift2 6s ease-in-out infinite",
+    pointerEvents: "none",
+  },
+
+  salsaDot: {
+    position: "absolute",
+    display: "block",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, #ff5a1f 0%, #ff0000 60%, #a80000 100%)",
+    boxShadow: "0 0 10px rgba(255,0,0,0.32)",
+    pointerEvents: "none",
+  },
+
+  salsaDot1: {
+    width: 10,
+    height: 10,
+    left: 18,
+    top: 18,
+    animation: "salsaFloat1 3s ease-in-out infinite",
+  },
+
+  salsaDot2: {
+    width: 7,
+    height: 7,
+    left: 42,
+    bottom: 28,
+    animation: "salsaFloat2 2.7s ease-in-out infinite",
+  },
+
+  salsaDot3: {
+    width: 12,
+    height: 12,
+    right: 52,
+    top: 42,
+    animation: "salsaFloat1 3.2s ease-in-out infinite",
+  },
+
+  salsaDot4: {
+    width: 8,
+    height: 8,
+    right: 26,
+    bottom: 18,
+    animation: "salsaFloat2 2.9s ease-in-out infinite",
   },
   label: {
     display: "block",
@@ -3096,8 +3198,13 @@ const styles = {
   },
   posterHero: {
     minHeight: 340,
+    backgroundImage: `
+      linear-gradient(rgba(0,0,0,0.88), rgba(0,0,0,0.95)),
+      url(${alitasBg})
+    `,
     backgroundSize: "cover",
     backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
     position: "relative",
     display: "flex",
     alignItems: "center",
