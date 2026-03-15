@@ -979,10 +979,10 @@ function App() {
                 src={drCrispyIcon}
                 alt="Dr. Crispy Lab"
                 style={{
-                  width: "100%",
-                  height: "100%",
+                  width: "120%",
+                  height: "120%",
                   objectFit: "cover",
-                  borderRadius: "50%"
+                  transform: "scale(1.1)",
                 }}
               />
             </div>
@@ -2451,21 +2451,24 @@ const styles = {
     boxShadow: "0 18px 36px rgba(0,0,0,0.28)",
   },
   heroLogoWrap: {
-    width: 88,
-    height: 88,
+    width: 96,
+    height: 96,
     borderRadius: "50%",
     overflow: "hidden",
-    border: "2px solid #ff1a1a",
+    border: "3px solid #ff1a1a",
     boxShadow: "0 0 18px rgba(255,0,0,0.45)",
-    background: "#000",
+    background: "#ff0000",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   heroFullImage: {
-  width: "100%",
-  maxWidth: 300,
-  height: "auto",
-  objectFit: "contain",
-  display: "block",
-  filter: "drop-shadow(0 12px 26px rgba(255,0,0,0.12))",
+    width: "100%",
+    maxWidth: 300,
+    height: "auto",
+    objectFit: "contain",
+    display: "block",
+    filter: "drop-shadow(0 12px 26px rgba(255,0,0,0.12))",
   },
   heroVisualTag: {
     display: "inline-block",
