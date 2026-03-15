@@ -111,6 +111,36 @@ const SALSAS = [
   },
 ];
 
+const EXPERIMENTOS = [
+  {
+    id: "exp1",
+    titulo: "Experimento 1",
+    subtitulo: "Alitas Crispy",
+    descripcion: "Fuego Atómico, Honey Mutante y BBQ Reactor",
+    estado: "activo",
+    imagen: heroImage,
+    badge: "ACTIVO",
+  },
+  {
+    id: "exp2",
+    titulo: "Experimento 2",
+    subtitulo: "Nueva fórmula en desarrollo",
+    descripcion: "Próximamente una nueva creación del laboratorio.",
+    estado: "proximamente",
+    imagen: heroImage,
+    badge: "PRÓXIMAMENTE",
+  },
+  {
+    id: "exp3",
+    titulo: "Experimento 3",
+    subtitulo: "Experimento en incubación",
+    descripcion: "Seguimos cocinando una nueva mutación del sabor.",
+    estado: "proximamente",
+    imagen: heroImage,
+    badge: "PRÓXIMAMENTE",
+  },
+];
+
 const ESTADOS = ["Recibido", "En cocina", "En camino", "Entregado"];
 const FILTROS_ESTADO = ["Todos", ...ESTADOS];
 
@@ -118,6 +148,7 @@ function App() {
   const [vista, setVista] = useState("cliente");
   const [rutaPrivada, setRutaPrivada] = useState("");
   const [ancho, setAncho] = useState(window.innerWidth);
+  const [seccionCliente, setSeccionCliente] = useState("inicio");
 
   const [carrito, setCarrito] = useState([]);
   const [cliente, setCliente] = useState({
@@ -226,6 +257,8 @@ function App() {
         ...producto,
         cantidad: 1,
         cartKey: key,
+        experimento: "Experimento 1",
+        categoriaExperimento: "Alitas Crispy",
       },
     ]);
   }
@@ -354,7 +387,7 @@ function App() {
       "*Productos:*",
       ...carrito.map(
         (item) =>
-          `- ${item.nombre} x${item.cantidad}${
+          `- ${item.experimento || "Experimento 1"} | ${item.nombre} x${item.cantidad}${
             item.salsa ? ` | ${item.salsa}` : ""
           } | $${(item.precio * item.cantidad).toLocaleString("es-CO")}`
       ),
@@ -412,7 +445,7 @@ function App() {
             ${pedido.items
               .map(
                 (item) =>
-                  `<li>${item.nombre} x${item.cantidad}${
+                  `<li>${item.experimento || "Experimento 1"} | ${item.nombre} x${item.cantidad}${
                     item.salsa ? ` - ${item.salsa}` : ""
                   } - $${(item.precio * item.cantidad).toLocaleString("es-CO")}</li>`
               )
@@ -847,6 +880,23 @@ function App() {
     }
   }, [vista, puedeVerAdmin, puedeVerRepartidor]);
 
+  function irASeccionCliente(seccion) {
+    setVista("cliente");
+    setSeccionCliente(seccion);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function entrarExperimento1() {
+    setSeccionCliente("experimento1");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function notificarProximamente(experimento) {
+    const texto = `Hola Dr. Crispy Lab, quiero que me avisen cuando esté disponible ${experimento.titulo} - ${experimento.subtitulo}.`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`;
+    window.open(url, "_blank");
+  }
+
   function renderFormulaCard(producto) {
     return (
       <div key={producto.id} style={styles.posterProductCard}>
@@ -884,6 +934,501 @@ function App() {
           Agregar al experimento
         </button>
       </div>
+    );
+  }
+
+  function renderHeroInicio() {
+    return (
+      <section
+        style={{
+          ...styles.labHero,
+          gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
+        }}
+      >
+        <div style={styles.labHeroContent}>
+          <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
+          <h2 style={styles.labHeroTitle}>
+            Bienvenido al laboratorio del Dr. Crispy
+          </h2>
+          <p style={styles.labHeroText}>
+            Aquí no vendemos solo comida. Creamos experimentos crujientes con
+            salsa, fuego y sabor.
+          </p>
+
+          <div style={styles.heroActionRow}>
+            <button
+              style={styles.heroPrimaryBtn}
+              onClick={() => irASeccionCliente("catalogo")}
+            >
+              Ver experimentos
+            </button>
+
+            <button
+              style={styles.heroSecondaryBtn}
+              onClick={() => setVista("seguimiento")}
+            >
+              Ver mi seguimiento
+            </button>
+          </div>
+        </div>
+
+        <div style={styles.labHeroVisual}>
+          <div style={styles.heroVisualCard}>
+            <div style={styles.heroLogoWrap}>
+              <img
+                src={drCrispyIcon}
+                alt="Dr. Crispy icono"
+                style={styles.heroLogoImage}
+              />
+            </div>
+
+            <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
+
+            <img
+              src={drCrispyFull}
+              alt="Dr. Crispy"
+              style={styles.heroFullImage}
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderCatalogoExperimentos() {
+    return (
+      <section style={styles.panel}>
+        <div style={styles.catalogHeader}>
+          <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
+          <h2 style={styles.catalogTitle}>Elige tu experimento</h2>
+          <p style={styles.catalogText}>
+            El Experimento 1 ya está activo. Los siguientes se están preparando
+            en el laboratorio.
+          </p>
+        </div>
+
+        <div
+          style={{
+            ...styles.experimentosGrid,
+            gridTemplateColumns: esMovil ? "1fr" : "repeat(3, minmax(0, 1fr))",
+          }}
+        >
+          {EXPERIMENTOS.map((experimento) => (
+            <div key={experimento.id} style={styles.experimentCard}>
+              <div
+                style={{
+                  ...styles.experimentImage,
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.40), rgba(0,0,0,0.65)), url(${experimento.imagen})`,
+                }}
+              >
+                <div
+                  style={{
+                    ...styles.experimentBadge,
+                    ...(experimento.estado === "activo"
+                      ? styles.experimentBadgeActive
+                      : styles.experimentBadgeSoon),
+                  }}
+                >
+                  {experimento.badge}
+                </div>
+              </div>
+
+              <div style={styles.experimentBody}>
+                <h3 style={styles.experimentTitle}>{experimento.titulo}</h3>
+                <div style={styles.experimentSubtitle}>{experimento.subtitulo}</div>
+                <p style={styles.experimentDescription}>
+                  {experimento.descripcion}
+                </p>
+
+                {experimento.estado === "activo" ? (
+                  <button style={styles.experimentBtn} onClick={entrarExperimento1}>
+                    Entrar al experimento
+                  </button>
+                ) : (
+                  <button
+                    style={styles.experimentGhostBtn}
+                    onClick={() => notificarProximamente(experimento)}
+                  >
+                    Notificarme por WhatsApp
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  function renderExperimento1() {
+    return (
+      <section
+        style={{
+          ...styles.mainGrid,
+          gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+        }}
+      >
+        <div>
+          <div style={styles.panel}>
+            <div style={styles.experimentoHeaderRow}>
+              <div>
+                <div style={styles.menuInteractiveBadge}>🔥 EXPERIMENTO 1 ACTIVO</div>
+                <h2 style={styles.experimentScreenTitle}>Alitas Crispy</h2>
+                <p style={styles.experimentScreenText}>
+                  Fuego Atómico, Honey Mutante y BBQ Reactor.
+                </p>
+              </div>
+
+              <button
+                style={styles.backCatalogBtn}
+                onClick={() => irASeccionCliente("catalogo")}
+              >
+                ← Volver a experimentos
+              </button>
+            </div>
+          </div>
+
+          <div style={styles.posterMenuWrap}>
+            <div
+              style={{
+                ...styles.posterHero,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${heroImage})`,
+              }}
+            >
+              <div style={styles.posterOverlayContent}>
+                <div style={styles.posterBrand}>DR. CRISPY LAB</div>
+                <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
+                <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                ...styles.posterSections,
+                gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
+              }}
+            >
+              <div style={styles.posterLeftCol}>
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
+
+                  <div style={styles.posterInfoList}>
+                    <div style={styles.posterInfoItem}>
+                      <strong>BBQ REACTOR</strong>{" "}
+                      <span>(SALSA BBQ AHUMADA)</span>
+                    </div>
+                    <div style={styles.posterInfoItem}>
+                      <strong>HONEY MUTANTE</strong>{" "}
+                      <span>(MIEL MOSTAZA)</span>
+                    </div>
+                    <div style={styles.posterInfoItem}>
+                      <strong>FUEGO ATÓMICO</strong>{" "}
+                      <span>(ACEITE PICANTE NASHVILLE)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
+                  <div style={styles.reactionScale}>
+                    <div style={styles.reactionItem}>
+                      Fuego Atómico permite nivel bajo, medio o alto.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={styles.posterRightCol}>
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
+                  <div style={styles.posterPriceList}>
+                    {FORMULAS.map((item) => (
+                      <div key={item.id} style={styles.posterPriceRow}>
+                        <span>{item.nombre.toUpperCase()}</span>
+                        <span>${item.precio.toLocaleString("es-CO")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
+                  <div style={styles.posterPriceList}>
+                    {BEBIDAS.map((item) => (
+                      <div key={item.id} style={styles.posterPriceRow}>
+                        <span>{item.nombre.toUpperCase()}</span>
+                        <span>${item.precio.toLocaleString("es-CO")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
+                  <div style={styles.posterPriceList}>
+                    {ADICIONALES.map((item) => (
+                      <div key={item.id} style={styles.posterPriceRow}>
+                        <span>{item.nombre.toUpperCase()}</span>
+                        <span>${item.precio.toLocaleString("es-CO")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.menuInteractiveSection}>
+              <div style={styles.menuInteractiveHeader}>
+                <div style={styles.menuInteractiveBadge}>🍗 MENÚ INTERACTIVO</div>
+                <h2 style={styles.menuInteractiveTitle}>
+                  Selecciona tu experimento
+                </h2>
+              </div>
+
+              <div
+                style={{
+                  ...styles.posterFormulaGrid,
+                  gridTemplateColumns: esMovil
+                    ? "1fr"
+                    : "repeat(2, minmax(0, 1fr))",
+                }}
+              >
+                {FORMULAS.map(renderFormulaCard)}
+              </div>
+
+              <div style={styles.subSectionTitleWrap}>
+                <h3 style={styles.subSectionTitle}>🥤 Bebidas</h3>
+              </div>
+
+              <div
+                style={{
+                  ...styles.simpleGrid,
+                  gridTemplateColumns: esMovil
+                    ? "1fr"
+                    : "repeat(2, minmax(0, 1fr))",
+                }}
+              >
+                {BEBIDAS.map(renderSimpleCard)}
+              </div>
+
+              <div style={styles.subSectionTitleWrap}>
+                <h3 style={styles.subSectionTitle}>🍟 Adicionales</h3>
+              </div>
+
+              <div
+                style={{
+                  ...styles.simpleGrid,
+                  gridTemplateColumns: esMovil
+                    ? "1fr"
+                    : "repeat(2, minmax(0, 1fr))",
+                }}
+              >
+                {ADICIONALES.map(renderSimpleCard)}
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>📋 Checkout del experimento</h2>
+
+            <Input
+              label="Nombre"
+              value={cliente.nombre}
+              onChange={(e) => actualizarCliente("nombre", e.target.value)}
+            />
+            <Input
+              label="Teléfono"
+              value={cliente.telefono}
+              onChange={(e) => actualizarCliente("telefono", e.target.value)}
+            />
+            <Input
+              label="Dirección"
+              value={cliente.direccion}
+              onChange={(e) => actualizarCliente("direccion", e.target.value)}
+            />
+            <Input
+              label="Referencia"
+              value={cliente.referencia}
+              onChange={(e) => actualizarCliente("referencia", e.target.value)}
+            />
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={styles.label}>Método de pago</label>
+              <select
+                style={styles.input}
+                value={cliente.pago}
+                onChange={(e) => actualizarCliente("pago", e.target.value)}
+              >
+                <option>Nequi</option>
+                <option>Llave Breve</option>
+              </select>
+            </div>
+
+            <div style={styles.paymentInfoBox}>
+              <div style={styles.paymentInfoTitle}>💳 Datos de pago</div>
+              <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+              <div style={styles.paymentInfoText}>Llave Breve: 3152487938</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div
+            style={{
+              ...styles.panelSticky,
+              position: esMovil ? "static" : "sticky",
+            }}
+          >
+            <h2 style={styles.panelTitle}>🛒 Tu pedido</h2>
+
+            {carrito.length === 0 ? (
+              <div style={styles.emptyBox}>
+                No has agregado productos todavía.
+              </div>
+            ) : (
+              carrito.map((item) => (
+                <div key={item.cartKey} style={styles.cartItem}>
+                  <div>
+                    <strong>{item.nombre}</strong>
+                    <div style={styles.cartSub}>
+                      {item.experimento || "Experimento 1"}
+                    </div>
+                    {item.salsa && (
+                      <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
+                    )}
+                    <div style={styles.cartSub}>
+                      ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                    </div>
+                  </div>
+
+                  <div style={styles.qtyBox}>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => cambiarCantidad(item.cartKey, -1)}
+                    >
+                      -
+                    </button>
+                    <span>{item.cantidad}</span>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => cambiarCantidad(item.cartKey, 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+
+            <div style={styles.summaryBox}>
+              <div style={styles.summaryRow}>
+                <span>Subtotal</span>
+                <span>${subtotal.toLocaleString("es-CO")}</span>
+              </div>
+              <div style={styles.summaryRow}>
+                <span>Domicilio</span>
+                <span>${domicilio.toLocaleString("es-CO")}</span>
+              </div>
+              <div style={styles.summaryTotal}>
+                <span>Total</span>
+                <span>${total.toLocaleString("es-CO")}</span>
+              </div>
+            </div>
+
+            <button
+              style={{
+                ...styles.confirmBtn,
+                ...(cargandoPedido ? styles.disabledBtn : {}),
+              }}
+              onClick={confirmarPedido}
+              disabled={cargandoPedido}
+            >
+              {cargandoPedido ? "Guardando pedido..." : "Confirmar pedido"}
+            </button>
+
+            <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+              Enviar pedido por WhatsApp
+            </button>
+
+            <div style={styles.drCrispyFullWrap}>
+              <img
+                src={drCrispyFull}
+                alt="Dr. Crispy completo"
+                style={styles.drCrispyFullImage}
+              />
+            </div>
+
+            {pedidoCreadoId && (
+              <div style={styles.lastOrderBox}>
+                <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
+                  Último pedido creado:
+                </p>
+                <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
+                <button
+                  style={styles.secondaryBtn}
+                  onClick={() => {
+                    setVista("seguimiento");
+                    consultarMiSeguimiento();
+                  }}
+                >
+                  Ver mi seguimiento
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function renderCliente() {
+    return (
+      <>
+        <section style={styles.clientNavWrap}>
+          <button
+            style={{
+              ...styles.clientNavBtn,
+              ...(seccionCliente === "inicio" ? styles.clientNavBtnActive : {}),
+            }}
+            onClick={() => irASeccionCliente("inicio")}
+          >
+            Inicio
+          </button>
+
+          <button
+            style={{
+              ...styles.clientNavBtn,
+              ...(seccionCliente === "catalogo" ? styles.clientNavBtnActive : {}),
+            }}
+            onClick={() => irASeccionCliente("catalogo")}
+          >
+            Experimentos
+          </button>
+
+          <button
+            style={{
+              ...styles.clientNavBtn,
+              ...(seccionCliente === "experimento1"
+                ? styles.clientNavBtnActive
+                : {}),
+            }}
+            onClick={entrarExperimento1}
+          >
+            Experimento 1
+          </button>
+        </section>
+
+        {seccionCliente === "inicio" && (
+          <>
+            {renderHeroInicio()}
+            {renderCatalogoExperimentos()}
+          </>
+        )}
+
+        {seccionCliente === "catalogo" && renderCatalogoExperimentos()}
+
+        {seccionCliente === "experimento1" && renderExperimento1()}
+      </>
     );
   }
 
@@ -1056,344 +1601,7 @@ function App() {
           </div>
         )}
 
-        {vista === "cliente" && (
-          <>
-            <section
-              style={{
-                ...styles.hero,
-                gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
-              }}
-            >
-              <div style={styles.heroLeft}>
-                <div style={styles.heroMini}>EXPERIMENTO CRUJIENTE</div>
-                <h2 style={styles.heroTitle}>Ordena tu fórmula favorita</h2>
-                <p style={styles.heroText}>
-                  Selecciona productos, salsa y envía tu pedido al servidor real.
-                </p>
-              </div>
-
-              <div style={styles.doctorCard}>
-                <div style={styles.doctorImageWrap}>
-                  <img
-                    src={drCrispyIcon}
-                    alt="Dr. Crispy icono"
-                    style={styles.doctorImage}
-                  />
-                </div>
-                <h3 style={{ margin: "12px 0 6px 0" }}>Dr. Crispy</h3>
-                <p style={{ margin: 0, color: "#cfcfcf", textAlign: "center" }}>
-                  Laboratorio del sabor
-                </p>
-              </div>
-            </section>
-
-            <section
-              style={{
-                ...styles.mainGrid,
-                gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
-              }}
-            >
-              <div>
-                <div style={styles.posterMenuWrap}>
-                  <div
-                    style={{
-                      ...styles.posterHero,
-                      backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${heroImage})`,
-                    }}
-                  >
-                    <div style={styles.posterOverlayContent}>
-                      <div style={styles.posterBrand}>DR. CRISPY LAB</div>
-                      <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
-                      <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      ...styles.posterSections,
-                      gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
-                    }}
-                  >
-                    <div style={styles.posterLeftCol}>
-                      <div style={styles.posterBlock}>
-                        <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
-
-                        <div style={styles.posterInfoList}>
-                          <div style={styles.posterInfoItem}>
-                            <strong>BBQ REACTOR</strong>{" "}
-                            <span>(SALSA BBQ AHUMADA)</span>
-                          </div>
-                          <div style={styles.posterInfoItem}>
-                            <strong>HONEY MUTANTE</strong>{" "}
-                            <span>(MIEL MOSTAZA)</span>
-                          </div>
-                          <div style={styles.posterInfoItem}>
-                            <strong>FUEGO ATÓMICO</strong>{" "}
-                            <span>(ACEITE PICANTE NASHVILLE)</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={styles.posterBlock}>
-                        <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
-                        <div style={styles.reactionScale}>
-                          <div style={styles.reactionItem}>
-                            Fuego Atómico permite nivel bajo, medio o alto.
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={styles.posterRightCol}>
-                      <div style={styles.posterBlock}>
-                        <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
-                        <div style={styles.posterPriceList}>
-                          {FORMULAS.map((item) => (
-                            <div key={item.id} style={styles.posterPriceRow}>
-                              <span>{item.nombre.toUpperCase()}</span>
-                              <span>${item.precio.toLocaleString("es-CO")}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div style={styles.posterBlock}>
-                        <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
-                        <div style={styles.posterPriceList}>
-                          {BEBIDAS.map((item) => (
-                            <div key={item.id} style={styles.posterPriceRow}>
-                              <span>{item.nombre.toUpperCase()}</span>
-                              <span>${item.precio.toLocaleString("es-CO")}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div style={styles.posterBlock}>
-                        <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
-                        <div style={styles.posterPriceList}>
-                          {ADICIONALES.map((item) => (
-                            <div key={item.id} style={styles.posterPriceRow}>
-                              <span>{item.nombre.toUpperCase()}</span>
-                              <span>${item.precio.toLocaleString("es-CO")}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={styles.menuInteractiveSection}>
-                    <div style={styles.menuInteractiveHeader}>
-                      <div style={styles.menuInteractiveBadge}>🍗 MENÚ INTERACTIVO</div>
-                      <h2 style={styles.menuInteractiveTitle}>
-                        Selecciona tu experimento
-                      </h2>
-                    </div>
-
-                    <div
-                      style={{
-                        ...styles.posterFormulaGrid,
-                        gridTemplateColumns: esMovil
-                          ? "1fr"
-                          : "repeat(2, minmax(0, 1fr))",
-                      }}
-                    >
-                      {FORMULAS.map(renderFormulaCard)}
-                    </div>
-
-                    <div style={styles.subSectionTitleWrap}>
-                      <h3 style={styles.subSectionTitle}>🥤 Bebidas</h3>
-                    </div>
-
-                    <div
-                      style={{
-                        ...styles.simpleGrid,
-                        gridTemplateColumns: esMovil
-                          ? "1fr"
-                          : "repeat(2, minmax(0, 1fr))",
-                      }}
-                    >
-                      {BEBIDAS.map(renderSimpleCard)}
-                    </div>
-
-                    <div style={styles.subSectionTitleWrap}>
-                      <h3 style={styles.subSectionTitle}>🍟 Adicionales</h3>
-                    </div>
-
-                    <div
-                      style={{
-                        ...styles.simpleGrid,
-                        gridTemplateColumns: esMovil
-                          ? "1fr"
-                          : "repeat(2, minmax(0, 1fr))",
-                      }}
-                    >
-                      {ADICIONALES.map(renderSimpleCard)}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={styles.panel}>
-                  <h2 style={styles.panelTitle}>📋 Datos del cliente</h2>
-
-                  <Input
-                    label="Nombre"
-                    value={cliente.nombre}
-                    onChange={(e) => actualizarCliente("nombre", e.target.value)}
-                  />
-                  <Input
-                    label="Teléfono"
-                    value={cliente.telefono}
-                    onChange={(e) =>
-                      actualizarCliente("telefono", e.target.value)
-                    }
-                  />
-                  <Input
-                    label="Dirección"
-                    value={cliente.direccion}
-                    onChange={(e) =>
-                      actualizarCliente("direccion", e.target.value)
-                    }
-                  />
-                  <Input
-                    label="Referencia"
-                    value={cliente.referencia}
-                    onChange={(e) =>
-                      actualizarCliente("referencia", e.target.value)
-                    }
-                  />
-
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={styles.label}>Método de pago</label>
-                    <select
-                      style={styles.input}
-                      value={cliente.pago}
-                      onChange={(e) => actualizarCliente("pago", e.target.value)}
-                    >
-                      <option>Nequi</option>
-                      <option>Llave Breve</option>
-                    </select>
-                  </div>
-
-                  <div style={styles.paymentInfoBox}>
-                    <div style={styles.paymentInfoTitle}>💳 Datos de pago</div>
-                    <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-                    <div style={styles.paymentInfoText}>
-                      Llave Breve: 3152487938
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div
-                  style={{
-                    ...styles.panelSticky,
-                    position: esMovil ? "static" : "sticky",
-                  }}
-                >
-                  <h2 style={styles.panelTitle}>🛒 Tu pedido</h2>
-
-                  {carrito.length === 0 ? (
-                    <div style={styles.emptyBox}>
-                      No has agregado productos todavía.
-                    </div>
-                  ) : (
-                    carrito.map((item) => (
-                      <div key={item.cartKey} style={styles.cartItem}>
-                        <div>
-                          <strong>{item.nombre}</strong>
-                          {item.salsa && (
-                            <div style={styles.cartSub}>
-                              Fórmula: {item.salsa}
-                            </div>
-                          )}
-                          <div style={styles.cartSub}>
-                            ${item.precio.toLocaleString("es-CO")} x{" "}
-                            {item.cantidad}
-                          </div>
-                        </div>
-
-                        <div style={styles.qtyBox}>
-                          <button
-                            style={styles.qtyBtn}
-                            onClick={() => cambiarCantidad(item.cartKey, -1)}
-                          >
-                            -
-                          </button>
-                          <span>{item.cantidad}</span>
-                          <button
-                            style={styles.qtyBtn}
-                            onClick={() => cambiarCantidad(item.cartKey, 1)}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-
-                  <div style={styles.summaryBox}>
-                    <div style={styles.summaryRow}>
-                      <span>Subtotal</span>
-                      <span>${subtotal.toLocaleString("es-CO")}</span>
-                    </div>
-                    <div style={styles.summaryRow}>
-                      <span>Domicilio</span>
-                      <span>${domicilio.toLocaleString("es-CO")}</span>
-                    </div>
-                    <div style={styles.summaryTotal}>
-                      <span>Total</span>
-                      <span>${total.toLocaleString("es-CO")}</span>
-                    </div>
-                  </div>
-
-                  <button
-                    style={{
-                      ...styles.confirmBtn,
-                      ...(cargandoPedido ? styles.disabledBtn : {}),
-                    }}
-                    onClick={confirmarPedido}
-                    disabled={cargandoPedido}
-                  >
-                    {cargandoPedido ? "Guardando pedido..." : "Confirmar pedido"}
-                  </button>
-
-                  <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
-                    Enviar pedido por WhatsApp
-                  </button>
-
-                  <div style={styles.drCrispyFullWrap}>
-                    <img
-                      src={drCrispyFull}
-                      alt="Dr. Crispy completo"
-                      style={styles.drCrispyFullImage}
-                    />
-                  </div>
-
-                  {pedidoCreadoId && (
-                    <div style={styles.lastOrderBox}>
-                      <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
-                        Último pedido creado:
-                      </p>
-                      <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
-                      <button
-                        style={styles.secondaryBtn}
-                        onClick={() => {
-                          setVista("seguimiento");
-                          consultarMiSeguimiento();
-                        }}
-                      >
-                        Ver mi seguimiento
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
-          </>
-        )}
+        {vista === "cliente" && renderCliente()}
 
         {vista === "seguimiento" && (
           <section style={styles.panel}>
@@ -1474,6 +1682,7 @@ function App() {
                   <ul>
                     {pedidoConsultado.items.map((item, idx) => (
                       <li key={idx}>
+                        {item.experimento ? `${item.experimento} | ` : ""}
                         {item.nombre} x{item.cantidad}
                         {item.salsa ? ` - ${item.salsa}` : ""} - $
                         {(item.precio * item.cantidad).toLocaleString("es-CO")}
@@ -1597,6 +1806,7 @@ function App() {
                     window.location.hash = "";
                     setRutaPrivada("");
                     setVista("cliente");
+                    setSeccionCliente("inicio");
                   }}
                 >
                   Cerrar sesión
@@ -1669,7 +1879,9 @@ function App() {
                         <div style={{ marginTop: 12 }}>
                           {pedido.items.map((item, idx) => (
                             <div key={idx} style={styles.cocinaItem}>
-                              <strong>{item.nombre}</strong> x{item.cantidad}
+                              <strong>{item.experimento || "Experimento 1"}</strong>
+                              {" • "}
+                              {item.nombre} x{item.cantidad}
                               {item.salsa ? ` • ${item.salsa}` : ""}
                             </div>
                           ))}
@@ -1805,6 +2017,7 @@ function App() {
                         <ul>
                           {pedido.items.map((item, idx) => (
                             <li key={idx}>
+                              {item.experimento ? `${item.experimento} | ` : ""}
                               {item.nombre} x{item.cantidad}
                               {item.salsa ? ` - ${item.salsa}` : ""} - $
                               {(item.precio * item.cantidad).toLocaleString("es-CO")}
@@ -1972,6 +2185,7 @@ function App() {
                     window.location.hash = "";
                     setRutaPrivada("");
                     setVista("cliente");
+                    setSeccionCliente("inicio");
                   }}
                 >
                   Cerrar sesión
@@ -2120,6 +2334,25 @@ const styles = {
     background: "#ff0000",
     border: "1px solid #ff0000",
   },
+  clientNavWrap: {
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap",
+    marginBottom: 20,
+  },
+  clientNavBtn: {
+    background: "rgba(17,17,17,0.9)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    color: "#fff",
+    padding: "10px 14px",
+    borderRadius: 12,
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+  clientNavBtnActive: {
+    background: "linear-gradient(135deg, #ff0000, #b30000)",
+    border: "1px solid #ff0000",
+  },
   hero: {
     display: "grid",
     gap: 20,
@@ -2148,6 +2381,116 @@ const styles = {
     color: "#cfcfcf",
     lineHeight: 1.7,
     maxWidth: 650,
+  },
+  labHero: {
+    display: "grid",
+    gap: 24,
+    marginBottom: 24,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.14), transparent 28%), linear-gradient(180deg, rgba(17,17,17,0.96), rgba(10,10,10,0.98))",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 28,
+    padding: 28,
+    boxShadow: "0 22px 50px rgba(255,0,0,0.10)",
+  },
+  labHeroContent: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  labHeroTitle: {
+    margin: 0,
+    fontSize: 46,
+    lineHeight: 1.04,
+    color: "#fff",
+    textTransform: "uppercase",
+  },
+  labHeroText: {
+    color: "#d2d2d2",
+    lineHeight: 1.7,
+    maxWidth: 650,
+    fontSize: 17,
+    marginTop: 16,
+  },
+  heroActionRow: {
+    display: "flex",
+    gap: 12,
+    flexWrap: "wrap",
+    marginTop: 22,
+  },
+  heroPrimaryBtn: {
+    background: "linear-gradient(135deg, #ff0000, #b30000)",
+    color: "#fff",
+    border: "none",
+    padding: "14px 18px",
+    borderRadius: 14,
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  heroSecondaryBtn: {
+    background: "#151515",
+    color: "#fff",
+    border: "1px solid #333",
+    padding: "14px 18px",
+    borderRadius: 14,
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  labHeroVisual: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heroVisualCard: {
+    width: "100%",
+    maxWidth: 420,
+    minHeight: 420,
+    borderRadius: 24,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.18), transparent 30%), linear-gradient(180deg, rgba(26,26,26,0.98), rgba(12,12,12,1))",
+    border: "1px solid rgba(255,255,255,0.07)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 22,
+  },
+  heroLogoWrap: {
+    width: 96,
+    height: 96,
+    borderRadius: "50%",
+    overflow: "hidden",
+    border: "3px solid #ff1a1a",
+    boxShadow: "0 12px 28px rgba(255,0,0,0.22)",
+    background: "#ff0000",
+  },
+  heroLogoImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+  heroVisualTag: {
+    display: "inline-block",
+    background: "rgba(255,0,0,0.14)",
+    border: "1px solid rgba(255,0,0,0.30)",
+    color: "#ffb0b0",
+    padding: "8px 14px",
+    borderRadius: 999,
+    fontWeight: "bold",
+    fontSize: 12,
+    letterSpacing: 1,
+    marginTop: 8,
+  },
+  heroFullImage: {
+    width: "100%",
+    maxWidth: 280,
+    height: "auto",
+    objectFit: "contain",
+    display: "block",
+    filter: "drop-shadow(0 16px 34px rgba(255,0,0,0.15))",
   },
   doctorCard: {
     display: "flex",
@@ -2196,6 +2539,127 @@ const styles = {
   panelTitle: {
     marginTop: 0,
     marginBottom: 18,
+  },
+  catalogHeader: {
+    marginBottom: 22,
+  },
+  catalogTitle: {
+    margin: "0 0 10px 0",
+    fontSize: 38,
+    textTransform: "uppercase",
+  },
+  catalogText: {
+    margin: 0,
+    color: "#cfcfcf",
+    lineHeight: 1.6,
+  },
+  experimentScreenTitle: {
+    margin: "0 0 8px 0",
+    fontSize: 34,
+    textTransform: "uppercase",
+  },
+  experimentScreenText: {
+    margin: 0,
+    color: "#cfcfcf",
+    lineHeight: 1.6,
+  },
+  experimentoHeaderRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  backCatalogBtn: {
+    background: "#151515",
+    border: "1px solid #333",
+    color: "#fff",
+    padding: "12px 14px",
+    borderRadius: 12,
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+  experimentosGrid: {
+    display: "grid",
+    gap: 18,
+  },
+  experimentCard: {
+    background:
+      "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 22,
+    overflow: "hidden",
+    boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
+  },
+  experimentImage: {
+    height: 180,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    position: "relative",
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "flex-end",
+    padding: 14,
+  },
+  experimentBadge: {
+    padding: "8px 12px",
+    borderRadius: 999,
+    fontWeight: "bold",
+    fontSize: 12,
+    letterSpacing: 1,
+  },
+  experimentBadgeActive: {
+    background: "#ff0000",
+    color: "#fff",
+  },
+  experimentBadgeSoon: {
+    background: "rgba(255,196,0,0.18)",
+    color: "#ffd76b",
+    border: "1px solid rgba(255,196,0,0.30)",
+  },
+  experimentBody: {
+    padding: 18,
+  },
+  experimentTitle: {
+    margin: 0,
+    fontSize: 28,
+    textTransform: "uppercase",
+    color: "#fff",
+  },
+  experimentSubtitle: {
+    marginTop: 8,
+    color: "#ff9b9b",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    fontSize: 14,
+    letterSpacing: 1,
+  },
+  experimentDescription: {
+    color: "#cfcfcf",
+    lineHeight: 1.6,
+    minHeight: 72,
+  },
+  experimentBtn: {
+    width: "100%",
+    background: "linear-gradient(135deg, #ff0000, #b30000)",
+    color: "#fff",
+    border: "none",
+    padding: "14px 16px",
+    borderRadius: 14,
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  experimentGhostBtn: {
+    width: "100%",
+    background: "#171717",
+    color: "#fff",
+    border: "1px solid #3a3a3a",
+    padding: "14px 16px",
+    borderRadius: 14,
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: 15,
   },
   label: {
     display: "block",
