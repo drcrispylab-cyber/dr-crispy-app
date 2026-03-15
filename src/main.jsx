@@ -15,6 +15,9 @@ if ("serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.register("/sw.js");
       console.log("Service Worker registrado:", registration.scope);
 
+      // Revisar actualización apenas carga
+      await registration.update();
+
       registration.addEventListener("updatefound", () => {
         const newWorker = registration.installing;
 
@@ -31,8 +34,13 @@ if ("serviceWorker" in navigator) {
         });
       });
 
-      setInterval(() => {
-        registration.update();
+      // Revisar actualizaciones cada 60 segundos
+      setInterval(async () => {
+        try {
+          await registration.update();
+        } catch (error) {
+          console.error("Error buscando actualización del Service Worker:", error);
+        }
       }, 60000);
     } catch (error) {
       console.error("Error registrando Service Worker:", error);
