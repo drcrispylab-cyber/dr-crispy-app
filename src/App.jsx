@@ -2469,6 +2469,7 @@ const styles = {
     objectFit: "contain",
     display: "block",
     filter: "drop-shadow(0 12px 26px rgba(255,0,0,0.12))",
+    animation: "crispyGlow 2.2s ease-in-out infinite, crispyFloat 3s ease-in-out infinite",
   },
   heroVisualTag: {
     display: "inline-block",
