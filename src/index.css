@@ -1,28 +1,52 @@
 :root {
-  font-family: Arial, sans-serif;
+  font-family: "Inter", sans-serif;
   color: #ffffff;
-  background: #0b0b0b;
+  background: #050505;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --font-body: "Inter", sans-serif;
+  --font-display: "Bebas Neue", sans-serif;
+
+  --bg-main: #070707;
+  --bg-card: rgba(17, 17, 17, 0.94);
+  --bg-soft: #181818;
+  --border-soft: rgba(255, 255, 255, 0.08);
+
+  --red-main: #ff0000;
+  --red-strong: #b30000;
+  --red-soft: #ff8a8a;
+
+  --text-main: #ffffff;
+  --text-soft: #d0d0d0;
+  --text-muted: #a8a8a8;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body,
 #root {
-  margin: 0;
   min-height: 100%;
-  width: 100%;
-  background: #0b0b0b;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  min-width: 320px;
+  font-family: var(--font-body);
+  background:
+    radial-gradient(circle at top right, rgba(255, 0, 0, 0.12), transparent 18%),
+    radial-gradient(circle at bottom left, rgba(255, 60, 60, 0.08), transparent 20%),
+    linear-gradient(135deg, #040404 0%, #0b0b0b 40%, #160606 100%);
+  color: var(--text-main);
 }
 
 button,
@@ -32,32 +56,11 @@ textarea {
   font: inherit;
 }
 
-@keyframes loadingMove {
-  0% {
-    transform: translateX(-35%);
-    width: 35%;
-  }
-  50% {
-    transform: translateX(90%);
-    width: 45%;
-  }
-  100% {
-    transform: translateX(-35%);
-    width: 35%;
-  }
+img {
+  max-width: 100%;
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.20);
-  }
-  50% {
-    transform: scale(1.03);
-    box-shadow: 0 0 34px rgba(255, 0, 0, 0.32);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.20);
-  }
+a {
+  color: inherit;
+  text-decoration: none;
 }

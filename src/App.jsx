@@ -114,7 +114,7 @@ const SALSAS = [
 const EXPERIMENTOS = [
   {
     id: "exp1",
-    titulo: "Experimento 1",
+    titulo: "Experimento 01",
     subtitulo: "Alitas Crispy",
     descripcion: "Fuego Atómico, Honey Mutante y BBQ Reactor",
     estado: "activo",
@@ -123,8 +123,8 @@ const EXPERIMENTOS = [
   },
   {
     id: "exp2",
-    titulo: "Experimento 2",
-    subtitulo: "Nueva fórmula en desarrollo",
+    titulo: "Experimento 02",
+    subtitulo: "Experimento en incubación",
     descripcion: "Próximamente una nueva creación del laboratorio.",
     estado: "proximamente",
     imagen: heroImage,
@@ -132,7 +132,7 @@ const EXPERIMENTOS = [
   },
   {
     id: "exp3",
-    titulo: "Experimento 3",
+    titulo: "Experimento 03",
     subtitulo: "Experimento en incubación",
     descripcion: "Seguimos cocinando una nueva mutación del sabor.",
     estado: "proximamente",
@@ -948,7 +948,7 @@ function App() {
         <div style={styles.labHeroContent}>
           <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
           <h2 style={styles.labHeroTitle}>
-            Bienvenido al laboratorio del Dr. Crispy
+            BIENVENIDO AL LABORATORIO DEL DR. CRISPY
           </h2>
           <p style={styles.labHeroText}>
             Aquí no vendemos solo comida. Creamos experimentos crujientes con
@@ -1000,7 +1000,7 @@ function App() {
       <section style={styles.panel}>
         <div style={styles.catalogHeader}>
           <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
-          <h2 style={styles.catalogTitle}>Elige tu experimento</h2>
+          <h2 style={styles.catalogTitle}>ELIGE TU EXPERIMENTO</h2>
           <p style={styles.catalogText}>
             El Experimento 1 ya está activo. Los siguientes se están preparando
             en el laboratorio.
@@ -1073,7 +1073,7 @@ function App() {
             <div style={styles.experimentoHeaderRow}>
               <div>
                 <div style={styles.menuInteractiveBadge}>🔥 EXPERIMENTO 1 ACTIVO</div>
-                <h2 style={styles.experimentScreenTitle}>Alitas Crispy</h2>
+                <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
                 <p style={styles.experimentScreenText}>
                   Fuego Atómico, Honey Mutante y BBQ Reactor.
                 </p>
@@ -1181,7 +1181,7 @@ function App() {
               <div style={styles.menuInteractiveHeader}>
                 <div style={styles.menuInteractiveBadge}>🍗 MENÚ INTERACTIVO</div>
                 <h2 style={styles.menuInteractiveTitle}>
-                  Selecciona tu experimento
+                  SELECCIONA TU EXPERIMENTO
                 </h2>
               </div>
 
@@ -1197,7 +1197,7 @@ function App() {
               </div>
 
               <div style={styles.subSectionTitleWrap}>
-                <h3 style={styles.subSectionTitle}>🥤 Bebidas</h3>
+                <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
               </div>
 
               <div
@@ -1212,7 +1212,7 @@ function App() {
               </div>
 
               <div style={styles.subSectionTitleWrap}>
-                <h3 style={styles.subSectionTitle}>🍟 Adicionales</h3>
+                <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
               </div>
 
               <div
@@ -1229,7 +1229,7 @@ function App() {
           </div>
 
           <div style={styles.panel}>
-            <h2 style={styles.panelTitle}>📋 Checkout del experimento</h2>
+            <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
 
             <Input
               label="Nombre"
@@ -1279,7 +1279,7 @@ function App() {
               position: esMovil ? "static" : "sticky",
             }}
           >
-            <h2 style={styles.panelTitle}>🛒 Tu pedido</h2>
+            <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
 
             {carrito.length === 0 ? (
               <div style={styles.emptyBox}>
@@ -1607,7 +1607,7 @@ function App() {
           <section style={styles.panel}>
             <div style={styles.adminTop}>
               <div>
-                <h2 style={styles.panelTitle}>📦 Mi seguimiento</h2>
+                <h2 style={styles.panelTitle}>📦 MI SEGUIMIENTO</h2>
                 <p style={{ color: "#cfcfcf", margin: 0 }}>
                   Aquí solo puedes ver el seguimiento del pedido creado en este
                   dispositivo
@@ -1728,7 +1728,7 @@ function App() {
         {puedeVerAdmin && vista === "admin" && !adminLogueado && (
           <section style={styles.loginWrap}>
             <div style={styles.loginCard}>
-              <h2 style={styles.panelTitle}>🔐 Acceso Admin</h2>
+              <h2 style={styles.panelTitle}>🔐 ACCESO ADMIN</h2>
               <p style={styles.loginText}>
                 Ingresa tus credenciales reales del backend.
               </p>
@@ -1771,7 +1771,7 @@ function App() {
           <section style={styles.panel}>
             <div style={styles.adminTop}>
               <div>
-                <h2 style={styles.panelTitle}>🧾 Panel Admin Pro</h2>
+                <h2 style={styles.panelTitle}>🧾 PANEL ADMIN PRO</h2>
                 <p style={{ color: "#cfcfcf", margin: 0 }}>
                   Sesión: {adminUser?.nombre}
                 </p>
@@ -2105,7 +2105,7 @@ function App() {
         {puedeVerRepartidor && vista === "repartidor" && !repartidorLogueado && (
           <section style={styles.loginWrap}>
             <div style={styles.loginCard}>
-              <h2 style={styles.panelTitle}>🚚 Acceso Repartidor</h2>
+              <h2 style={styles.panelTitle}>🚚 ACCESO REPARTIDOR</h2>
               <p style={styles.loginText}>
                 Ingresa tus credenciales reales del backend.
               </p>
@@ -2154,7 +2154,7 @@ function App() {
           <section style={styles.panel}>
             <div style={styles.adminTop}>
               <div>
-                <h2 style={styles.panelTitle}>🚚 Vista Repartidor</h2>
+                <h2 style={styles.panelTitle}>🚚 VISTA REPARTIDOR</h2>
                 <p style={{ color: "#cfcfcf", margin: 0 }}>
                   Sesión: {repartidorUser?.nombre}
                 </p>
@@ -2266,7 +2266,7 @@ const styles = {
     background:
       "radial-gradient(circle at top right, rgba(255,0,0,0.18), transparent 20%), radial-gradient(circle at bottom left, rgba(255,80,80,0.10), transparent 20%), linear-gradient(135deg, #040404 0%, #0b0b0b 40%, #160606 100%)",
     color: "#fff",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: '"Inter", sans-serif',
     position: "relative",
   },
   overlay: {
@@ -2302,19 +2302,23 @@ const styles = {
     borderRadius: 999,
     fontSize: 12,
     fontWeight: "bold",
-    letterSpacing: 1,
+    letterSpacing: 1.1,
     marginBottom: 10,
   },
   title: {
     margin: 0,
-    fontSize: 42,
+    fontSize: 52,
     color: "#ff2727",
     textShadow: "0 0 20px rgba(255,0,0,0.25)",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1.4,
+    lineHeight: 1,
   },
   subtitle: {
     color: "#cfcfcf",
     marginTop: 8,
     marginBottom: 0,
+    fontSize: 15,
   },
   navButtons: {
     display: "flex",
@@ -2353,35 +2357,6 @@ const styles = {
     background: "linear-gradient(135deg, #ff0000, #b30000)",
     border: "1px solid #ff0000",
   },
-  hero: {
-    display: "grid",
-    gap: 20,
-    marginBottom: 24,
-    background: "rgba(17,17,17,0.92)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 24,
-    padding: 24,
-  },
-  heroLeft: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  heroMini: {
-    color: "#ff9b9b",
-    fontWeight: "bold",
-    letterSpacing: 1,
-    marginBottom: 12,
-  },
-  heroTitle: {
-    margin: 0,
-    fontSize: 36,
-  },
-  heroText: {
-    color: "#cfcfcf",
-    lineHeight: 1.7,
-    maxWidth: 650,
-  },
   labHero: {
     display: "grid",
     gap: 24,
@@ -2398,19 +2373,30 @@ const styles = {
     flexDirection: "column",
     justifyContent: "center",
   },
+  heroMini: {
+    color: "#ff9b9b",
+    fontWeight: "bold",
+    letterSpacing: 1.2,
+    marginBottom: 12,
+    fontSize: 15,
+  },
   labHeroTitle: {
     margin: 0,
-    fontSize: 46,
-    lineHeight: 1.04,
+    fontSize: 74,
+    lineHeight: 0.92,
     color: "#fff",
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1.2,
+    textShadow: "0 8px 24px rgba(0,0,0,0.35)",
+    maxWidth: 680,
   },
   labHeroText: {
     color: "#d2d2d2",
-    lineHeight: 1.7,
+    lineHeight: 1.8,
     maxWidth: 650,
     fontSize: 17,
-    marginTop: 16,
+    marginTop: 18,
   },
   heroActionRow: {
     display: "flex",
@@ -2422,17 +2408,18 @@ const styles = {
     background: "linear-gradient(135deg, #ff0000, #b30000)",
     color: "#fff",
     border: "none",
-    padding: "14px 18px",
+    padding: "15px 20px",
     borderRadius: 14,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
+    boxShadow: "0 16px 30px rgba(255,0,0,0.20)",
   },
   heroSecondaryBtn: {
     background: "#151515",
     color: "#fff",
     border: "1px solid #333",
-    padding: "14px 18px",
+    padding: "15px 20px",
     borderRadius: 14,
     cursor: "pointer",
     fontWeight: "bold",
@@ -2492,32 +2479,6 @@ const styles = {
     display: "block",
     filter: "drop-shadow(0 16px 34px rgba(255,0,0,0.15))",
   },
-  doctorCard: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "linear-gradient(180deg, #1a1a1a, #121212)",
-    borderRadius: 22,
-    border: "1px solid #292929",
-    padding: 20,
-    minHeight: 160,
-  },
-  doctorImageWrap: {
-    width: 92,
-    height: 92,
-    borderRadius: "50%",
-    overflow: "hidden",
-    border: "3px solid #ff1a1a",
-    boxShadow: "0 12px 28px rgba(255,0,0,0.22)",
-    background: "#ff0000",
-  },
-  doctorImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    display: "block",
-  },
   mainGrid: {
     display: "grid",
     gap: 24,
@@ -2539,24 +2500,36 @@ const styles = {
   panelTitle: {
     marginTop: 0,
     marginBottom: 18,
+    fontFamily: '"Bebas Neue", sans-serif',
+    fontSize: 42,
+    letterSpacing: 1,
+    lineHeight: 1,
+    textTransform: "uppercase",
   },
   catalogHeader: {
     marginBottom: 22,
   },
   catalogTitle: {
     margin: "0 0 10px 0",
-    fontSize: 38,
+    fontSize: 64,
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1.2,
+    lineHeight: 0.95,
   },
   catalogText: {
     margin: 0,
     color: "#cfcfcf",
-    lineHeight: 1.6,
+    lineHeight: 1.7,
+    fontSize: 16,
   },
   experimentScreenTitle: {
     margin: "0 0 8px 0",
-    fontSize: 34,
+    fontSize: 54,
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   experimentScreenText: {
     margin: 0,
@@ -2622,9 +2595,12 @@ const styles = {
   },
   experimentTitle: {
     margin: 0,
-    fontSize: 28,
+    fontSize: 48,
     textTransform: "uppercase",
     color: "#fff",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   experimentSubtitle: {
     marginTop: 8,
@@ -2632,7 +2608,7 @@ const styles = {
     fontWeight: "bold",
     textTransform: "uppercase",
     fontSize: 14,
-    letterSpacing: 1,
+    letterSpacing: 1.3,
   },
   experimentDescription: {
     color: "#cfcfcf",
@@ -3026,11 +3002,13 @@ const styles = {
   },
   posterMainTitle: {
     margin: 0,
-    fontSize: 48,
-    lineHeight: 0.95,
+    fontSize: 72,
+    lineHeight: 0.88,
     color: "#fff",
     textTransform: "uppercase",
     textShadow: "0 4px 18px rgba(0,0,0,0.45)",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1.2,
   },
   posterExperiment: {
     display: "inline-block",
@@ -3043,6 +3021,8 @@ const styles = {
     fontSize: 24,
     textTransform: "uppercase",
     boxShadow: "0 12px 28px rgba(255,0,0,0.20)",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
   },
   posterSections: {
     display: "grid",
@@ -3068,10 +3048,13 @@ const styles = {
   posterSectionTitle: {
     marginTop: 0,
     marginBottom: 14,
-    fontSize: 28,
+    fontSize: 38,
     color: "#ffc400",
     textTransform: "uppercase",
     textShadow: "0 0 12px rgba(255,196,0,0.15)",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   posterInfoList: {
     display: "grid",
@@ -3130,9 +3113,12 @@ const styles = {
   },
   menuInteractiveTitle: {
     margin: 0,
-    fontSize: 34,
+    fontSize: 56,
     color: "#fff",
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1.1,
+    lineHeight: 0.95,
   },
   posterFormulaGrid: {
     display: "grid",
@@ -3166,9 +3152,12 @@ const styles = {
   },
   posterProductTitle: {
     margin: "6px 0 8px 0",
-    fontSize: 30,
+    fontSize: 48,
     color: "#fff",
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   posterProductDesc: {
     margin: 0,
@@ -3200,9 +3189,12 @@ const styles = {
   },
   subSectionTitle: {
     margin: 0,
-    fontSize: 28,
+    fontSize: 40,
     color: "#ffc400",
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   simpleGrid: {
     display: "grid",
@@ -3221,9 +3213,12 @@ const styles = {
   },
   simpleTitle: {
     margin: "0 0 8px 0",
-    fontSize: 24,
+    fontSize: 38,
     color: "#fff",
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   simpleDesc: {
     color: "#cfcfcf",
@@ -3275,9 +3270,12 @@ const styles = {
   },
   modalTitle: {
     margin: 0,
-    fontSize: 34,
+    fontSize: 56,
     color: "#fff",
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   modalSubtitle: {
     marginTop: 8,
@@ -3318,10 +3316,13 @@ const styles = {
     marginBottom: 10,
   },
   sauceVisualName: {
-    fontSize: 24,
+    fontSize: 42,
     fontWeight: "bold",
     marginBottom: 8,
     textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
   },
   sauceVisualDesc: {
     color: "#d0d0d0",
