@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import alertaSound from "./assets/alerta.mp3";
 import heroImage from "./assets/hero.png";
-import drCrispyFull from "./assets/drcrispy.jpg";
+import drCrispyFull from "./assets/drcrispy.png";
 import drCrispyIcon from "./assets/icono.jpg";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
