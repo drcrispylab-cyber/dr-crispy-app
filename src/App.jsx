@@ -331,8 +331,8 @@ function App() {
     return carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
   }, [carrito]);
 
-  const domicilio = carrito.length > 0 ? 4000 : 0;
-  const total = subtotal + domicilio;
+  const domicilio = 0;
+  const total = subtotal;
 
   const pedidosDelDia = useMemo(() => {
     const hoy = new Date().toLocaleDateString("es-CO");
@@ -393,7 +393,7 @@ function App() {
       ),
       "",
       `Subtotal: $${subtotal.toLocaleString("es-CO")}`,
-      `Domicilio: $${domicilio.toLocaleString("es-CO")}`,
+      "Domicilio: Incluido",
       `Total: *$${total.toLocaleString("es-CO")}*`,
     ];
 
@@ -453,7 +453,7 @@ function App() {
           </ul>
           <div class="linea"></div>
           <p>Subtotal: $${pedido.subtotal.toLocaleString("es-CO")}</p>
-          <p>Domicilio: $${pedido.domicilio.toLocaleString("es-CO")}</p>
+          <p>Domicilio: Incluido</p>
           <p class="big">Total: $${pedido.total.toLocaleString("es-CO")}</p>
         </body>
       </html>
@@ -952,7 +952,7 @@ function App() {
           </h2>
           <p style={styles.labHeroText}>
             Aquí no vendemos solo comida. Creamos experimentos crujientes con
-            salsa, fuego y sabor.
+            salsa, fuego y sabor. No es pollo. Es un experimento.
           </p>
 
           <div style={styles.heroActionRow}>
@@ -1327,7 +1327,7 @@ function App() {
               </div>
               <div style={styles.summaryRow}>
                 <span>Domicilio</span>
-                <span>${domicilio.toLocaleString("es-CO")}</span>
+                <span style={{ color: "#ffd166", fontWeight: "bold" }}>Incluido</span>
               </div>
               <div style={styles.summaryTotal}>
                 <span>Total</span>
@@ -2358,16 +2358,16 @@ const styles = {
     border: "1px solid #ff0000",
   },
   labHero: {
-    display: "grid",
-    gap: 24,
-    marginBottom: 24,
-    background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.14), transparent 28%), linear-gradient(180deg, rgba(17,17,17,0.96), rgba(10,10,10,0.98))",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 28,
-    padding: 28,
-    boxShadow: "0 22px 50px rgba(255,0,0,0.10)",
-  },
+  display: "grid",
+  gap: 32,
+  marginBottom: 24,
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(17,17,17,0.96), rgba(10,10,10,0.98))",
+  border: "1px solid rgba(255,255,255,0.05)",
+  borderRadius: 24,
+  padding: 36,
+  boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
+},
   labHeroContent: {
     display: "flex",
     flexDirection: "column",
@@ -2381,46 +2381,46 @@ const styles = {
     fontSize: 15,
   },
   labHeroTitle: {
-    margin: 0,
-    fontSize: 74,
-    lineHeight: 0.92,
-    color: "#fff",
-    textTransform: "uppercase",
-    fontFamily: '"Bebas Neue", sans-serif',
-    letterSpacing: 1.2,
-    textShadow: "0 8px 24px rgba(0,0,0,0.35)",
-    maxWidth: 680,
+   margin: 0,
+   fontSize: 74,
+   lineHeight: 0.9,
+   color: "#fff",
+   textTransform: "uppercase",
+   fontFamily: '"Bebas Neue", sans-serif',
+   letterSpacing: 1.2,
+   textShadow: "0 8px 24px rgba(0,0,0,0.35)",
+   maxWidth: 760,
   },
   labHeroText: {
     color: "#d2d2d2",
-    lineHeight: 1.8,
-    maxWidth: 650,
+    lineHeight: 1.85,
+    maxWidth: 620,
     fontSize: 17,
     marginTop: 18,
   },
   heroActionRow: {
     display: "flex",
-    gap: 12,
+    gap: 14,
     flexWrap: "wrap",
-    marginTop: 22,
+    marginTop: 26,
   },
   heroPrimaryBtn: {
     background: "linear-gradient(135deg, #ff0000, #b30000)",
     color: "#fff",
     border: "none",
     padding: "15px 20px",
-    borderRadius: 14,
+    borderRadius: 12,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
-    boxShadow: "0 16px 30px rgba(255,0,0,0.20)",
+    boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
   },
   heroSecondaryBtn: {
     background: "#151515",
     color: "#fff",
-    border: "1px solid #333",
-    padding: "15px 20px",
-    borderRadius: 14,
+    border: "1px solid #2f2f2f",
+    padding: "15px 22px",
+    borderRadius: 12,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
@@ -2432,32 +2432,35 @@ const styles = {
   },
   heroVisualCard: {
     width: "100%",
-    maxWidth: 420,
-    minHeight: 420,
-    borderRadius: 24,
+    maxWidth: 430,
+    minHeight: 430,
+    borderRadius: 22,
     background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.18), transparent 30%), linear-gradient(180deg, rgba(26,26,26,0.98), rgba(12,12,12,1))",
-    border: "1px solid rgba(255,255,255,0.07)",
+      "radial-gradient(circle at top right, rgba(255,0,0,0.15), transparent 28%), linear-gradient(180deg, rgba(24,24,24,0.98), rgba(12,12,12,1))",
+    border: "1px solid rgba(255,255,255,0.06)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 22,
+    padding: 24,
+    boxShadow: "0 18px 36px rgba(0,0,0,0.28)",
   },
   heroLogoWrap: {
-    width: 96,
-    height: 96,
+    width: 88,
+    height: 88,
     borderRadius: "50%",
     overflow: "hidden",
-    border: "3px solid #ff1a1a",
-    boxShadow: "0 12px 28px rgba(255,0,0,0.22)",
+    border: "2px solid #ff1a1a",
+    boxShadow: "0 10px 22px rgba(255,0,0,0.16)",
     background: "#ff0000",
   },
-  heroLogoImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    display: "block",
+  heroFullImage: {
+  width: "100%",
+  maxWidth: 300,
+  height: "auto",
+  objectFit: "contain",
+  display: "block",
+  filter: "drop-shadow(0 12px 26px rgba(255,0,0,0.12))",
   },
   heroVisualTag: {
     display: "inline-block",
@@ -2485,17 +2488,19 @@ const styles = {
   },
   panel: {
     background: "rgba(17,17,17,0.94)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 22,
-    padding: 22,
+    border: "1px solid rgba(255,255,255,0.05)",
+    borderRadius: 20,
+    padding: 24,
     marginBottom: 24,
+    boxShadow: "0 12px 28px rgba(0,0,0,0.18)",
   },
   panelSticky: {
     background: "rgba(17,17,17,0.96)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 22,
-    padding: 22,
+    border: "1px solid rgba(255,255,255,0.05)",
+    borderRadius: 20,
+    padding: 24,
     top: 20,
+    boxShadow: "0 12px 28px rgba(0,0,0,0.18)",
   },
   panelTitle: {
     marginTop: 0,
@@ -2559,13 +2564,14 @@ const styles = {
   experimentCard: {
     background:
       "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 22,
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 20,
     overflow: "hidden",
-    boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
+    boxShadow: "0 14px 30px rgba(255,0,0,0.06)",
+    transition: "transform 0.18s ease, box-shadow 0.18s ease",
   },
   experimentImage: {
-    height: 180,
+    height: 190,
     backgroundSize: "cover",
     backgroundPosition: "center",
     position: "relative",
@@ -2591,7 +2597,7 @@ const styles = {
     border: "1px solid rgba(255,196,0,0.30)",
   },
   experimentBody: {
-    padding: 18,
+    padding: 20,
   },
   experimentTitle: {
     margin: 0,
@@ -2660,17 +2666,17 @@ const styles = {
     color: "#bbb",
   },
   cartItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
-    background: "#191919",
-    border: "1px solid #2a2a2a",
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 12,
-    flexWrap: "wrap",
-  },
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  background: "#191919",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 14,
+  padding: 14,
+  marginBottom: 12,
+  flexWrap: "wrap",
+},
   cartSub: {
     color: "#bdbdbd",
     marginTop: 4,
@@ -2692,9 +2698,9 @@ const styles = {
     fontWeight: "bold",
   },
   summaryBox: {
-    borderTop: "1px solid #2c2c2c",
-    marginTop: 18,
-    paddingTop: 16,
+    borderTop: "1px solid rgba(255,255,255,0.08)",
+    marginTop: 20,
+    paddingTop: 18,
   },
   summaryRow: {
     display: "flex",
@@ -2707,8 +2713,8 @@ const styles = {
     justifyContent: "space-between",
     color: "#ff4a4a",
     fontWeight: "bold",
-    fontSize: 22,
-    marginTop: 12,
+    fontSize: 24,
+    marginTop: 14,
   },
   confirmBtn: {
     width: "100%",
@@ -2918,20 +2924,20 @@ const styles = {
     marginBottom: 4,
   },
   drCrispyFullWrap: {
-    marginTop: 18,
+    marginTop: 24,
     width: "100%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 8,
+    paddingTop: 10,
   },
   drCrispyFullImage: {
     width: "100%",
-    maxWidth: 250,
+    maxWidth: 230,
     height: "auto",
     display: "block",
     objectFit: "contain",
-    filter: "drop-shadow(0 12px 30px rgba(255,0,0,0.12))",
+    filter: "drop-shadow(0 14px 28px rgba(255,0,0,0.10))",
   },
   kpiGrid: {
     display: "grid",
@@ -2970,11 +2976,11 @@ const styles = {
   posterMenuWrap: {
     background:
       "linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(8,8,8,0.98) 100%)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 26,
+    border: "1px solid rgba(255,255,255,0.05)",
+    borderRadius: 22,
     overflow: "hidden",
     marginBottom: 24,
-    boxShadow: "0 22px 50px rgba(255,0,0,0.10)",
+    boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
   },
   posterHero: {
     minHeight: 340,
@@ -3026,10 +3032,10 @@ const styles = {
   },
   posterSections: {
     display: "grid",
-    gap: 18,
-    padding: 24,
+    gap: 20,
+    padding: 26,
     background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.08), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.98) 0%, rgba(10,10,10,0.98) 100%)",
+      "radial-gradient(circle at top right, rgba(255,0,0,0.07), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.98) 0%, rgba(10,10,10,0.98) 100%)",
   },
   posterLeftCol: {
     display: "grid",
@@ -3040,9 +3046,9 @@ const styles = {
     gap: 18,
   },
   posterBlock: {
-    background: "rgba(255,255,255,0.03)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 18,
+    background: "rgba(255,255,255,0.025)",
+    border: "1px solid rgba(255,255,255,0.05)",
+    borderRadius: 16,
     padding: 18,
   },
   posterSectionTitle: {
@@ -3125,13 +3131,13 @@ const styles = {
     gap: 18,
   },
   posterProductCard: {
-    background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 26%), linear-gradient(180deg, rgba(28,28,28,0.96) 0%, rgba(12,12,12,0.98) 100%)",
-    border: "1px solid rgba(255,0,0,0.22)",
-    borderRadius: 22,
-    padding: 20,
-    boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
-  },
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(28,28,28,0.96) 0%, rgba(12,12,12,0.98) 100%)",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 18,
+  padding: 22,
+  boxShadow: "0 14px 28px rgba(255,0,0,0.05)",
+},
   posterProductTop: {
     display: "flex",
     justifyContent: "space-between",
@@ -3203,9 +3209,10 @@ const styles = {
   simpleMenuCard: {
     background:
       "linear-gradient(180deg, rgba(25,25,25,0.96), rgba(10,10,10,0.98))",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 20,
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 18,
     padding: 18,
+    boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
   },
   simpleEmoji: {
     fontSize: 30,
