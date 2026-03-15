@@ -88,3 +88,103 @@ a {
     box-shadow: 0 0 12px rgba(255, 0, 0, 0.28);
   }
 }
+@keyframes reactorPulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.38;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.62;
+  }
+  100% {
+    transform: scale(0.92);
+    opacity: 0.38;
+  }
+}
+
+@keyframes labSmoke {
+  0% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.06);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.18;
+  }
+}
+
+@keyframes particleFloat1 {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-12px) translateX(4px);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.2;
+  }
+}
+
+@keyframes particleFloat2 {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translateY(-16px) translateX(-5px);
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.18;
+  }
+}
+
+@keyframes particleFloat3 {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translateY(-10px) translateX(6px);
+    opacity: 0.42;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.16;
+  }
+}
+@keyframes reactorRingSpin {
+  0% {
+    transform: translateX(-50%) rotate(0deg);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateX(-50%) rotate(180deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(-50%) rotate(360deg);
+    opacity: 0.45;
+  }
+}
+
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 10px 22px rgba(255, 0, 0, 0.18);
+  }
+  50% {
+    box-shadow: 0 14px 30px rgba(255, 0, 0, 0.32);
+  }
+  100% {
+    box-shadow: 0 10px 22px rgba(255, 0, 0, 0.18);
+  }
+}

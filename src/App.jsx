@@ -945,7 +945,6 @@ function App() {
         gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
       }}
     >
-      {/* TEXTO HERO */}
       <div style={styles.labHeroContent}>
         <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
 
@@ -975,11 +974,17 @@ function App() {
         </div>
       </div>
 
-      {/* VISUAL HERO */}
       <div style={styles.labHeroVisual}>
         <div style={styles.heroVisualCard}>
-          
-          {/* LOGO DR CRISPY */}
+          <div style={styles.reactorGlow}></div>
+          <div style={styles.smokeGlow}></div>
+
+          <span style={{ ...styles.labParticle, ...styles.labParticle1 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle2 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle3 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle4 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle5 }}></span>
+
           <div
             style={{
               ...styles.heroLogoWrap,
@@ -999,10 +1004,8 @@ function App() {
             />
           </div>
 
-          {/* TEXTO LOGO */}
           <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
 
-          {/* POLLO GRANDE */}
           <img
             src={drCrispyFull}
             alt="Dr. Crispy"
@@ -2380,16 +2383,17 @@ const styles = {
     border: "1px solid #ff0000",
   },
   labHero: {
-  display: "grid",
-  gap: 32,
-  marginBottom: 24,
-  background:
-    "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(17,17,17,0.96), rgba(10,10,10,0.98))",
-  border: "1px solid rgba(255,255,255,0.05)",
-  borderRadius: 24,
-  padding: 36,
-  boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
-},
+    display: "grid",
+    gap: 32,
+    marginBottom: 24,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(17,17,17,0.96), rgba(10,10,10,0.98))",
+    border: "1px solid rgba(255,255,255,0.05)",
+    borderRadius: 24,
+    padding: 36,
+    boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
+    overflow: "hidden",
+  },
   labHeroContent: {
     display: "flex",
     flexDirection: "column",
@@ -2455,10 +2459,10 @@ const styles = {
   heroVisualCard: {
     width: "100%",
     maxWidth: 430,
-    minHeight: 430,
-    borderRadius: 22,
+    minHeight: 460,
+    borderRadius: 24,
     background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.15), transparent 28%), linear-gradient(180deg, rgba(24,24,24,0.98), rgba(12,12,12,1))",
+      "radial-gradient(circle at 50% 28%, rgba(255,0,0,0.18), transparent 26%), radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 30%), linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
     border: "1px solid rgba(255,255,255,0.06)",
     display: "flex",
     flexDirection: "column",
@@ -2466,6 +2470,79 @@ const styles = {
     justifyContent: "space-between",
     padding: 24,
     boxShadow: "0 18px 36px rgba(0,0,0,0.28)",
+    position: "relative",
+    overflow: "hidden",
+  },
+  reactorGlow: {
+    position: "absolute",
+    width: 240,
+    height: 240,
+    borderRadius: "50%",
+    background:
+      "radial-gradient(circle, rgba(255,0,0,0.34) 0%, rgba(255,0,0,0.14) 38%, rgba(255,0,0,0.02) 72%, transparent 100%)",
+    top: 90,
+    left: "50%",
+    transform: "translateX(-50%)",
+    filter: "blur(10px)",
+    animation: "reactorPulse 3s ease-in-out infinite",
+    zIndex: 1,
+  },
+  smokeGlow: {
+    position: "absolute",
+    width: 280,
+    height: 180,
+    borderRadius: "50%",
+    background:
+      "radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,60,60,0.08) 36%, rgba(255,0,0,0.03) 60%, transparent 100%)",
+    bottom: 85,
+    left: "50%",
+    transform: "translateX(-50%)",
+    filter: "blur(22px)",
+    animation: "labSmoke 4s ease-in-out infinite",
+    zIndex: 1,
+  },
+  labParticle: {
+    position: "absolute",
+    display: "block",
+    borderRadius: "50%",
+    background: "rgba(255, 60, 60, 0.9)",
+    boxShadow: "0 0 12px rgba(255,0,0,0.35)",
+    zIndex: 2,
+  },
+  labParticle1: {
+    width: 8,
+    height: 8,
+    top: 72,
+    right: 72,
+    animation: "particleFloat1 2.6s ease-in-out infinite",
+  },
+  labParticle2: {
+    width: 6,
+    height: 6,
+    top: 130,
+    left: 58,
+    animation: "particleFloat2 3.4s ease-in-out infinite",
+  },
+  labParticle3: {
+    width: 10,
+    height: 10,
+    top: 180,
+    right: 52,
+    animation: "particleFloat3 2.9s ease-in-out infinite",
+  },
+  labParticle4: {
+    width: 7,
+    height: 7,
+    bottom: 120,
+    left: 72,
+    animation: "particleFloat1 3.2s ease-in-out infinite",
+  },
+  labParticle5: {
+    width: 9,
+    height: 9,
+    bottom: 160,
+    right: 88,
+    animation: "particleFloat2 2.8s ease-in-out infinite",
   },
   heroLogoWrap: {
     width: 96,
@@ -2478,6 +2555,9 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
+    zIndex: 3,
+    animation: "crispyGlow 2s ease-in-out infinite, crispyFloat 2.4s ease-in-out infinite",
   },
   heroFullImage: {
     width: "100%",
@@ -2485,8 +2565,10 @@ const styles = {
     height: "auto",
     objectFit: "contain",
     display: "block",
-    filter: "drop-shadow(0 12px 26px rgba(255,0,0,0.12))",
-    animation: "crispyGlow 2.2s ease-in-out infinite, crispyFloat 3s ease-in-out infinite",
+    filter: "drop-shadow(0 18px 34px rgba(255,0,0,0.22))",
+    animation: "crispyFloat 3.5s ease-in-out infinite",
+    position: "relative",
+    zIndex: 3,
   },
   heroVisualTag: {
     display: "inline-block",
@@ -2499,14 +2581,18 @@ const styles = {
     fontSize: 12,
     letterSpacing: 1,
     marginTop: 8,
+    position: "relative",
+    zIndex: 3,
   },
   heroFullImage: {
     width: "100%",
-    maxWidth: 280,
+    maxWidth: 300,
     height: "auto",
     objectFit: "contain",
     display: "block",
-    filter: "drop-shadow(0 16px 34px rgba(255,0,0,0.15))",
+    filter: "drop-shadow(0 14px 34px rgba(255,0,0,0.16))",
+    position: "relative",
+    zIndex: 3,
   },
   mainGrid: {
     display: "grid",
