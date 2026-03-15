@@ -1106,325 +1106,332 @@ function renderCatalogoExperimentos() {
 }
 
   function renderExperimento1() {
-    return (
-      <section
-        style={{
-          ...styles.mainGrid,
-          gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
-        }}
-      >
-        <div>
-          <div style={styles.panel}>
-            <div style={styles.experimentoHeaderRow}>
-              <div>
-                <div style={styles.menuInteractiveBadge}>🔥 EXPERIMENTO 1 ACTIVO</div>
-                <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
-                <p style={styles.experimentScreenText}>
-                  Fuego Atómico, Honey Mutante y BBQ Reactor.
-                </p>
-              </div>
-
-              <button
-                style={styles.backCatalogBtn}
-                onClick={() => irASeccionCliente("catalogo")}
-              >
-                ← Volver a experimentos
-              </button>
-            </div>
-          </div>
-
-          <div style={styles.posterMenuWrap}>
-            <div
-              style={{
-                ...styles.posterHero,
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${alitasBg})`,
-              }}
-            >
-              <div style={styles.posterOverlayContent}>
-                <div style={styles.posterBrand}>DR. CRISPY LAB</div>
-                <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
-                <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                ...styles.posterSections,
-                gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
-              }}
-            >
-              <div style={styles.posterLeftCol}>
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
-
-                  <div style={styles.posterInfoList}>
-                    <div style={styles.posterInfoItem}>
-                      <strong>BBQ REACTOR</strong>{" "}
-                      <span>(SALSA BBQ AHUMADA)</span>
-                    </div>
-                    <div style={styles.posterInfoItem}>
-                      <strong>HONEY MUTANTE</strong>{" "}
-                      <span>(MIEL MOSTAZA)</span>
-                    </div>
-                    <div style={styles.posterInfoItem}>
-                      <strong>FUEGO ATÓMICO</strong>{" "}
-                      <span>(ACEITE PICANTE NASHVILLE)</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
-                  <div style={styles.reactionScale}>
-                    <div style={styles.reactionItem}>
-                      Fuego Atómico permite nivel bajo, medio o alto.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.posterRightCol}>
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
-                  <div style={styles.posterPriceList}>
-                    {FORMULAS.map((item) => (
-                      <div key={item.id} style={styles.posterPriceRow}>
-                        <span>{item.nombre.toUpperCase()}</span>
-                        <span>${item.precio.toLocaleString("es-CO")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
-                  <div style={styles.posterPriceList}>
-                    {BEBIDAS.map((item) => (
-                      <div key={item.id} style={styles.posterPriceRow}>
-                        <span>{item.nombre.toUpperCase()}</span>
-                        <span>${item.precio.toLocaleString("es-CO")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
-                  <div style={styles.posterPriceList}>
-                    {ADICIONALES.map((item) => (
-                      <div key={item.id} style={styles.posterPriceRow}>
-                        <span>{item.nombre.toUpperCase()}</span>
-                        <span>${item.precio.toLocaleString("es-CO")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={styles.menuInteractiveSection}>
-              <div style={styles.menuInteractiveHeader}>
-                <div style={styles.menuInteractiveBadge}>🍗 MENÚ INTERACTIVO</div>
-                <h2 style={styles.menuInteractiveTitle}>
-                  SELECCIONA TU EXPERIMENTO
-                </h2>
-              </div>
-
-              <div
-                style={{
-                  ...styles.posterFormulaGrid,
-                  gridTemplateColumns: esMovil
-                    ? "1fr"
-                    : "repeat(2, minmax(0, 1fr))",
-                }}
-              >
-                {FORMULAS.map(renderFormulaCard)}
-              </div>
-
-              <div style={styles.subSectionTitleWrap}>
-                <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
-              </div>
-
-              <div
-                style={{
-                  ...styles.simpleGrid,
-                  gridTemplateColumns: esMovil
-                    ? "1fr"
-                    : "repeat(2, minmax(0, 1fr))",
-                }}
-              >
-                {BEBIDAS.map(renderSimpleCard)}
-              </div>
-
-              <div style={styles.subSectionTitleWrap}>
-                <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
-              </div>
-
-              <div
-                style={{
-                  ...styles.simpleGrid,
-                  gridTemplateColumns: esMovil
-                    ? "1fr"
-                    : "repeat(2, minmax(0, 1fr))",
-                }}
-              >
-                {ADICIONALES.map(renderSimpleCard)}
-              </div>
-            </div>
-          </div>
-
-          <div style={styles.panel}>
-            <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
-
-            <Input
-              label="Nombre"
-              value={cliente.nombre}
-              onChange={(e) => actualizarCliente("nombre", e.target.value)}
-            />
-            <Input
-              label="Teléfono"
-              value={cliente.telefono}
-              onChange={(e) => actualizarCliente("telefono", e.target.value)}
-            />
-            <Input
-              label="Dirección"
-              value={cliente.direccion}
-              onChange={(e) => actualizarCliente("direccion", e.target.value)}
-            />
-            <Input
-              label="Referencia"
-              value={cliente.referencia}
-              onChange={(e) => actualizarCliente("referencia", e.target.value)}
-            />
-
-            <div style={{ marginBottom: 14 }}>
-              <label style={styles.label}>Método de pago</label>
-              <select
-                style={styles.input}
-                value={cliente.pago}
-                onChange={(e) => actualizarCliente("pago", e.target.value)}
-              >
-                <option>Nequi</option>
-                <option>Llave Breve</option>
-              </select>
-            </div>
-
-            <div style={styles.paymentInfoBox}>
-              <div style={styles.paymentInfoTitle}>💳 Datos de pago</div>
-              <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-              <div style={styles.paymentInfoText}>Llave Breve: 3152487938</div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div
-            style={{
-              ...styles.panelSticky,
-              position: esMovil ? "static" : "sticky",
-            }}
-          >
-            <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
-
-            {carrito.length === 0 ? (
-              <div style={styles.emptyBox}>
-                No has agregado productos todavía.
-              </div>
-            ) : (
-              carrito.map((item) => (
-                <div key={item.cartKey} style={styles.cartItem}>
-                  <div>
-                    <strong>{item.nombre}</strong>
-                    <div style={styles.cartSub}>
-                      {item.experimento || "Experimento 1"}
-                    </div>
-                    {item.salsa && (
-                      <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
-                    )}
-                    <div style={styles.cartSub}>
-                      ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
-                    </div>
-                  </div>
-
-                  <div style={styles.qtyBox}>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => cambiarCantidad(item.cartKey, -1)}
-                    >
-                      -
-                    </button>
-                    <span>{item.cantidad}</span>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => cambiarCantidad(item.cartKey, 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-
-            <div style={styles.summaryBox}>
-              <div style={styles.summaryRow}>
-                <span>Subtotal</span>
-                <span>${subtotal.toLocaleString("es-CO")}</span>
-              </div>
-              <div style={styles.summaryRow}>
-                <span>Domicilio</span>
-                <span style={{ color: "#ffd166", fontWeight: "bold" }}>Incluido</span>
-              </div>
-              <div style={styles.summaryTotal}>
-                <span>Total</span>
-                <span>${total.toLocaleString("es-CO")}</span>
-              </div>
+  return (
+    <section
+      style={{
+        ...styles.mainGrid,
+        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+      }}
+    >
+      <div>
+        <div style={styles.panel}>
+          <div style={styles.experimentoHeaderRow}>
+            <div>
+              <div style={styles.menuInteractiveBadge}>🔥 EXPERIMENTO 1 ACTIVO</div>
+              <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
+              <p style={styles.experimentScreenText}>
+                Fuego Atómico, Honey Mutante y BBQ Reactor.
+              </p>
             </div>
 
             <button
-              style={{
-                ...styles.confirmBtn,
-                ...(cargandoPedido ? styles.disabledBtn : {}),
-              }}
-              onClick={confirmarPedido}
-              disabled={cargandoPedido}
+              style={styles.backCatalogBtn}
+              onClick={() => irASeccionCliente("catalogo")}
             >
-              {cargandoPedido ? "Guardando pedido..." : "Confirmar pedido"}
+              ← Volver a experimentos
             </button>
-
-            <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
-              Enviar pedido por WhatsApp
-            </button>
-
-            <div style={styles.drCrispyFullWrap}>
-              <img
-                src={drCrispyFull}
-                alt="Dr. Crispy completo"
-                style={styles.drCrispyFullImage}
-              />
-            </div>
-
-            {pedidoCreadoId && (
-              <div style={styles.lastOrderBox}>
-                <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
-                  Último pedido creado:
-                </p>
-                <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
-                <button
-                  style={styles.secondaryBtn}
-                  onClick={() => {
-                    setVista("seguimiento");
-                    consultarMiSeguimiento();
-                  }}
-                >
-                  Ver mi seguimiento
-                </button>
-              </div>
-            )}
           </div>
         </div>
-      </section>
-    );
-  }
+
+        <div style={styles.posterMenuWrap}>
+          <div
+            style={{
+              ...styles.posterHero,
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0,0,0,0.82)), url(${alitasBg})`,
+            }}
+          >
+            <div style={styles.posterHeroGlow}></div>
+            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot1 }}></span>
+            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot2 }}></span>
+            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot3 }}></span>
+
+            <div style={styles.posterOverlayContent}>
+              <div style={styles.posterBrand}>DR. CRISPY LAB</div>
+              <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
+              <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              ...styles.posterSections,
+              gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
+            }}
+          >
+            <div style={styles.posterLeftCol}>
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
+
+                <div style={styles.posterInfoList}>
+                  <div style={styles.posterInfoItem}>
+                    <strong>BBQ REACTOR</strong>{" "}
+                    <span>(SALSA BBQ AHUMADA)</span>
+                  </div>
+                  <div style={styles.posterInfoItem}>
+                    <strong>HONEY MUTANTE</strong>{" "}
+                    <span>(MIEL MOSTAZA)</span>
+                  </div>
+                  <div style={styles.posterInfoItem}>
+                    <strong>FUEGO ATÓMICO</strong>{" "}
+                    <span>(ACEITE PICANTE NASHVILLE)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
+                <div style={styles.reactionScale}>
+                  <div style={styles.reactionItem}>
+                    Fuego Atómico permite nivel bajo, medio o alto.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.posterRightCol}>
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
+                <div style={styles.posterPriceList}>
+                  {FORMULAS.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
+                <div style={styles.posterPriceList}>
+                  {BEBIDAS.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
+                <div style={styles.posterPriceList}>
+                  {ADICIONALES.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.menuInteractiveSection}>
+            <div style={styles.menuInteractiveHeader}>
+              <div style={styles.menuInteractiveBadge}>🍗 MENÚ INTERACTIVO</div>
+              <h2 style={styles.menuInteractiveTitle}>
+                SELECCIONA TU EXPERIMENTO
+              </h2>
+            </div>
+
+            <div
+              style={{
+                ...styles.posterFormulaGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(2, minmax(0, 1fr))",
+              }}
+            >
+              {FORMULAS.map(renderFormulaCard)}
+            </div>
+
+            <div style={styles.subSectionTitleWrap}>
+              <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
+            </div>
+
+            <div
+              style={{
+                ...styles.simpleGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(2, minmax(0, 1fr))",
+              }}
+            >
+              {BEBIDAS.map(renderSimpleCard)}
+            </div>
+
+            <div style={styles.subSectionTitleWrap}>
+              <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
+            </div>
+
+            <div
+              style={{
+                ...styles.simpleGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(2, minmax(0, 1fr))",
+              }}
+            >
+              {ADICIONALES.map(renderSimpleCard)}
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.panel}>
+          <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
+
+          <Input
+            label="Nombre"
+            value={cliente.nombre}
+            onChange={(e) => actualizarCliente("nombre", e.target.value)}
+          />
+          <Input
+            label="Teléfono"
+            value={cliente.telefono}
+            onChange={(e) => actualizarCliente("telefono", e.target.value)}
+          />
+          <Input
+            label="Dirección"
+            value={cliente.direccion}
+            onChange={(e) => actualizarCliente("direccion", e.target.value)}
+          />
+          <Input
+            label="Referencia"
+            value={cliente.referencia}
+            onChange={(e) => actualizarCliente("referencia", e.target.value)}
+          />
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={styles.label}>Método de pago</label>
+            <select
+              style={styles.input}
+              value={cliente.pago}
+              onChange={(e) => actualizarCliente("pago", e.target.value)}
+            >
+              <option>Nequi</option>
+              <option>Llave Breve</option>
+            </select>
+          </div>
+
+          <div style={styles.paymentInfoBox}>
+            <div style={styles.paymentInfoTitle}>💳 Datos de pago</div>
+            <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+            <div style={styles.paymentInfoText}>Llave Breve: 3152487938</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div
+          style={{
+            ...styles.panelSticky,
+            position: esMovil ? "static" : "sticky",
+          }}
+        >
+          <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
+
+          {carrito.length === 0 ? (
+            <div style={styles.emptyBox}>
+              No has agregado productos todavía.
+            </div>
+          ) : (
+            carrito.map((item) => (
+              <div key={item.cartKey} style={styles.cartItem}>
+                <div>
+                  <strong>{item.nombre}</strong>
+                  <div style={styles.cartSub}>
+                    {item.experimento || "Experimento 1"}
+                  </div>
+                  {item.salsa && (
+                    <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
+                  )}
+                  <div style={styles.cartSub}>
+                    ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                  </div>
+                </div>
+
+                <div style={styles.qtyBox}>
+                  <button
+                    style={styles.qtyBtn}
+                    onClick={() => cambiarCantidad(item.cartKey, -1)}
+                  >
+                    -
+                  </button>
+                  <span>{item.cantidad}</span>
+                  <button
+                    style={styles.qtyBtn}
+                    onClick={() => cambiarCantidad(item.cartKey, 1)}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+
+          <div style={styles.summaryBox}>
+            <div style={styles.summaryRow}>
+              <span>Subtotal</span>
+              <span>${subtotal.toLocaleString("es-CO")}</span>
+            </div>
+            <div style={styles.summaryRow}>
+              <span>Domicilio</span>
+              <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                Incluido
+              </span>
+            </div>
+            <div style={styles.summaryTotal}>
+              <span>Total</span>
+              <span>${total.toLocaleString("es-CO")}</span>
+            </div>
+          </div>
+
+          <button
+            style={{
+              ...styles.confirmBtn,
+              ...(cargandoPedido ? styles.disabledBtn : {}),
+            }}
+            onClick={confirmarPedido}
+            disabled={cargandoPedido}
+          >
+            {cargandoPedido ? "Guardando pedido..." : "Confirmar pedido"}
+          </button>
+
+          <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+            Enviar pedido por WhatsApp
+          </button>
+
+          <div style={styles.drCrispyFullWrap}>
+            <img
+              src={drCrispyFull}
+              alt="Dr. Crispy completo"
+              style={styles.drCrispyFullImage}
+            />
+          </div>
+
+          {pedidoCreadoId && (
+            <div style={styles.lastOrderBox}>
+              <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
+                Último pedido creado:
+              </p>
+              <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
+              <button
+                style={styles.secondaryBtn}
+                onClick={() => {
+                  setVista("seguimiento");
+                  consultarMiSeguimiento();
+                }}
+              >
+                Ver mi seguimiento
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
 
   function renderCliente() {
     return (
@@ -2618,6 +2625,46 @@ const styles = {
     display: "grid",
     gap: 24,
   },
+  posterHeroGlow: {
+  position: "absolute",
+  inset: 0,
+  background:
+    "radial-gradient(circle at 75% 30%, rgba(255,0,0,0.22), transparent 28%), radial-gradient(circle at 20% 75%, rgba(255,120,0,0.10), transparent 24%)",
+  pointerEvents: "none",
+},
+
+posterSauceDot: {
+  position: "absolute",
+  display: "block",
+  borderRadius: "50%",
+  background: "radial-gradient(circle, #ff6a1f 0%, #ff0000 58%, #9e0000 100%)",
+  boxShadow: "0 0 10px rgba(255,0,0,0.30)",
+  pointerEvents: "none",
+},
+
+posterSauceDot1: {
+  width: 10,
+  height: 10,
+  right: 34,
+  top: 30,
+  animation: "sauceParticleFloat 3.2s ease-in-out infinite",
+},
+
+posterSauceDot2: {
+  width: 7,
+  height: 7,
+  left: 26,
+  bottom: 26,
+  animation: "sauceParticleFloat 2.7s ease-in-out infinite",
+},
+
+posterSauceDot3: {
+  width: 12,
+  height: 12,
+  right: 90,
+  bottom: 38,
+  animation: "sauceParticleFloat 3.6s ease-in-out infinite",
+},
   panel: {
     background: "rgba(17,17,17,0.94)",
     border: "1px solid rgba(255,255,255,0.05)",
@@ -2941,6 +2988,9 @@ const styles = {
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 16,
+    boxShadow: "0 10px 24px rgba(255,0,0,0.22)",
+    animation: "confirmGlow 2.4s ease-in-out infinite",
+    transition: "transform 0.2s ease, box-shadow 0.2s ease",
   },
   secondaryBtn: {
     background: "#1c1c1c",
@@ -3210,6 +3260,8 @@ const styles = {
     alignItems: "center",
     justifyContent: "flex-start",
     padding: 24,
+    overflow: "hidden",
+    animation: "posterDrift 12s ease-in-out infinite",
   },
   posterOverlayContent: {
     maxWidth: 420,
@@ -3231,9 +3283,10 @@ const styles = {
     lineHeight: 0.88,
     color: "#fff",
     textTransform: "uppercase",
-    textShadow: "0 4px 18px rgba(0,0,0,0.45)",
+    textShadow: "0 0 18px rgba(255,0,0,0.35)",
     fontFamily: '"Bebas Neue", sans-serif',
     letterSpacing: 1.2,
+    
   },
   posterExperiment: {
     display: "inline-block",
