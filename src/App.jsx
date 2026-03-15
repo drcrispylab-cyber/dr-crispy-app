@@ -123,22 +123,25 @@ const EXPERIMENTOS = [
     badge: "ACTIVO",
   },
   {
-    id: "exp2",
-    titulo: "Experimento 02",
-    subtitulo: "Experimento en incubación",
-    descripcion: "Próximamente una nueva creación del laboratorio.",
+  id: "exp2",
+    titulo: "EXPERIMENTO 02",
+    subtitulo: "PROYECTO DEL LABORATORIO",
+    descripcion:
+      "Un nuevo experimento está siendo desarrollado en el laboratorio del Dr. Crispy.",
+    imagen: "/clasificado.png",
     estado: "proximamente",
-    imagen: heroImage,
-    badge: "PRÓXIMAMENTE",
+    badge: "🧪 EN DESARROLLO",
   },
+
   {
-    id: "exp3",
-    titulo: "Experimento 03",
-    subtitulo: "Experimento en incubación",
-    descripcion: "Seguimos cocinando una nueva mutación del sabor.",
-    estado: "proximamente",
-    imagen: heroImage,
-    badge: "PRÓXIMAMENTE",
+  id: "exp3",
+  titulo: "EXPERIMENTO 03",
+  subtitulo: "PROYECTO CLASIFICADO",
+  descripcion:
+    "Otro experimento del laboratorio sigue en fase de pruebas. Muy pronto mostraremos más información.",
+  imagen: "/clasificado.png",
+  estado: "proximamente",
+  badge: "🔒 CLASIFICADO",
   },
 ];
 
@@ -151,6 +154,7 @@ function App() {
   const [ancho, setAncho] = useState(window.innerWidth);
   const [seccionCliente, setSeccionCliente] = useState("inicio");
   const [cardHover, setCardHover] = useState("");
+  const [audioLab] = useState(() => new Audio("/lab-beep.mp3"));
 
   const [carrito, setCarrito] = useState([]);
   const [cliente, setCliente] = useState({
@@ -3325,6 +3329,28 @@ posterSauceDot3: {
     boxShadow: "0 12px 28px rgba(255,0,0,0.20)",
     fontFamily: '"Bebas Neue", sans-serif',
     letterSpacing: 1,
+  },
+  classifiedSmoke: {
+    position: "absolute",
+    inset: 0,
+    background:
+      "radial-gradient(circle at 50% 45%, rgba(255,0,0,0.16), transparent 30%), radial-gradient(circle at 70% 20%, rgba(255,80,0,0.10), transparent 22%)",
+    pointerEvents: "none",
+  },
+
+  classifiedOverlay: {
+    position: "absolute",
+    inset: 0,
+    background:
+      "radial-gradient(circle at center, rgba(255,0,0,0.06), transparent 34%)",
+    opacity: 0.75,
+    transition: "opacity 0.25s ease, transform 0.25s ease",
+    pointerEvents: "none",
+  },
+
+  classifiedOverlayHover: {
+    opacity: 1,
+    transform: "scale(1.03)",
   },
   posterSections: {
     display: "grid",
