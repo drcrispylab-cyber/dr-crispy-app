@@ -127,10 +127,10 @@ const EXPERIMENTOS = [
     titulo: "EXPERIMENTO 02",
     subtitulo: "PROYECTO DEL LABORATORIO",
     descripcion:
-      "Un nuevo experimento está siendo desarrollado en el laboratorio del Dr. Crispy.",
+      "Otro experimento del laboratorio sigue en fase de pruebas. Muy pronto mostraremos más información.",
     imagen: "/clasificado.png",
     estado: "proximamente",
-    badge: "🧪 EN DESARROLLO",
+    badge: "🔒 CLASIFICADO",
   },
 
   {
