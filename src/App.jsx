@@ -938,67 +938,84 @@ function App() {
   }
 
   function renderHeroInicio() {
-    return (
-      <section
-        style={{
-          ...styles.labHero,
-          gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
-        }}
-      >
-        <div style={styles.labHeroContent}>
-          <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
-          <h2 style={styles.labHeroTitle}>
-            BIENVENIDO AL LABORATORIO DEL DR. CRISPY
-          </h2>
-          <p style={styles.labHeroText}>
-            Aquí no vendemos solo comida. Creamos experimentos crujientes con
-            salsa, fuego y sabor. No es pollo. Es un experimento.
-          </p>
+  return (
+    <section
+      style={{
+        ...styles.labHero,
+        gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
+      }}
+    >
+      {/* TEXTO HERO */}
+      <div style={styles.labHeroContent}>
+        <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
 
-          <div style={styles.heroActionRow}>
-            <button
-              style={styles.heroPrimaryBtn}
-              onClick={() => irASeccionCliente("catalogo")}
-            >
-              Ver experimentos
-            </button>
+        <h2 style={styles.labHeroTitle}>
+          BIENVENIDO AL LABORATORIO DEL DR. CRISPY
+        </h2>
 
-            <button
-              style={styles.heroSecondaryBtn}
-              onClick={() => setVista("seguimiento")}
-            >
-              Ver mi seguimiento
-            </button>
-          </div>
+        <p style={styles.labHeroText}>
+          Aquí no vendemos solo comida. Creamos experimentos crujientes con
+          salsa, fuego y sabor. No es pollo. Es un experimento.
+        </p>
+
+        <div style={styles.heroActionRow}>
+          <button
+            style={styles.heroPrimaryBtn}
+            onClick={() => irASeccionCliente("catalogo")}
+          >
+            Ver experimentos
+          </button>
+
+          <button
+            style={styles.heroSecondaryBtn}
+            onClick={() => setVista("seguimiento")}
+          >
+            Ver mi seguimiento
+          </button>
         </div>
+      </div>
 
-        <div style={styles.labHeroVisual}>
-          <div style={styles.heroVisualCard}>
-            <div style={styles.heroLogoWrap}>
-              <img
-                src={drCrispyIcon}
-                alt="Dr. Crispy Lab"
-                style={{
-                  width: "120%",
-                  height: "120%",
-                  objectFit: "cover",
-                  transform: "scale(1.1)",
-                }}
-              />
-            </div>
-
-            <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
-
+      {/* VISUAL HERO */}
+      <div style={styles.labHeroVisual}>
+        <div style={styles.heroVisualCard}>
+          
+          {/* LOGO DR CRISPY */}
+          <div
+            style={{
+              ...styles.heroLogoWrap,
+              animation:
+                "crispyGlow 1.8s ease-in-out infinite, crispyFloat 2.2s ease-in-out infinite",
+            }}
+          >
             <img
-              src={drCrispyFull}
-              alt="Dr. Crispy"
-              style={styles.heroFullImage}
+              src={drCrispyIcon}
+              alt="Dr. Crispy Lab"
+              style={{
+                width: "120%",
+                height: "120%",
+                objectFit: "cover",
+                transform: "scale(1.1)",
+              }}
             />
           </div>
+
+          {/* TEXTO LOGO */}
+          <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
+
+          {/* POLLO GRANDE */}
+          <img
+            src={drCrispyFull}
+            alt="Dr. Crispy"
+            style={{
+              ...styles.heroFullImage,
+              animation: "crispyFloat 3.5s ease-in-out infinite",
+            }}
+          />
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
+}
 
   function renderCatalogoExperimentos() {
     return (
