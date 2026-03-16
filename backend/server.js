@@ -17,14 +17,28 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://dr-crispy-app.vercel.app",
+    ],
     methods: ["GET", "POST", "PATCH", "DELETE"],
   },
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://dr-crispy-app.vercel.app",
+    ],
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+  })
+);
+
 app.use(express.json());
 
 const DATA_DIR = __dirname;
@@ -109,6 +123,30 @@ function emitirActualizacionPedidos() {
   io.emit("pedidos:actualizados", pedidos);
 }
 
+function limpiarNumeroWhatsApp(numero = "") {
+  const limpio = String(numero).replace(/\D/g, "");
+
+  if (!limpio) return "";
+  if (limpio.startsWith("57")) return limpio;
+  if (limpio.length === 10) return `57${limpio}`;
+
+  return limpio;
+}
+
+function construirMensajeConfirmacionCliente(pedido) {
+  return [
+    `Hola ${pedido?.cliente?.nombre || "cliente"} 👋`,
+    "",
+    `Tu pedido *${pedido?.id || ""}* fue recibido correctamente en *Dr. Crispy Lab* 🧪🍗`,
+    "",
+    `💵 Total: *$${Number(pedido?.total || 0).toLocaleString("es-CO")}*`,
+    `📍 Dirección: ${pedido?.cliente?.direccion || "-"}`,
+    `📦 Estado: ${pedido?.estado || "Recibido"}`,
+    "",
+    "Muy pronto continuaremos contigo por este medio.",
+  ].join("\n");
+}
+
 async function notificarBotPedido(pedido) {
   try {
     const response = await fetch("http://localhost:3002/notify-order", {
@@ -153,6 +191,53 @@ async function notificarBotEstado(pedido) {
   }
 }
 
+async function notificarBotConfirmacionCliente(pedido) {
+  try {
+    const telefonoLimpio = limpiarNumeroWhatsApp(pedido?.cliente?.telefono);
+
+    if (!telefonoLimpio) {
+      console.log(`⚠️ No se envió confirmación al cliente del pedido ${pedido?.id}: teléfono vacío o inválido`);
+      return;
+    }
+
+    const mensaje = construirMensajeConfirmacionCliente({
+      ...pedido,
+      cliente: {
+        ...pedido.cliente,
+        telefono: telefonoLimpio,
+      },
+    });
+
+    const response = await fetch("http://localhost:3002/notify-customer-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pedido: {
+          ...pedido,
+          cliente: {
+            ...pedido.cliente,
+            telefono: telefonoLimpio,
+          },
+        },
+        telefono: telefonoLimpio,
+        mensaje,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error notificando confirmación al cliente");
+    }
+
+    console.log(`📲 Confirmación enviada al cliente ${telefonoLimpio} para pedido ${pedido.id}`);
+  } catch (error) {
+    console.error("❌ Error enviando confirmación al cliente:", error.message);
+  }
+}
+
 io.on("connection", (socket) => {
   console.log("Cliente conectado:", socket.id);
   socket.emit("pedidos:actualizados", leerPedidos());
@@ -191,7 +276,7 @@ app.post("/login", (req, res) => {
     const user = usuarios.find(
       (u) =>
         String(u.username).trim().toLowerCase() === String(username).trim().toLowerCase() &&
-        String(u.password) === String(password)
+        String(u.password).trim() === String(password).trim()
     );
 
     if (!user) {
@@ -210,7 +295,7 @@ app.post("/login", (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ Error en login:", error.message);
+    console.error("❌ Error en login:", error);
     return res.status(500).json({
       error: "Error interno en login",
     });
@@ -242,10 +327,10 @@ app.post("/pedidos", async (req, res) => {
       estado: "Recibido",
       repartidor: "",
       cliente: {
-        nombre: cliente.nombre,
-        telefono: cliente.telefono,
-        direccion: cliente.direccion,
-        referencia: cliente.referencia || "",
+        nombre: String(cliente.nombre || "").trim(),
+        telefono: String(cliente.telefono || "").trim(),
+        direccion: String(cliente.direccion || "").trim(),
+        referencia: String(cliente.referencia || "").trim(),
         pago: cliente.pago || "Efectivo",
       },
       items,
@@ -268,6 +353,7 @@ app.post("/pedidos", async (req, res) => {
     }
 
     await notificarBotPedido(nuevoPedido);
+    await notificarBotConfirmacionCliente(nuevoPedido);
 
     emitirActualizacionPedidos();
     io.emit("pedido:nuevo", nuevoPedido);

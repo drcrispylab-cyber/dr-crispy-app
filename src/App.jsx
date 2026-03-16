@@ -190,6 +190,9 @@ function App() {
   const [eliminandoPedidoId, setEliminandoPedidoId] = useState("");
 
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
+  const [toast, setToast] = useState({ visible: false, texto: "" });
+  const [modalPedidoAbierto, setModalPedidoAbierto] = useState(false);
+  const [pedidoConfirmadoInfo, setPedidoConfirmadoInfo] = useState(null);
 
   const [pedidoCreadoId, setPedidoCreadoId] = useState("");
   const [trackingToken, setTrackingToken] = useState(
@@ -228,6 +231,14 @@ function App() {
     setTimeout(() => setMensaje({ tipo: "", texto: "" }), 3500);
   }
 
+  function mostrarToast(texto) {
+  setToast({ visible: true, texto });
+
+  setTimeout(() => {
+    setToast({ visible: false, texto: "" });
+  }, 2200);
+}
+
   function limpiarCliente() {
     setCliente({
       nombre: "",
@@ -243,30 +254,35 @@ function App() {
   }
 
   function agregarProducto(producto) {
-    const key = getCartKey(producto);
-    const existente = carrito.find((item) => item.cartKey === key);
+  const key = getCartKey(producto);
+  const existente = carrito.find((item) => item.cartKey === key);
 
-    if (existente) {
-      setCarrito((prev) =>
-        prev.map((item) =>
-          item.cartKey === key
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        )
-      );
-      return;
-    }
+  if (existente) {
+    setCarrito((prev) =>
+      prev.map((item) =>
+        item.cartKey === key
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      )
+    );
 
-    setCarrito((prev) => [
-      ...prev,
-      {
-        ...producto,
-        cantidad: 1,
-        cartKey: key,
-        experimento: "Experimento 1",
-        categoriaExperimento: "Alitas Crispy",
-      },
-    ]);
+    mostrarToast(`✅ ${producto.nombre} se añadió a tu pedido`);
+    return;
+  }
+
+  setCarrito((prev) => [
+    ...prev,
+    {
+      ...producto,
+      cantidad: 1,
+      cartKey: key,
+      experimento: "Experimento 1",
+      categoriaExperimento: "Alitas Crispy",
+    },
+  ]);
+
+  mostrarToast(`✅ ${producto.nombre} se añadió a tu pedido`);
+}
   }
 
   function seleccionarSalsa(producto, salsa) {
@@ -282,7 +298,7 @@ function App() {
     });
 
     setFormulaSeleccionada(null);
-    mostrarMensaje("ok", `${producto.nombre} agregado con ${salsa.nombre}.`);
+    mostrarToast(`✅ ${producto.nombre} añadido con ${salsa.nombre}`);
   }
 
   function confirmarFuegoAtomico() {
@@ -296,9 +312,8 @@ function App() {
       salsa: `${salsaPendiente.salsa.nombre} - ${nivelAtomico}`,
     });
 
-    mostrarMensaje(
-      "ok",
-      `${salsaPendiente.producto.nombre} agregado con Fuego Atómico ${nivelAtomico}.`
+    mostrarToast(
+      `✅ ${salsaPendiente.producto.nombre} añadido con Fuego Atómico ${nivelAtomico}`
     );
 
     setSalsaPendiente(null);
@@ -475,63 +490,81 @@ function App() {
   }
 
   async function confirmarPedido() {
-    const errorValidacion = validarCliente();
+  const errorValidacion = validarCliente();
 
-    if (errorValidacion) {
-      mostrarMensaje("error", errorValidacion);
-      return;
-    }
-
-    try {
-      setCargandoPedido(true);
-
-      const response = await fetch(`${API_URL}/pedidos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cliente: {
-            ...cliente,
-            nombre: cliente.nombre.trim(),
-            telefono: cliente.telefono.trim(),
-            direccion: cliente.direccion.trim(),
-            referencia: cliente.referencia.trim(),
-          },
-          items: carrito,
-          subtotal,
-          domicilio,
-          total,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error guardando pedido");
-      }
-
-      const nuevoId = data?.pedido?.id || "";
-      const nuevoTrackingToken = data?.pedido?.trackingToken || "";
-
-      setPedidoCreadoId(nuevoId);
-      setTrackingToken(nuevoTrackingToken);
-      setPedidoConsultado(data?.pedido || null);
-
-      localStorage.setItem("dr_tracking_token", nuevoTrackingToken);
-
-      mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
-      setCarrito([]);
-      limpiarCliente();
-
-      setVista("seguimiento");
-      consultarMiSeguimiento(nuevoTrackingToken);
-    } catch (error) {
-      mostrarMensaje("error", error.message);
-    } finally {
-      setCargandoPedido(false);
-    }
+  if (errorValidacion) {
+    mostrarMensaje("error", errorValidacion);
+    return;
   }
+
+  try {
+    setCargandoPedido(true);
+
+    const clienteLimpio = {
+      ...cliente,
+      nombre: cliente.nombre.trim(),
+      telefono: cliente.telefono.trim(),
+      direccion: cliente.direccion.trim(),
+      referencia: cliente.referencia.trim(),
+    };
+
+    const response = await fetch(`${API_URL}/pedidos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cliente: clienteLimpio,
+        items: carrito,
+        subtotal,
+        domicilio,
+        total,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error guardando pedido");
+    }
+
+    const nuevoPedido = data?.pedido || null;
+    const nuevoId = nuevoPedido?.id || "";
+    const nuevoTrackingToken = nuevoPedido?.trackingToken || "";
+
+    setPedidoCreadoId(nuevoId);
+    setTrackingToken(nuevoTrackingToken);
+    setPedidoConsultado(nuevoPedido);
+
+    if (nuevoTrackingToken) {
+      localStorage.setItem("dr_tracking_token", nuevoTrackingToken);
+    }
+
+    setPedidoConfirmadoInfo({
+      id: nuevoId,
+      nombre: clienteLimpio.nombre,
+      telefono: clienteLimpio.telefono,
+      total,
+    });
+
+    setModalPedidoAbierto(true);
+    mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
+    mostrarToast("🎉 Tu pedido fue confirmado correctamente");
+
+    setCarrito([]);
+    limpiarCliente();
+
+    setVista("seguimiento");
+
+    if (nuevoTrackingToken) {
+      consultarMiSeguimiento(nuevoTrackingToken);
+    }
+  } catch (error) {
+    mostrarMensaje("error", error.message);
+  } finally {
+    setCargandoPedido(false);
+  }
+}
 
   async function consultarMiSeguimiento(tokenManual) {
     const token = (tokenManual ?? trackingToken).trim();
@@ -1502,7 +1535,79 @@ function renderCatalogoExperimentos() {
     <div style={styles.page}>
       <audio ref={audioRef} src={alertaSound} preload="auto" />
       <div style={styles.overlay}></div>
+      {toast.visible && (
+        <div style={styles.toastBox}>
+          <div style={styles.toastIcon}>🧪</div>
+          <div style={styles.toastText}>{toast.texto}</div>
+        </div>
+      )}
 
+      {modalPedidoAbierto && (
+  <div
+    style={styles.modalBackdrop}
+    onClick={() => setModalPedidoAbierto(false)}
+  >
+    <div
+      style={styles.successModalCard}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={styles.successEmoji}>🎉🍗</div>
+
+      <h2 style={styles.successTitle}>
+        Experimento confirmado
+      </h2>
+
+      <p style={styles.successText}>
+        Tu pedido fue recibido correctamente en el laboratorio.
+      </p>
+
+      {pedidoConfirmadoInfo && (
+        <div style={styles.successDataBox}>
+          <div style={styles.successDataRow}>
+            <span>Pedido</span>
+            <strong>{pedidoConfirmadoInfo.id}</strong>
+          </div>
+
+          <div style={styles.successDataRow}>
+            <span>Cliente</span>
+            <strong>{pedidoConfirmadoInfo.nombre}</strong>
+          </div>
+
+          <div style={styles.successDataRow}>
+            <span>Total</span>
+            <strong>
+              ${pedidoConfirmadoInfo.total.toLocaleString("es-CO")}
+            </strong>
+          </div>
+        </div>
+      )}
+
+      <p style={styles.successHint}>
+        Puedes seguir el estado de tu pedido en la sección de seguimiento.
+      </p>
+
+      <div style={styles.successActions}>
+        <button
+          style={styles.heroSecondaryBtn}
+          onClick={() => {
+            setModalPedidoAbierto(false);
+            setVista("seguimiento");
+            consultarMiSeguimiento();
+          }}
+        >
+          Ver seguimiento
+        </button>
+
+        <button
+          style={styles.heroPrimaryBtn}
+          onClick={() => setModalPedidoAbierto(false)}
+        >
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {formulaSeleccionada && (
         <div
           style={styles.modalBackdrop}
@@ -2315,7 +2420,7 @@ function renderCatalogoExperimentos() {
       </div>
     </div>
   );
-}
+
 
 function Input({ label, value, onChange }) {
   return (
@@ -3714,6 +3819,88 @@ posterSauceDot3: {
     cursor: "pointer",
     fontWeight: "bold",
   },
+  toastBox: {
+    position: "fixed",
+    right: 20,
+    bottom: 20,
+    zIndex: 9999,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    background: "rgba(15,15,15,0.95)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    color: "#fff",
+    padding: "12px 16px",
+    borderRadius: 16,
+    boxShadow: "0 18px 40px rgba(0,0,0,0.35)",
+  },
+
+toastIcon: {
+  fontSize: 18,
+},
+
+toastText: {
+  fontWeight: "bold",
+  fontSize: 14,
+},
+
+successModalCard: {
+  width: "100%",
+  maxWidth: 520,
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 28%), linear-gradient(180deg, #171717, #0c0c0c)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 24,
+  padding: 28,
+  boxShadow: "0 30px 80px rgba(0,0,0,0.50)",
+  textAlign: "center",
+},
+
+successEmoji: {
+  fontSize: 42,
+  marginBottom: 10,
+},
+
+successTitle: {
+  margin: "0 0 10px 0",
+  fontSize: 52,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+},
+
+successText: {
+  marginBottom: 18,
+  color: "#d7d7d7",
+},
+
+successDataBox: {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 16,
+  padding: 16,
+  marginBottom: 16,
+},
+
+successDataRow: {
+  display: "flex",
+  justifyContent: "space-between",
+  padding: "6px 0",
+  color: "#f2f2f2",
+},
+
+successHint: {
+  color: "#ffbdbd",
+  fontSize: 14,
+  marginBottom: 18,
+},
+
+successActions: {
+  display: "flex",
+  gap: 12,
+  justifyContent: "center",
+  flexWrap: "wrap",
+},
 };
 
 export default App;
