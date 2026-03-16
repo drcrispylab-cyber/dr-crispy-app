@@ -1550,13 +1550,13 @@ function renderCatalogoExperimentos() {
       <audio ref={audioRef} src={alertaSound} preload="auto" />
       <div style={styles.overlay}></div>
         {toast.visible && (
-      <div style={styles.toastBox}>
-        <div style={styles.toastInner}>
-          <div style={styles.toastIcon}>✅</div>
-          <div style={styles.toastText}>{toast.texto}</div>
-        </div>
-      </div>
-    )}
+          <div style={styles.toastBox}>
+            <div style={styles.toastInner}>
+              <div style={styles.toastIcon}>✅</div>
+              <div style={styles.toastText}>{toast.texto}</div>
+            </div>
+          </div>
+        )}
 
       {modalPedidoAbierto && (
   <div
@@ -3837,14 +3837,15 @@ posterSauceDot3: {
   },
   toastBox: {
     position: "fixed",
+    top: "50%",
     left: "50%",
-    bottom: 26,
-    transform: "translateX(-50%)",
+    transform: "translate(-50%, -50%)",
     zIndex: 9999,
     width: "calc(100% - 32px)",
     maxWidth: 420,
     display: "flex",
     justifyContent: "center",
+    alignItems: "center",
     pointerEvents: "none",
   },
 
@@ -3854,12 +3855,12 @@ posterSauceDot3: {
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    background: "linear-gradient(135deg, rgba(20,20,20,0.98), rgba(8,8,8,0.98))",
-    border: "1px solid rgba(255,0,0,0.22)",
+    background: "linear-gradient(135deg, rgba(18,18,18,0.98), rgba(8,8,8,0.98))",
+    border: "1px solid rgba(255,0,0,0.25)",
     color: "#fff",
-    padding: "14px 18px",
-    borderRadius: 16,
-    boxShadow: "0 18px 40px rgba(0,0,0,0.38)",
+    padding: "16px 18px",
+    borderRadius: 18,
+    boxShadow: "0 18px 45px rgba(0,0,0,0.42)",
   },
 
   toastIcon: {
