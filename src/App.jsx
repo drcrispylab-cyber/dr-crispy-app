@@ -254,20 +254,34 @@ function App() {
   }
 
   function agregarProducto(producto) {
-  const key = getCartKey(producto);
-  const existente = carrito.find((item) => item.cartKey === key);
+    const key = getCartKey(producto);
+    const existente = carrito.find((item) => item.cartKey === key);
 
-  if (existente) {
-    setCarrito((prev) =>
-      prev.map((item) =>
-        item.cartKey === key
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
-      )
-    );
+    if (existente) {
+      setCarrito((prev) =>
+        prev.map((item) =>
+          item.cartKey === key
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        )
+      );
 
-    mostrarToast(`✅ ${producto.nombre} se añadió a tu pedido`);
-    return;
+      mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`);
+      return;
+    }
+
+    setCarrito((prev) => [
+      ...prev,
+      {
+        ...producto,
+        cantidad: 1,
+        cartKey: key,
+        experimento: "Experimento 1",
+        categoriaExperimento: "Alitas Crispy",
+      },
+    ]);
+
+    mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`);
   }
 
   setCarrito((prev) => [
@@ -283,7 +297,7 @@ function App() {
 
   mostrarToast(`✅ ${producto.nombre} se añadió a tu pedido`);
 }
-  }
+  
 
   function seleccionarSalsa(producto, salsa) {
     if (salsa.nombre === "Fuego Atómico") {
@@ -1535,12 +1549,14 @@ function renderCatalogoExperimentos() {
     <div style={styles.page}>
       <audio ref={audioRef} src={alertaSound} preload="auto" />
       <div style={styles.overlay}></div>
-      {toast.visible && (
-        <div style={styles.toastBox}>
-          <div style={styles.toastIcon}>🧪</div>
+        {toast.visible && (
+      <div style={styles.toastBox}>
+        <div style={styles.toastInner}>
+          <div style={styles.toastIcon}>✅</div>
           <div style={styles.toastText}>{toast.texto}</div>
         </div>
-      )}
+      </div>
+    )}
 
       {modalPedidoAbierto && (
   <div
@@ -3821,28 +3837,42 @@ posterSauceDot3: {
   },
   toastBox: {
     position: "fixed",
-    right: 20,
-    bottom: 20,
+    left: "50%",
+    bottom: 26,
+    transform: "translateX(-50%)",
     zIndex: 9999,
+    width: "calc(100% - 32px)",
+    maxWidth: 420,
     display: "flex",
-    alignItems: "center",
-    gap: 10,
-    background: "rgba(15,15,15,0.95)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    color: "#fff",
-    padding: "12px 16px",
-    borderRadius: 16,
-    boxShadow: "0 18px 40px rgba(0,0,0,0.35)",
+    justifyContent: "center",
+    pointerEvents: "none",
   },
 
-toastIcon: {
-  fontSize: 18,
-},
+  toastInner: {
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    background: "linear-gradient(135deg, rgba(20,20,20,0.98), rgba(8,8,8,0.98))",
+    border: "1px solid rgba(255,0,0,0.22)",
+    color: "#fff",
+    padding: "14px 18px",
+    borderRadius: 16,
+    boxShadow: "0 18px 40px rgba(0,0,0,0.38)",
+  },
 
-toastText: {
-  fontWeight: "bold",
-  fontSize: 14,
-},
+  toastIcon: {
+    fontSize: 20,
+    flexShrink: 0,
+  },
+
+  toastText: {
+    fontWeight: "bold",
+    fontSize: 15,
+    lineHeight: 1.35,
+    textAlign: "center",
+  },
 
 successModalCard: {
   width: "100%",
