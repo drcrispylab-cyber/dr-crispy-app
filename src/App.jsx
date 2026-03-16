@@ -193,7 +193,7 @@ function App() {
   const [eliminandoPedidoId, setEliminandoPedidoId] = useState("");
 
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
-  const [toast, setToast] = useState({ visible: false, texto: "" });
+  const [toast, setToast] = useState({visible: false, texto: "", x: 0, y: 0,});
   const [modalPedidoAbierto, setModalPedidoAbierto] = useState(false);
   const [pedidoConfirmadoInfo, setPedidoConfirmadoInfo] = useState(null);
 
@@ -216,6 +216,7 @@ function App() {
 
   const audioRef = useRef(null);
   const pedidosInicialesCargadosRef = useRef(false);
+  const toastTimerRef = useRef(null);
 
   const esMovil = ancho < 900;
   const puedeVerAdmin = rutaPrivada === "admin";
@@ -234,11 +235,44 @@ function App() {
     setTimeout(() => setMensaje({ tipo: "", texto: "" }), 3500);
   }
 
-  function mostrarToast(texto) {
-  setToast({ visible: true, texto });
+  function mostrarToast(texto, target) {
+  if (toastTimerRef.current) {
+    clearTimeout(toastTimerRef.current);
+  }
 
-  setTimeout(() => {
-    setToast({ visible: false, texto: "" });
+  let x = window.innerWidth / 2;
+  let y = 100;
+
+  if (target) {
+    const rect = target.getBoundingClientRect();
+
+    x = rect.left + rect.width / 2;
+    y = rect.top - 12;
+
+    if (y < 90) {
+      y = rect.bottom + 12;
+    }
+  }
+
+  const anchoToast = Math.min(420, window.innerWidth - 32);
+  const mitad = anchoToast / 2;
+
+  if (x < mitad + 16) x = mitad + 16;
+  if (x > window.innerWidth - mitad - 16) x = window.innerWidth - mitad - 16;
+
+  setToast({
+    visible: true,
+    texto,
+    x,
+    y,
+  });
+
+  toastTimerRef.current = setTimeout(() => {
+    setToast((prev) => ({
+      ...prev,
+      visible: false,
+      texto: "",
+    }));
   }, 2200);
 }
 
@@ -256,35 +290,21 @@ function App() {
     return `${producto.id}-${producto.salsa || "sin-salsa"}`;
   }
 
-  function agregarProducto(producto) {
-    const key = getCartKey(producto);
-    const existente = carrito.find((item) => item.cartKey === key);
+  function agregarProducto(producto, target) {
+  const key = getCartKey(producto);
+  const existente = carrito.find((item) => item.cartKey === key);
 
-    if (existente) {
-      setCarrito((prev) =>
-        prev.map((item) =>
-          item.cartKey === key
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        )
-      );
+  if (existente) {
+    setCarrito((prev) =>
+      prev.map((item) =>
+        item.cartKey === key
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      )
+    );
 
-      mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`);
-      return;
-    }
-
-    setCarrito((prev) => [
-      ...prev,
-      {
-        ...producto,
-        cantidad: 1,
-        cartKey: key,
-        experimento: "Experimento 1",
-        categoriaExperimento: "Alitas Crispy",
-      },
-    ]);
-
-    mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`);
+    mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
+    return;
   }
 
   setCarrito((prev) => [
@@ -298,7 +318,7 @@ function App() {
     },
   ]);
 
-  mostrarToast(`✅ ${producto.nombre} se añadió a tu pedido`);
+  mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
 }
   
 
@@ -1553,13 +1573,20 @@ function renderCatalogoExperimentos() {
       <audio ref={audioRef} src={alertaSound} preload="auto" />
       <div style={styles.overlay}></div>
         {toast.visible && (
-          <div style={styles.toastBox}>
-            <div style={styles.toastInner}>
-              <div style={styles.toastIcon}>✅</div>
-              <div style={styles.toastText}>{toast.texto}</div>
-            </div>
-          </div>
-        )}
+      <div
+        style={{
+          ...styles.toastBox,
+          left: toast.x,
+          top: toast.y,
+          transform: "translate(-50%, -100%)",
+        }}
+      >
+        <div style={styles.toastInner}>
+          <div style={styles.toastIcon}>✅</div>
+          <div style={styles.toastText}>{toast.texto}</div>
+        </div>
+      </div>
+    )}
 
       {modalPedidoAbierto && (
   <div
@@ -2439,7 +2466,7 @@ function renderCatalogoExperimentos() {
       </div>
     </div>
   );
-
+}
 
 function Input({ label, value, onChange }) {
   return (
@@ -3839,18 +3866,15 @@ posterSauceDot3: {
     fontWeight: "bold",
   },
   toastBox: {
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    zIndex: 9999,
-    width: "calc(100% - 32px)",
-    maxWidth: 420,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    pointerEvents: "none",
-  },
+  position: "fixed",
+  zIndex: 9999,
+  width: "calc(100% - 32px)",
+  maxWidth: 420,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  pointerEvents: "none",
+},
 
   toastInner: {
     width: "100%",
