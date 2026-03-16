@@ -169,6 +169,28 @@ async function notificarBotPedido(pedido) {
   }
 }
 
+async function notificarBotConfirmacionCliente(pedido) {
+  try {
+    const response = await fetch("http://localhost:3002/notify-customer-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ pedido }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Error notificando al cliente");
+    }
+
+    console.log(`📲 Cliente notificado del pedido ${pedido.id}`);
+  } catch (error) {
+    console.error("❌ Error notificando al cliente:", error.message);
+  }
+}
+
 async function notificarBotEstado(pedido) {
   try {
     const response = await fetch("http://localhost:3002/notify-status", {
