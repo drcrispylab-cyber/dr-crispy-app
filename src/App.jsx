@@ -157,6 +157,9 @@ function App() {
   const [audioLab] = useState(() => new Audio("/lab-beep.mp3"));
 
   const [carrito, setCarrito] = useState([]);
+
+  
+
   const [cliente, setCliente] = useState({
     nombre: "",
     telefono: "",
