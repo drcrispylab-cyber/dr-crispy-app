@@ -15,13 +15,15 @@ const {
 const app = express();
 const server = http.createServer(app);
 
+const ORIGINS_PERMITIDOS = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://dr-crispy-app.vercel.app",
+];
+
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      "https://dr-crispy-app.vercel.app",
-    ],
+    origin: ORIGINS_PERMITIDOS,
     methods: ["GET", "POST", "PATCH", "DELETE"],
   },
 });
@@ -30,11 +32,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      "https://dr-crispy-app.vercel.app",
-    ],
+    origin: ORIGINS_PERMITIDOS,
     methods: ["GET", "POST", "PATCH", "DELETE"],
   })
 );
@@ -73,6 +71,14 @@ const usuarios = [
     nombre: "Domiciliario 2",
     role: "repartidor",
   },
+];
+
+const METODOS_PAGO_VALIDOS = ["PSE", "Llave", "QR Nequi"];
+const ESTADOS_PAGO_VALIDOS = [
+  "Pendiente",
+  "Pendiente de verificación",
+  "Pagado",
+  "Rechazado",
 ];
 
 function asegurarArchivoPedidos() {
@@ -133,6 +139,53 @@ function limpiarNumeroWhatsApp(numero = "") {
   return limpio;
 }
 
+function normalizarMetodoPago(valor = "") {
+  const limpio = String(valor).trim().toLowerCase();
+
+  if (!limpio) return "Llave";
+
+  if (
+    limpio === "pse" ||
+    limpio === "pagar pse" ||
+    limpio === "pago pse"
+  ) {
+    return "PSE";
+  }
+
+  if (
+    limpio === "llave" ||
+    limpio === "bre-b" ||
+    limpio === "breb" ||
+    limpio === "llave bre-b" ||
+    limpio === "llave breve"
+  ) {
+    return "Llave";
+  }
+
+  if (
+    limpio === "qr nequi" ||
+    limpio === "nequi qr" ||
+    limpio === "qr" ||
+    limpio === "nequi"
+  ) {
+    return "QR Nequi";
+  }
+
+  return "Llave";
+}
+
+function obtenerEstadoPagoInicial(metodoPago) {
+  if (metodoPago === "PSE") {
+    return "Pendiente";
+  }
+
+  if (metodoPago === "Llave" || metodoPago === "QR Nequi") {
+    return "Pendiente de verificación";
+  }
+
+  return "Pendiente";
+}
+
 function construirMensajeConfirmacionCliente(pedido) {
   return [
     `Hola ${pedido?.cliente?.nombre || "cliente"} 👋`,
@@ -141,7 +194,9 @@ function construirMensajeConfirmacionCliente(pedido) {
     "",
     `💵 Total: *$${Number(pedido?.total || 0).toLocaleString("es-CO")}*`,
     `📍 Dirección: ${pedido?.cliente?.direccion || "-"}`,
-    `📦 Estado: ${pedido?.estado || "Recibido"}`,
+    `📦 Estado del pedido: ${pedido?.estado || "Recibido"}`,
+    `💳 Método de pago: ${pedido?.metodoPago || pedido?.cliente?.pago || "-"}`,
+    `🧾 Estado del pago: ${pedido?.estadoPago || "Pendiente"}`,
     "",
     "Muy pronto continuaremos contigo por este medio.",
   ].join("\n");
@@ -169,28 +224,6 @@ async function notificarBotPedido(pedido) {
   }
 }
 
-async function notificarBotConfirmacionCliente(pedido) {
-  try {
-    const response = await fetch("http://localhost:3002/notify-customer-order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ pedido }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Error notificando al cliente");
-    }
-
-    console.log(`📲 Cliente notificado del pedido ${pedido.id}`);
-  } catch (error) {
-    console.error("❌ Error notificando al cliente:", error.message);
-  }
-}
-
 async function notificarBotEstado(pedido) {
   try {
     const response = await fetch("http://localhost:3002/notify-status", {
@@ -207,7 +240,9 @@ async function notificarBotEstado(pedido) {
       throw new Error(data.error || "Error notificando cambio de estado al bot");
     }
 
-    console.log(`📲 Bot notificado de cambio de estado ${pedido.id} -> ${pedido.estado}`);
+    console.log(
+      `📲 Bot notificado de cambio de estado ${pedido.id} -> ${pedido.estado}`
+    );
   } catch (error) {
     console.error("❌ Error notificando estado al bot:", error.message);
   }
@@ -218,7 +253,9 @@ async function notificarBotConfirmacionCliente(pedido) {
     const telefonoLimpio = limpiarNumeroWhatsApp(pedido?.cliente?.telefono);
 
     if (!telefonoLimpio) {
-      console.log(`⚠️ No se envió confirmación al cliente del pedido ${pedido?.id}: teléfono vacío o inválido`);
+      console.log(
+        `⚠️ No se envió confirmación al cliente del pedido ${pedido?.id}: teléfono vacío o inválido`
+      );
       return;
     }
 
@@ -254,9 +291,31 @@ async function notificarBotConfirmacionCliente(pedido) {
       throw new Error(data.error || "Error notificando confirmación al cliente");
     }
 
-    console.log(`📲 Confirmación enviada al cliente ${telefonoLimpio} para pedido ${pedido.id}`);
+    console.log(
+      `📲 Confirmación enviada al cliente ${telefonoLimpio} para pedido ${pedido.id}`
+    );
   } catch (error) {
     console.error("❌ Error enviando confirmación al cliente:", error.message);
+  }
+}
+
+async function sincronizarPedidoConSheets(pedido, accion = "actualizar") {
+  try {
+    const actualizado = await updatePedidoWebApp(pedido);
+
+    if (!actualizado) {
+      console.log(
+        `⚠️ Pedido ${pedido.id} no encontrado en Sheets para ${accion}, intentando agregarlo`
+      );
+      await appendPedidoWebApp(pedido);
+    }
+
+    console.log(`✅ Pedido ${pedido.id} sincronizado con Google Sheets`);
+  } catch (sheetError) {
+    console.error(
+      `❌ Error sincronizando pedido ${pedido.id} en Google Sheets:`,
+      sheetError.message
+    );
   }
 }
 
@@ -287,8 +346,6 @@ app.post("/login", (req, res) => {
   try {
     const { username, password } = req.body;
 
-    console.log("LOGIN BODY:", req.body);
-
     if (!username || !password) {
       return res.status(400).json({
         error: "Usuario y contraseña son obligatorios",
@@ -297,7 +354,8 @@ app.post("/login", (req, res) => {
 
     const user = usuarios.find(
       (u) =>
-        String(u.username).trim().toLowerCase() === String(username).trim().toLowerCase() &&
+        String(u.username).trim().toLowerCase() ===
+          String(username).trim().toLowerCase() &&
         String(u.password).trim() === String(password).trim()
     );
 
@@ -326,7 +384,16 @@ app.post("/login", (req, res) => {
 
 app.post("/pedidos", async (req, res) => {
   try {
-    const { cliente, items, subtotal, domicilio, total } = req.body;
+    const {
+      cliente,
+      items,
+      subtotal,
+      domicilio,
+      total,
+      metodoPago,
+      referenciaPago,
+      soportePago,
+    } = req.body;
 
     if (!cliente || !cliente.nombre || !cliente.telefono || !cliente.direccion) {
       return res.status(400).json({
@@ -341,19 +408,28 @@ app.post("/pedidos", async (req, res) => {
     }
 
     const pedidos = leerPedidos();
+    const metodoPagoFinal = normalizarMetodoPago(
+      metodoPago || cliente?.pago || ""
+    );
+    const estadoPagoInicial = obtenerEstadoPagoInicial(metodoPagoFinal);
 
     const nuevoPedido = {
       id: generarIdPedido(pedidos),
       trackingToken: generarTrackingToken(),
       fecha: fechaBonita(),
       estado: "Recibido",
+      estadoPago: estadoPagoInicial,
+      metodoPago: metodoPagoFinal,
+      referenciaPago: String(referenciaPago || "").trim(),
+      soportePago: String(soportePago || "").trim(),
+      fechaPago: "",
       repartidor: "",
       cliente: {
         nombre: String(cliente.nombre || "").trim(),
         telefono: String(cliente.telefono || "").trim(),
         direccion: String(cliente.direccion || "").trim(),
         referencia: String(cliente.referencia || "").trim(),
-        pago: cliente.pago || "Efectivo",
+        pago: metodoPagoFinal,
       },
       items,
       subtotal: Number(subtotal) || 0,
@@ -409,7 +485,9 @@ app.get("/pedidos/:id", (req, res) => {
     const pedidos = leerPedidos();
 
     const pedido = pedidos.find(
-      (p) => String(p.id).trim().toLowerCase() === String(id).trim().toLowerCase()
+      (p) =>
+        String(p.id).trim().toLowerCase() ===
+        String(id).trim().toLowerCase()
     );
 
     if (!pedido) {
@@ -478,24 +556,7 @@ app.patch("/pedidos/:id/estado", async (req, res) => {
     pedidos[index].estado = estado;
     guardarPedidos(pedidos);
 
-    try {
-      const actualizado = await updatePedidoWebApp(pedidos[index]);
-
-      if (!actualizado) {
-        console.log(
-          `⚠️ Pedido ${pedidos[index].id} no encontrado en Sheets para actualizar, intentando agregarlo`
-        );
-        await appendPedidoWebApp(pedidos[index]);
-      }
-
-      console.log(`✅ Estado del pedido ${pedidos[index].id} sincronizado con Google Sheets`);
-    } catch (sheetError) {
-      console.error(
-        `❌ Error sincronizando estado del pedido ${pedidos[index].id} en Google Sheets:`,
-        sheetError.message
-      );
-    }
-
+    await sincronizarPedidoConSheets(pedidos[index], "actualizar estado");
     await notificarBotEstado(pedidos[index]);
 
     emitirActualizacionPedidos();
@@ -536,24 +597,7 @@ app.patch("/pedidos/:id/repartidor", async (req, res) => {
     pedidos[index].repartidor = repartidor;
     guardarPedidos(pedidos);
 
-    try {
-      const actualizado = await updatePedidoWebApp(pedidos[index]);
-
-      if (!actualizado) {
-        console.log(
-          `⚠️ Pedido ${pedidos[index].id} no encontrado en Sheets para actualizar repartidor, intentando agregarlo`
-        );
-        await appendPedidoWebApp(pedidos[index]);
-      }
-
-      console.log(`✅ Repartidor del pedido ${pedidos[index].id} sincronizado con Google Sheets`);
-    } catch (sheetError) {
-      console.error(
-        `❌ Error sincronizando repartidor del pedido ${pedidos[index].id} en Google Sheets:`,
-        sheetError.message
-      );
-    }
-
+    await sincronizarPedidoConSheets(pedidos[index], "actualizar repartidor");
     await notificarBotEstado(pedidos[index]);
 
     emitirActualizacionPedidos();
@@ -567,6 +611,106 @@ app.patch("/pedidos/:id/repartidor", async (req, res) => {
     console.error("❌ Error asignando repartidor:", error.message);
     return res.status(500).json({
       error: "Error asignando repartidor",
+    });
+  }
+});
+
+app.patch("/pedidos/:id/pago", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      estadoPago,
+      metodoPago,
+      referenciaPago,
+      soportePago,
+      fechaPago,
+    } = req.body;
+
+    const pedidos = leerPedidos();
+    const index = pedidos.findIndex((p) => String(p.id) === String(id));
+
+    if (index === -1) {
+      return res.status(404).json({
+        error: "Pedido no encontrado",
+      });
+    }
+
+    if (estadoPago) {
+      if (!ESTADOS_PAGO_VALIDOS.includes(estadoPago)) {
+        return res.status(400).json({
+          error: `Estado de pago inválido. Usa: ${ESTADOS_PAGO_VALIDOS.join(", ")}`,
+        });
+      }
+
+      pedidos[index].estadoPago = estadoPago;
+    }
+
+    if (metodoPago) {
+      const metodoPagoFinal = normalizarMetodoPago(metodoPago);
+
+      if (!METODOS_PAGO_VALIDOS.includes(metodoPagoFinal)) {
+        return res.status(400).json({
+          error: `Método de pago inválido. Usa: ${METODOS_PAGO_VALIDOS.join(", ")}`,
+        });
+      }
+
+      pedidos[index].metodoPago = metodoPagoFinal;
+      pedidos[index].cliente.pago = metodoPagoFinal;
+    }
+
+    if (referenciaPago !== undefined) {
+      pedidos[index].referenciaPago = String(referenciaPago || "").trim();
+    }
+
+    if (soportePago !== undefined) {
+      pedidos[index].soportePago = String(soportePago || "").trim();
+    }
+
+    if (fechaPago !== undefined) {
+      pedidos[index].fechaPago = String(fechaPago || "").trim();
+    }
+
+    if (
+      pedidos[index].estadoPago === "Pagado" &&
+      !pedidos[index].fechaPago
+    ) {
+      pedidos[index].fechaPago = fechaBonita();
+    }
+
+    guardarPedidos(pedidos);
+
+      await sincronizarPedidoConSheets(pedidos[index], "actualizar pago");
+      await notificarBotConfirmacionCliente(pedidos[index]);
+
+      if (pedidos[index].estadoPago === "Pagado") {
+        try {
+          await fetch("http://localhost:3002/notify-payment-confirmed", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              pedido: pedidos[index],
+            }),
+          });
+
+          console.log(`💰 Bot notificado de pago confirmado ${pedidos[index].id}`);
+        } catch (error) {
+          console.error("❌ Error notificando pago confirmado:", error.message);
+        }
+      }
+
+      emitirActualizacionPedidos();
+      io.emit("pedido:pago", pedidos[index]);
+
+    return res.json({
+      ok: true,
+      pedido: pedidos[index],
+    });
+  } catch (error) {
+    console.error("❌ Error actualizando pago:", error.message);
+    return res.status(500).json({
+      error: "Error actualizando pago",
     });
   }
 });
