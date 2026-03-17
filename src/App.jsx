@@ -498,8 +498,14 @@ function App() {
           <p><strong>Teléfono:</strong> ${pedido.cliente.telefono}</p>
           <p><strong>Dirección:</strong> ${pedido.cliente.direccion}</p>
           <p><strong>Referencia:</strong> ${pedido.cliente.referencia || "N/A"}</p>
-          <p><strong>Método de pago:</strong> {pedidoConsultado?.metodoPago || pedidoConsultado?.cliente?.pago}</p>
-          <p><strong>Estado del pago:</strong> {pedidoConsultado?.estadoPago || "Pendiente"}</p>
+          <p>
+            <strong>Método de pago:</strong>{" "}
+            {pedidoConsultado?.metodoPago || pedidoConsultado?.cliente?.pago || "No definido"}
+          </p>
+          <p>
+            <strong>Estado del pago:</strong>{" "}
+            {pedidoConsultado?.estadoPago || "Pendiente"}
+          </p>
           <div class="linea"></div>
           <h3>Productos</h3>
           <ul>
@@ -1958,10 +1964,12 @@ function renderCatalogoExperimentos() {
                   {pedidoConsultado?.cliente?.referencia || "N/A"}
                 </p>
                 <p>
-                  <strong>Método de pago:</strong> {pedido.metodoPago || pedido.cliente.pago}
+                  <strong>Método de pago:</strong>{" "}
+                  {pedido?.metodoPago || pedido?.cliente?.pago || "No definido"}
                 </p>
                 <p>
-                  <strong>Estado del pago:</strong> {pedido.estadoPago || "Pendiente"}
+                  <strong>Estado del pago:</strong>{" "}
+                  {pedido?.estadoPago || "Pendiente"}
                 </p>
                 <p>
                   <strong>Repartidor:</strong>{" "}

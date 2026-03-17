@@ -90,7 +90,20 @@ function asegurarArchivoPedidos() {
 function leerPedidos() {
   asegurarArchivoPedidos();
   const contenido = fs.readFileSync(PEDIDOS_FILE, "utf8");
-  return JSON.parse(contenido || "[]");
+  const pedidos = JSON.parse(contenido || "[]");
+
+  return pedidos.map((pedido) => ({
+    ...pedido,
+    metodoPago: pedido?.metodoPago || pedido?.cliente?.pago || "Llave",
+    estadoPago: pedido?.estadoPago || "Pendiente",
+    referenciaPago: pedido?.referenciaPago || "",
+    soportePago: pedido?.soportePago || "",
+    fechaPago: pedido?.fechaPago || "",
+    cliente: {
+      ...(pedido?.cliente || {}),
+      pago: pedido?.cliente?.pago || pedido?.metodoPago || "Llave",
+    },
+  }));
 }
 
 function guardarPedidos(pedidos) {
@@ -144,11 +157,7 @@ function normalizarMetodoPago(valor = "") {
 
   if (!limpio) return "Llave";
 
-  if (
-    limpio === "pse" ||
-    limpio === "pagar pse" ||
-    limpio === "pago pse"
-  ) {
+  if (limpio === "pse" || limpio === "pagar pse" || limpio === "pago pse") {
     return "PSE";
   }
 
@@ -175,14 +184,10 @@ function normalizarMetodoPago(valor = "") {
 }
 
 function obtenerEstadoPagoInicial(metodoPago) {
-  if (metodoPago === "PSE") {
-    return "Pendiente";
-  }
-
+  if (metodoPago === "PSE") return "Pendiente";
   if (metodoPago === "Llave" || metodoPago === "QR Nequi") {
     return "Pendiente de verificación";
   }
-
   return "Pendiente";
 }
 
@@ -635,17 +640,16 @@ app.patch("/pedidos/:id/pago", async (req, res) => {
       });
     }
 
-    if (estadoPago) {
+    if (estadoPago !== undefined) {
       if (!ESTADOS_PAGO_VALIDOS.includes(estadoPago)) {
         return res.status(400).json({
           error: `Estado de pago inválido. Usa: ${ESTADOS_PAGO_VALIDOS.join(", ")}`,
         });
       }
-
       pedidos[index].estadoPago = estadoPago;
     }
 
-    if (metodoPago) {
+    if (metodoPago !== undefined) {
       const metodoPagoFinal = normalizarMetodoPago(metodoPago);
 
       if (!METODOS_PAGO_VALIDOS.includes(metodoPagoFinal)) {
@@ -655,7 +659,10 @@ app.patch("/pedidos/:id/pago", async (req, res) => {
       }
 
       pedidos[index].metodoPago = metodoPagoFinal;
-      pedidos[index].cliente.pago = metodoPagoFinal;
+      pedidos[index].cliente = {
+        ...(pedidos[index].cliente || {}),
+        pago: metodoPagoFinal,
+      };
     }
 
     if (referenciaPago !== undefined) {
@@ -670,21 +677,20 @@ app.patch("/pedidos/:id/pago", async (req, res) => {
       pedidos[index].fechaPago = String(fechaPago || "").trim();
     }
 
-    if (
-      pedidos[index].estadoPago === "Pagado" &&
-      !pedidos[index].fechaPago
-    ) {
+    if (pedidos[index].estadoPago === "Pagado" && !pedidos[index].fechaPago) {
       pedidos[index].fechaPago = fechaBonita();
     }
 
     guardarPedidos(pedidos);
 
-      await sincronizarPedidoConSheets(pedidos[index], "actualizar pago");
-      await notificarBotConfirmacionCliente(pedidos[index]);
+    await sincronizarPedidoConSheets(pedidos[index], "actualizar pago");
+    await notificarBotConfirmacionCliente(pedidos[index]);
 
-      if (pedidos[index].estadoPago === "Pagado") {
-        try {
-          await fetch("http://localhost:3002/notify-payment-confirmed", {
+    if (pedidos[index].estadoPago === "Pagado") {
+      try {
+        const response = await fetch(
+          "http://localhost:3002/notify-payment-confirmed",
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -692,16 +698,24 @@ app.patch("/pedidos/:id/pago", async (req, res) => {
             body: JSON.stringify({
               pedido: pedidos[index],
             }),
-          });
+          }
+        );
 
-          console.log(`💰 Bot notificado de pago confirmado ${pedidos[index].id}`);
-        } catch (error) {
-          console.error("❌ Error notificando pago confirmado:", error.message);
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error || "No se pudo notificar pago confirmado");
         }
-      }
 
-      emitirActualizacionPedidos();
-      io.emit("pedido:pago", pedidos[index]);
+        console.log(
+          `💰 Bot notificado de pago confirmado ${pedidos[index].id}`
+        );
+      } catch (error) {
+        console.error("❌ Error notificando pago confirmado:", error.message);
+      }
+    }
+
+    emitirActualizacionPedidos();
+    io.emit("pedido:pago", pedidos[index]);
 
     return res.json({
       ok: true,
