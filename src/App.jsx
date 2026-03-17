@@ -1965,11 +1965,11 @@ function renderCatalogoExperimentos() {
                 </p>
                 <p>
                   <strong>Método de pago:</strong>{" "}
-                  {pedido?.metodoPago || pedido?.cliente?.pago || "No definido"}
+                  {pedidoConsultado?.metodoPago || pedidoConsultado?.cliente?.pago || "No definido"}
                 </p>
                 <p>
                   <strong>Estado del pago:</strong>{" "}
-                  {pedido?.estadoPago || "Pendiente"}
+                  {pedidoConsultado?.estadoPago || "Pendiente"}
                 </p>
                 <p>
                   <strong>Repartidor:</strong>{" "}
@@ -2297,18 +2297,23 @@ function renderCatalogoExperimentos() {
                       </div>
 
                       <p>
-                        <strong>Dirección:</strong> {pedido.cliente.direccion}
+                        <strong>Dirección:</strong> {pedido?.cliente?.direccion}
                       </p>
                       <p>
                         <strong>Referencia:</strong>{" "}
-                        {pedido.cliente.referencia || "N/A"}
+                        {pedido?.cliente?.referencia || "N/A"}
                       </p>
                       <p>
-                        <strong>Pago:</strong> {pedido.cliente.pago}
+                        <strong>Método de pago:</strong>{" "}
+                        {pedido?.metodoPago || pedido?.cliente?.pago || "No definido"}
+                      </p>
+                      <p>
+                        <strong>Estado del pago:</strong>{" "}
+                        {pedido?.estadoPago || "Pendiente"}
                       </p>
                       <p>
                         <strong>Repartidor:</strong>{" "}
-                        {pedido.repartidor || "Sin asignar"}
+                        {pedido?.repartidor || "Sin asignar"}
                       </p>
 
                       <div style={{ marginTop: 12 }}>
