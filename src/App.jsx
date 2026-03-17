@@ -165,7 +165,7 @@ function App() {
     telefono: "",
     direccion: "",
     referencia: "",
-    pago: "Nequi",
+    pago: "Llave",
   });
 
   const [pedidos, setPedidos] = useState([]);
@@ -282,7 +282,7 @@ function App() {
       telefono: "",
       direccion: "",
       referencia: "",
-      pago: "Nequi",
+      pago: "Llave",
     });
   }
 
@@ -322,21 +322,23 @@ function App() {
 }
   
 
-  function seleccionarSalsa(producto, salsa) {
-    if (salsa.nombre === "Fuego Atómico") {
-      setSalsaPendiente({ producto, salsa });
-      setNivelAtomico("");
-      return;
-    }
+  function seleccionarSalsa(producto, salsa, target) {
+  if (salsa.nombre === "Fuego Atómico") {
+    setSalsaPendiente({ producto, salsa, target });
+    setNivelAtomico("");
+    return;
+  }
 
-    agregarProducto({
+  agregarProducto(
+    {
       ...producto,
       salsa: salsa.nombre,
-    });
+    },
+    target
+  );
 
-    setFormulaSeleccionada(null);
-    mostrarToast(`✅ ${producto.nombre} añadido con ${salsa.nombre}`);
-  }
+  setFormulaSeleccionada(null);
+}
 
   function confirmarFuegoAtomico() {
     if (!salsaPendiente || !nivelAtomico) {
@@ -496,7 +498,8 @@ function App() {
           <p><strong>Teléfono:</strong> ${pedido.cliente.telefono}</p>
           <p><strong>Dirección:</strong> ${pedido.cliente.direccion}</p>
           <p><strong>Referencia:</strong> ${pedido.cliente.referencia || "N/A"}</p>
-          <p><strong>Pago:</strong> ${pedido.cliente.pago}</p>
+          <p><strong>Método de pago:</strong> {pedidoConsultado?.metodoPago || pedidoConsultado?.cliente?.pago}</p>
+          <p><strong>Estado del pago:</strong> {pedidoConsultado?.estadoPago || "Pendiente"}</p>
           <div class="linea"></div>
           <h3>Productos</h3>
           <ul>
@@ -556,6 +559,7 @@ function App() {
         subtotal,
         domicilio,
         total,
+        metodoPago: cliente.pago,
       }),
     });
 
@@ -763,6 +767,34 @@ function App() {
       }
 
       mostrarMensaje("ok", `Pedido ${id} asignado a ${nombre}`);
+
+      if (pedidoConsultado?.id === id) {
+        await consultarMiSeguimiento();
+      }
+    } catch (error) {
+      mostrarMensaje("error", error.message);
+    }
+  }
+
+    async function actualizarPagoPedido(id, nuevoEstadoPago) {
+    try {
+      const response = await fetch(`${API_URL}/pedidos/${id}/pago`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          estadoPago: nuevoEstadoPago,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo actualizar el pago");
+      }
+
+      mostrarMensaje("ok", `Pago del pedido ${id} actualizado a "${nuevoEstadoPago}"`);
 
       if (pedidoConsultado?.id === id) {
         await consultarMiSeguimiento();
@@ -1393,16 +1425,55 @@ function renderCatalogoExperimentos() {
               value={cliente.pago}
               onChange={(e) => actualizarCliente("pago", e.target.value)}
             >
-              <option>Nequi</option>
-              <option>Llave Breve</option>
+              <option value="PSE">PSE</option>
+              <option value="Llave">Llave</option>
+              <option value="QR Nequi">QR Nequi</option>
             </select>
           </div>
 
-          <div style={styles.paymentInfoBox}>
-            <div style={styles.paymentInfoTitle}>💳 Datos de pago</div>
-            <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-            <div style={styles.paymentInfoText}>Llave Breve: 3152487938</div>
-          </div>
+          {cliente.pago === "PSE" && (
+            <div style={styles.paymentInfoBox}>
+              <div style={styles.paymentInfoTitle}>🏦 Pago por PSE</div>
+              <div style={styles.paymentInfoText}>
+                Tu pedido se registrará con pago pendiente.
+              </div>
+              <div style={styles.paymentInfoText}>
+                Luego conectamos la pasarela automática para confirmación real.
+              </div>
+            </div>
+          )}
+
+          {cliente.pago === "Llave" && (
+            <div style={styles.paymentInfoBox}>
+              <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
+              <div style={styles.paymentInfoText}>Llave: 3152487938</div>
+              <div style={styles.paymentInfoText}>
+                El pedido quedará pendiente de verificación.
+              </div>
+            </div>
+          )}
+
+          {cliente.pago === "QR Nequi" && (
+            <div style={styles.paymentInfoBox}>
+              <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
+              <div style={styles.paymentInfoText}>
+                Escanea este QR para realizar el pago.
+              </div>
+
+              <div style={styles.qrWrap}>
+                <img
+                  src="/qr-nequi.png"
+                  alt="QR Nequi Dr. Crispy Lab"
+                  style={styles.qrImage}
+                />
+              </div>
+
+              <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+              <div style={styles.paymentInfoText}>
+                El pedido quedará pendiente de verificación.
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1689,7 +1760,7 @@ function renderCatalogoExperimentos() {
                 <button
                   key={salsa.nombre}
                   style={styles.sauceVisualCard}
-                  onClick={() => seleccionarSalsa(formulaSeleccionada, salsa)}
+                  onClick={(e) => seleccionarSalsa(formulaSeleccionada, salsa, e.currentTarget)}
                 >
                   <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
                   <div style={styles.sauceVisualName}>{salsa.nombre}</div>
@@ -1887,7 +1958,10 @@ function renderCatalogoExperimentos() {
                   {pedidoConsultado?.cliente?.referencia || "N/A"}
                 </p>
                 <p>
-                  <strong>Pago:</strong> {pedidoConsultado?.cliente?.pago}
+                  <strong>Método de pago:</strong> {pedido.metodoPago || pedido.cliente.pago}
+                </p>
+                <p>
+                  <strong>Estado del pago:</strong> {pedido.estadoPago || "Pendiente"}
                 </p>
                 <p>
                   <strong>Repartidor:</strong>{" "}
@@ -2277,6 +2351,36 @@ function renderCatalogoExperimentos() {
                             }
                           >
                             Domiciliario 2
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: 12 }}>
+                        <p style={styles.label}>Gestión de pago:</p>
+                        <div style={styles.statusButtons}>
+                          <button
+                            style={styles.statusBtn}
+                            onClick={() => actualizarPagoPedido(pedido.id, "Pendiente")}
+                          >
+                            Pendiente
+                          </button>
+                          <button
+                            style={styles.statusBtn}
+                            onClick={() => actualizarPagoPedido(pedido.id, "Pendiente de verificación")}
+                          >
+                            Verificar
+                          </button>
+                          <button
+                            style={styles.statusBtn}
+                            onClick={() => actualizarPagoPedido(pedido.id, "Pagado")}
+                          >
+                            Pagado
+                          </button>
+                          <button
+                            style={styles.statusBtn}
+                            onClick={() => actualizarPagoPedido(pedido.id, "Rechazado")}
+                          >
+                            Rechazado
                           </button>
                         </div>
                       </div>
@@ -3811,6 +3915,27 @@ posterSauceDot3: {
   cocinaGrid: {
     display: "grid",
     gap: 18,
+  },
+  qrWrap: {
+    marginTop: 14,
+    marginBottom: 14,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 18,
+    padding: 16,
+  },
+
+  qrImage: {
+    width: "100%",
+    maxWidth: 240,
+    height: "auto",
+    borderRadius: 16,
+    display: "block",
+    background: "#fff",
+    padding: 8,
   },
   cocinaCard: {
     background:
