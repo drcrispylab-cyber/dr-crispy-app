@@ -98,6 +98,7 @@ function leerPedidos() {
     referenciaPago: pedido?.referenciaPago || "",
     soportePago: pedido?.soportePago || "",
     fechaPago: pedido?.fechaPago || "",
+    trackingToken: pedido?.trackingToken || "",
     cliente: {
       ...(pedido?.cliente || {}),
       pago: pedido?.cliente?.pago || pedido?.metodoPago || "Llave",
@@ -165,7 +166,8 @@ function normalizarMetodoPago(valor = "") {
     limpio === "bre-b" ||
     limpio === "breb" ||
     limpio === "llave bre-b" ||
-    limpio === "llave breve"
+    limpio === "llave breve" ||
+    limpio === "transferencia"
   ) {
     return "Llave";
   }
