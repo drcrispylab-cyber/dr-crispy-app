@@ -347,7 +347,55 @@ app.get("/health", (req, res) => {
     servicio: "backend-webapp",
   });
 });
+app.get("/test-sheets", async (req, res) => {
+  try {
+    const pedidoDemo = {
+      id: `TEST-${Date.now()}`,
+      trackingToken: "TEST123",
+      fecha: new Date().toLocaleString("es-CO"),
+      estado: "Recibido",
+      estadoPago: "Pendiente",
+      metodoPago: "Nequi",
+      referenciaPago: "",
+      soportePago: "",
+      fechaPago: "",
+      repartidor: "",
+      cliente: {
+        nombre: "PRUEBA",
+        telefono: "3000000000",
+        direccion: "Barrancabermeja",
+        referencia: "Casa de prueba",
+        pago: "Nequi",
+      },
+      items: [
+        {
+          nombre: "Alitas x6",
+          cantidad: 1,
+          precio: 28900,
+          salsa: "BBQ Reactor",
+        },
+      ],
+      subtotal: 28900,
+      domicilio: 0,
+      total: 28900,
+    };
 
+    const { appendPedidoWebApp } = require("./googleSheets");
+
+    await appendPedidoWebApp(pedidoDemo);
+
+    return res.json({
+      ok: true,
+      mensaje: "Pedido insertado en Google Sheets",
+    });
+  } catch (error) {
+    console.error("❌ Error en /test-sheets:", error);
+    return res.status(500).json({
+      ok: false,
+      error: error.message,
+    });
+  }
+});
 app.post("/login", (req, res) => {
   try {
     const { username, password } = req.body;
