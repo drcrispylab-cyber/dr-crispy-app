@@ -432,7 +432,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-app.post("/pedidos", async (req, res) => {
+app.post("/pedidos", (req, res) => {
   try {
     const {
       cliente,
@@ -443,7 +443,7 @@ app.post("/pedidos", async (req, res) => {
       metodoPago,
       referenciaPago,
       soportePago,
-    } = req.body;
+    } = req.body || {};
 
     if (!cliente || !cliente.nombre || !cliente.telefono || !cliente.direccion) {
       return res.status(400).json({
@@ -472,7 +472,8 @@ app.post("/pedidos", async (req, res) => {
       metodoPago: metodoPagoFinal,
       referenciaPago: String(referenciaPago || "").trim(),
       soportePago: String(soportePago || "").trim(),
-      fechaPago: "",
+      fechaPago:
+        String(estadoPagoInicial).toLowerCase() === "pagado" ? fechaBonita() : "",
       repartidor: "",
       cliente: {
         nombre: String(cliente.nombre || "").trim(),
@@ -481,15 +482,11 @@ app.post("/pedidos", async (req, res) => {
         referencia: String(cliente.referencia || "").trim(),
         pago: metodoPagoFinal,
       },
-      items,
+      items: Array.isArray(items) ? items : [],
       subtotal: Number(subtotal) || 0,
       domicilio: Number(domicilio) || 0,
       total: Number(total) || 0,
     };
-
-    if (String(estadoPagoInicial).toLowerCase() === "pagado") {
-      nuevoPedido.fechaPago = fechaBonita();
-    }
 
     pedidos.push(nuevoPedido);
     guardarPedidos(pedidos);
@@ -497,22 +494,42 @@ app.post("/pedidos", async (req, res) => {
     emitirActualizacionPedidos();
     io.emit("pedido:nuevo", nuevoPedido);
 
-    await notificarBotPedido(nuevoPedido);
-    await notificarBotConfirmacionCliente(nuevoPedido);
-
-    try {
-      await appendPedidoWebApp(nuevoPedido);
-      console.log("✅ Pedido guardado en Google Sheets:", nuevoPedido.id);
-    } catch (sheetError) {
-      console.error(
-        "❌ Error guardando pedido en Google Sheets:",
-        sheetError.message
-      );
-    }
-
-    return res.status(201).json({
+    // Responder primero para no romper la webapp
+    res.status(201).json({
       ok: true,
       pedido: nuevoPedido,
+    });
+
+    // Integraciones externas después, sin tumbar el pedido
+    Promise.allSettled([
+      appendPedidoWebApp(nuevoPedido),
+      notificarBotPedido(nuevoPedido),
+      notificarBotConfirmacionCliente(nuevoPedido),
+    ]).then((resultados) => {
+      const [sheetsResult, botResult, clienteResult] = resultados;
+
+      if (sheetsResult.status === "fulfilled") {
+        console.log("✅ Pedido guardado en Google Sheets:", nuevoPedido.id);
+      } else {
+        console.error(
+          "❌ Error guardando pedido en Google Sheets:",
+          sheetsResult.reason?.message || sheetsResult.reason
+        );
+      }
+
+      if (botResult.status === "rejected") {
+        console.error(
+          "❌ Error notificando nuevo pedido al bot:",
+          botResult.reason?.message || botResult.reason
+        );
+      }
+
+      if (clienteResult.status === "rejected") {
+        console.error(
+          "❌ Error notificando confirmación al cliente:",
+          clienteResult.reason?.message || clienteResult.reason
+        );
+      }
     });
   } catch (error) {
     console.error("❌ Error creando pedido:", error);
