@@ -29,6 +29,8 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3001;
+const DATA_DIR = __dirname;
+const PEDIDOS_FILE = path.join(DATA_DIR, "pedidos.json");
 
 app.use(
   cors({
@@ -38,9 +40,6 @@ app.use(
 );
 
 app.use(express.json());
-
-const DATA_DIR = __dirname;
-const PEDIDOS_FILE = path.join(DATA_DIR, "pedidos.json");
 
 const usuarios = [
   {
@@ -217,7 +216,7 @@ async function notificarBotPedido(pedido) {
       body: JSON.stringify({ pedido }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       throw new Error(data.error || "Error notificando al bot");
@@ -239,7 +238,7 @@ async function notificarBotEstado(pedido) {
       body: JSON.stringify({ pedido }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       throw new Error(data.error || "Error notificando cambio de estado al bot");
@@ -290,7 +289,7 @@ async function notificarBotConfirmacionCliente(pedido) {
       }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
       throw new Error(data.error || "Error notificando confirmación al cliente");
@@ -449,13 +448,19 @@ app.post("/pedidos", async (req, res) => {
     pedidos.push(nuevoPedido);
     guardarPedidos(pedidos);
 
+    emitirActualizacionPedidos();
+    io.emit("pedido:nuevo", nuevoPedido);
+
+    await notificarBotPedido(nuevoPedido);
+    await notificarBotConfirmacionCliente(nuevoPedido);
+
     try {
       await appendPedidoWebApp(nuevoPedido);
       console.log("✅ Pedido guardado en Google Sheets:", nuevoPedido.id);
-    } catch (error) {
+    } catch (sheetError) {
       console.error(
         "❌ Error guardando pedido en Google Sheets:",
-        error.message
+        sheetError.message
       );
     }
 
@@ -464,9 +469,10 @@ app.post("/pedidos", async (req, res) => {
       pedido: nuevoPedido,
     });
   } catch (error) {
-    console.error("❌ Error creando pedido:", error.message);
+    console.error("❌ Error creando pedido:", error);
     return res.status(500).json({
       error: "Error creando pedido",
+      detalle: error.message,
     });
   }
 });
@@ -476,6 +482,7 @@ app.get("/pedidos", (req, res) => {
     const pedidos = leerPedidos();
     return res.json(pedidos);
   } catch (error) {
+    console.error("❌ Error obteniendo pedidos:", error.message);
     return res.status(500).json({
       error: "Error obteniendo pedidos",
     });
@@ -504,6 +511,7 @@ app.get("/pedidos/:id", (req, res) => {
       pedido,
     });
   } catch (error) {
+    console.error("❌ Error obteniendo pedido:", error.message);
     return res.status(500).json({
       error: "Error obteniendo el pedido",
     });
@@ -530,6 +538,7 @@ app.get("/seguimiento/:token", (req, res) => {
       pedido,
     });
   } catch (error) {
+    console.error("❌ Error consultando seguimiento:", error.message);
     return res.status(500).json({
       error: "Error consultando seguimiento",
     });
@@ -556,7 +565,7 @@ app.patch("/pedidos/:id/estado", async (req, res) => {
       });
     }
 
-    pedidos[index].estado = estado;
+    pedidos[index].estado = String(estado).trim();
     guardarPedidos(pedidos);
 
     await sincronizarPedidoConSheets(pedidos[index], "actualizar estado");
@@ -597,7 +606,7 @@ app.patch("/pedidos/:id/repartidor", async (req, res) => {
       });
     }
 
-    pedidos[index].repartidor = repartidor;
+    pedidos[index].repartidor = String(repartidor).trim();
     guardarPedidos(pedidos);
 
     await sincronizarPedidoConSheets(pedidos[index], "actualizar repartidor");
@@ -752,6 +761,7 @@ app.delete("/pedidos/:id", (req, res) => {
       pedido: pedidoEliminado,
     });
   } catch (error) {
+    console.error("❌ Error eliminando pedido:", error.message);
     return res.status(500).json({
       error: "Error eliminando pedido",
     });
@@ -771,6 +781,7 @@ app.get("/pedidos-repartidor/:nombre", (req, res) => {
 
     return res.json(pedidosDelRepartidor);
   } catch (error) {
+    console.error("❌ Error obteniendo pedidos del repartidor:", error.message);
     return res.status(500).json({
       error: "Error obteniendo pedidos del repartidor",
     });
