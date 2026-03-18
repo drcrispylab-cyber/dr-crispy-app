@@ -491,6 +491,10 @@ app.post("/pedidos", async (req, res) => {
       total: Number(total) || 0,
     };
 
+    // 👇 AGREGA ESTO
+    const { appendPedidoWebApp } = require("./googleSheets");
+    await appendPedidoWebApp(nuevoPedido);
+
     if (String(estadoPagoInicial).toLowerCase() === "pagado") {
       nuevoPedido.fechaPago = fechaBonita();
     }
