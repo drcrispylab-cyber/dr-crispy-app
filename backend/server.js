@@ -167,17 +167,13 @@ function normalizarMetodoPago(valor = "") {
     limpio === "breb" ||
     limpio === "llave bre-b" ||
     limpio === "llave breve" ||
-    limpio === "transferencia"
+    limpio === "transferencia" ||
+    limpio === "nequi"
   ) {
     return "Llave";
   }
 
-  if (
-    limpio === "qr nequi" ||
-    limpio === "nequi qr" ||
-    limpio === "qr" ||
-    limpio === "nequi"
-  ) {
+  if (limpio === "qr nequi" || limpio === "nequi qr" || limpio === "qr") {
     return "QR Nequi";
   }
 
@@ -347,6 +343,7 @@ app.get("/health", (req, res) => {
     servicio: "backend-webapp",
   });
 });
+
 app.get("/test-sheets", async (req, res) => {
   try {
     const pedidoDemo = {
@@ -380,8 +377,6 @@ app.get("/test-sheets", async (req, res) => {
       total: 28900,
     };
 
-    const { appendPedidoWebApp } = require("./googleSheets");
-
     await appendPedidoWebApp(pedidoDemo);
 
     return res.json({
@@ -396,6 +391,7 @@ app.get("/test-sheets", async (req, res) => {
     });
   }
 });
+
 app.post("/login", (req, res) => {
   try {
     const { username, password } = req.body;
@@ -490,10 +486,6 @@ app.post("/pedidos", async (req, res) => {
       domicilio: Number(domicilio) || 0,
       total: Number(total) || 0,
     };
-
-    // 👇 AGREGA ESTO
-    const { appendPedidoWebApp } = require("./googleSheets");
-    await appendPedidoWebApp(nuevoPedido);
 
     if (String(estadoPagoInicial).toLowerCase() === "pagado") {
       nuevoPedido.fechaPago = fechaBonita();

@@ -120,58 +120,45 @@ function resumirProductos(items = []) {
 }
 
 async function appendPedidoWebApp(pedido) {
-  try {
-    console.log("[Sheets] INICIO appendPedidoWebApp");
-    console.log("[Sheets] Pedido recibido:", JSON.stringify(pedido, null, 2));
+  await ensureSheetExists();
 
-    await ensureSheetExists();
-    console.log("[Sheets] Hoja verificada");
+  const sheets = await getSheetsClient();
 
-    const sheets = await getSheetsClient();
-    console.log("[Sheets] Cliente listo");
+  const row = [
+    String(pedido.id || ""),
+    String(pedido.trackingToken || ""),
+    String(pedido.fecha || ""),
+    String(pedido.estado || ""),
+    String(pedido.estadoPago || ""),
+    String(pedido.metodoPago || pedido.cliente?.pago || ""),
+    String(pedido.referenciaPago || ""),
+    String(pedido.fechaPago || ""),
+    String(pedido.soportePago || ""),
+    String(pedido.repartidor || ""),
+    String(pedido.cliente?.nombre || ""),
+    String(pedido.cliente?.telefono || ""),
+    String(pedido.cliente?.direccion || ""),
+    String(pedido.cliente?.referencia || ""),
+    resumirProductos(pedido.items || []),
+    JSON.stringify(pedido.items || []),
+    Number(pedido.subtotal || 0),
+    Number(pedido.domicilio || 0),
+    Number(pedido.total || 0),
+    "WEB APP",
+    "",
+  ];
 
-    const row = [
-      String(pedido.id || ""),
-      String(pedido.trackingToken || ""),
-      String(pedido.fecha || ""),
-      String(pedido.estado || ""),
-      String(pedido.estadoPago || ""),
-      String(pedido.metodoPago || pedido.cliente?.pago || ""),
-      String(pedido.referenciaPago || ""),
-      String(pedido.fechaPago || ""),
-      String(pedido.soportePago || ""),
-      String(pedido.repartidor || ""),
-      String(pedido.cliente?.nombre || ""),
-      String(pedido.cliente?.telefono || ""),
-      String(pedido.cliente?.direccion || ""),
-      String(pedido.cliente?.referencia || ""),
-      resumirProductos(pedido.items || []),
-      JSON.stringify(pedido.items || []),
-      Number(pedido.subtotal || 0),
-      Number(pedido.domicilio || 0),
-      Number(pedido.total || 0),
-      "WEB APP",
-      "",
-    ];
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SPREADSHEET_ID,
+    range: `${SHEET_NAME}!A:U`,
+    valueInputOption: "USER_ENTERED",
+    insertDataOption: "INSERT_ROWS",
+    requestBody: {
+      values: [row],
+    },
+  });
 
-    console.log("[Sheets] Fila a insertar:", row);
-
-    const response = await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A:U`,
-      valueInputOption: "USER_ENTERED",
-      insertDataOption: "INSERT_ROWS",
-      requestBody: {
-        values: [row],
-      },
-    });
-
-    console.log("[Sheets] Append OK:", response.data);
-    return true;
-  } catch (error) {
-    console.error("[Sheets] Error en appendPedidoWebApp:", error);
-    throw error;
-  }
+  return true;
 }
 
 async function updatePedidoWebApp(pedido) {
