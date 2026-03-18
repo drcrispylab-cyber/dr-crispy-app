@@ -3,8 +3,6 @@ const path = require("path");
 
 const SHEET_NAME = "pedidos web app";
 const CREDENTIALS_PATH = path.join(__dirname, "credenciales-google.json");
-
-// TU GOOGLE SHEET
 const SPREADSHEET_ID = "1fvCDbPE_vEZvvvMvNDZWfld8U-6OkZS-DZEOgDq52_g";
 
 const HEADERS = [
@@ -12,12 +10,16 @@ const HEADERS = [
   "TRACKING_TOKEN",
   "FECHA",
   "ESTADO",
+  "ESTADO_PAGO",
+  "METODO_PAGO",
+  "REFERENCIA_PAGO",
+  "FECHA_PAGO",
+  "SOPORTE_PAGO",
   "REPARTIDOR",
   "CLIENTE_NOMBRE",
   "CLIENTE_TELEFONO",
   "CLIENTE_DIRECCION",
   "CLIENTE_REFERENCIA",
-  "METODO_PAGO",
   "PRODUCTOS_RESUMEN",
   "ITEMS_JSON",
   "SUBTOTAL",
@@ -80,7 +82,7 @@ async function ensureSheetExists() {
 
   const headersResponse = await sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A1:Q1`,
+    range: `${SHEET_NAME}!A1:U1`,
   });
 
   const values = headersResponse.data.values || [];
@@ -88,12 +90,13 @@ async function ensureSheetExists() {
 
   const headersAreMissing =
     currentHeaders.length === 0 ||
+    currentHeaders.length !== HEADERS.length ||
     HEADERS.some((header, index) => currentHeaders[index] !== header);
 
   if (headersAreMissing) {
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A1:Q1`,
+      range: `${SHEET_NAME}!A1:U1`,
       valueInputOption: "RAW",
       requestBody: {
         values: [HEADERS],
@@ -104,12 +107,15 @@ async function ensureSheetExists() {
 
 function resumirProductos(items = []) {
   return items
-    .map(
-      (item) =>
-        `${item.nombre} x${item.cantidad}${
-          item.salsa ? ` | ${item.salsa}` : ""
-        } | $${Number((item.precio || 0) * (item.cantidad || 0)).toLocaleString("es-CO")}`
-    )
+    .map((item) => {
+      const nombre = item.nombre || item.experimento || "Producto";
+      const cantidad = Number(item.cantidad || 0);
+      const precio = Number(item.precio || 0);
+      const total = precio * cantidad;
+      const salsa = item.salsa ? ` | ${item.salsa}` : "";
+
+      return `${nombre} x${cantidad}${salsa} | $${total.toLocaleString("es-CO")}`;
+    })
     .join(" || ");
 }
 
@@ -119,16 +125,20 @@ async function appendPedidoWebApp(pedido) {
   const sheets = await getSheetsClient();
 
   const row = [
-    pedido.id || "",
-    pedido.trackingToken || "",
-    pedido.fecha || "",
-    pedido.estado || "",
-    pedido.repartidor || "",
-    pedido.cliente?.nombre || "",
-    pedido.cliente?.telefono || "",
-    pedido.cliente?.direccion || "",
-    pedido.cliente?.referencia || "",
-    pedido.cliente?.pago || "",
+    String(pedido.id || ""),
+    String(pedido.trackingToken || ""),
+    String(pedido.fecha || ""),
+    String(pedido.estado || ""),
+    String(pedido.estadoPago || ""),
+    String(pedido.metodoPago || pedido.cliente?.pago || ""),
+    String(pedido.referenciaPago || ""),
+    String(pedido.fechaPago || ""),
+    String(pedido.soportePago || ""),
+    String(pedido.repartidor || ""),
+    String(pedido.cliente?.nombre || ""),
+    String(pedido.cliente?.telefono || ""),
+    String(pedido.cliente?.direccion || ""),
+    String(pedido.cliente?.referencia || ""),
     resumirProductos(pedido.items || []),
     JSON.stringify(pedido.items || []),
     Number(pedido.subtotal || 0),
@@ -140,13 +150,15 @@ async function appendPedidoWebApp(pedido) {
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A:Q`,
+    range: `${SHEET_NAME}!A:U`,
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
     requestBody: {
       values: [row],
     },
   });
+
+  return true;
 }
 
 async function updatePedidoWebApp(pedido) {
@@ -156,7 +168,7 @@ async function updatePedidoWebApp(pedido) {
 
   const getRows = await sheets.spreadsheets.values.get({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A:Q`,
+    range: `${SHEET_NAME}!A:U`,
   });
 
   const values = getRows.data.values || [];
@@ -177,16 +189,20 @@ async function updatePedidoWebApp(pedido) {
   const sheetRowNumber = rowIndex + 1;
 
   const updatedRow = [
-    pedido.id || "",
-    pedido.trackingToken || "",
-    pedido.fecha || "",
-    pedido.estado || "",
-    pedido.repartidor || "",
-    pedido.cliente?.nombre || "",
-    pedido.cliente?.telefono || "",
-    pedido.cliente?.direccion || "",
-    pedido.cliente?.referencia || "",
-    pedido.cliente?.pago || "",
+    String(pedido.id || ""),
+    String(pedido.trackingToken || ""),
+    String(pedido.fecha || ""),
+    String(pedido.estado || ""),
+    String(pedido.estadoPago || ""),
+    String(pedido.metodoPago || pedido.cliente?.pago || ""),
+    String(pedido.referenciaPago || ""),
+    String(pedido.fechaPago || ""),
+    String(pedido.soportePago || ""),
+    String(pedido.repartidor || ""),
+    String(pedido.cliente?.nombre || ""),
+    String(pedido.cliente?.telefono || ""),
+    String(pedido.cliente?.direccion || ""),
+    String(pedido.cliente?.referencia || ""),
     resumirProductos(pedido.items || []),
     JSON.stringify(pedido.items || []),
     Number(pedido.subtotal || 0),
@@ -198,7 +214,7 @@ async function updatePedidoWebApp(pedido) {
 
   await sheets.spreadsheets.values.update({
     spreadsheetId: SPREADSHEET_ID,
-    range: `${SHEET_NAME}!A${sheetRowNumber}:Q${sheetRowNumber}`,
+    range: `${SHEET_NAME}!A${sheetRowNumber}:U${sheetRowNumber}`,
     valueInputOption: "USER_ENTERED",
     requestBody: {
       values: [updatedRow],

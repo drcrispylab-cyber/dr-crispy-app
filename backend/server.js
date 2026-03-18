@@ -418,42 +418,50 @@ app.post("/pedidos", async (req, res) => {
     );
     const estadoPagoInicial = obtenerEstadoPagoInicial(metodoPagoFinal);
 
-    const nuevoPedido = {
-      id: generarIdPedido(pedidos),
-      trackingToken: generarTrackingToken(),
-      fecha: fechaBonita(),
-      estado: "Recibido",
-      estadoPago: estadoPagoInicial,
-      metodoPago: metodoPagoFinal,
-      referenciaPago: String(referenciaPago || "").trim(),
-      soportePago: String(soportePago || "").trim(),
-      fechaPago: "",
-      repartidor: "",
-      cliente: {
-        nombre: String(cliente.nombre || "").trim(),
-        telefono: String(cliente.telefono || "").trim(),
-        direccion: String(cliente.direccion || "").trim(),
-        referencia: String(cliente.referencia || "").trim(),
-        pago: metodoPagoFinal,
-      },
-      items,
-      subtotal: Number(subtotal) || 0,
-      domicilio: Number(domicilio) || 0,
-      total: Number(total) || 0,
-    };
+      const nuevoPedido = {
+    id: generarIdPedido(pedidos),
+    trackingToken: generarTrackingToken(),
+    fecha: fechaBonita(),
+    estado: "Recibido",
+    estadoPago: estadoPagoInicial,
+    metodoPago: metodoPagoFinal,
+    referenciaPago: String(referenciaPago || "").trim(),
+    soportePago: String(soportePago || "").trim(),
+    fechaPago: "",
+    repartidor: "",
+    cliente: {
+      nombre: String(cliente.nombre || "").trim(),
+      telefono: String(cliente.telefono || "").trim(),
+      direccion: String(cliente.direccion || "").trim(),
+      referencia: String(cliente.referencia || "").trim(),
+      pago: metodoPagoFinal,
+    },
+    items,
+    subtotal: Number(subtotal) || 0,
+    domicilio: Number(domicilio) || 0,
+    total: Number(total) || 0,
+  };
 
-    pedidos.push(nuevoPedido);
-    guardarPedidos(pedidos);
+  console.log("🧪 NUEVO PEDIDO CREADO:");
+  console.log(JSON.stringify(nuevoPedido, null, 2));
 
-    try {
-      await appendPedidoWebApp(nuevoPedido);
-      console.log(`✅ Pedido ${nuevoPedido.id} guardado en Google Sheets`);
-    } catch (sheetError) {
-      console.error(
-        `❌ Error guardando pedido ${nuevoPedido.id} en Google Sheets:`,
-        sheetError.message
-      );
-    }
+  // 🔥 ESTA ES LA LÍNEA QUE TE FALTA
+  await appendPedidoWebApp(nuevoPedido);
+
+  // (opcional pero recomendado)
+  console.log("✅ Guardado en Google Sheets OK");
+      pedidos.push(nuevoPedido);
+      guardarPedidos(pedidos);
+
+      try {
+        await appendPedidoWebApp(nuevoPedido);
+        console.log(`✅ Pedido ${nuevoPedido.id} guardado en Google Sheets`);
+      } catch (sheetError) {
+        console.error(
+          `❌ Error guardando pedido ${nuevoPedido.id} en Google Sheets:`,
+          sheetError.message
+        );
+      }
 
     await notificarBotPedido(nuevoPedido);
     await notificarBotConfirmacionCliente(nuevoPedido);
