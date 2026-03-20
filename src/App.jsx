@@ -1431,24 +1431,12 @@ function renderCatalogoExperimentos() {
               value={cliente.pago}
               onChange={(e) => actualizarCliente("pago", e.target.value)}
             >
-              <option value="PSE">PSE</option>
+              
               <option value="Llave">Llave</option>
               <option value="QR Nequi">QR Nequi</option>
             </select>
           </div>
-
-          {cliente.pago === "PSE" && (
-            <div style={styles.paymentInfoBox}>
-              <div style={styles.paymentInfoTitle}>🏦 Pago por PSE</div>
-              <div style={styles.paymentInfoText}>
-                Tu pedido se registrará con pago pendiente.
-              </div>
-              <div style={styles.paymentInfoText}>
-                Luego conectamos la pasarela automática para confirmación real.
-              </div>
-            </div>
-          )}
-
+         
           {cliente.pago === "Llave" && (
             <div style={styles.paymentInfoBox}>
               <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
