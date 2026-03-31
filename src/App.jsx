@@ -338,6 +338,9 @@ function App() {
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
 
+  const [salsaSeleccionAnimando, setSalsaSeleccionAnimando] = useState("");
+  const [carritoAnimando, setCarritoAnimando] = useState(false);
+
   const esMovil = ancho < 900;
   const puedeVerAdmin = rutaPrivada === "admin";
   const puedeVerRepartidor = rutaPrivada === "repartidor";
@@ -361,17 +364,41 @@ function App() {
     }
 
     let x = window.innerWidth / 2;
-    let y = 100;
+    let y = 110;
 
     if (target) {
       const rect = target.getBoundingClientRect();
       x = rect.left + rect.width / 2;
-      y = rect.top - 12;
+      y = rect.top - 16;
 
-      if (y < 90) {
-        y = rect.bottom + 12;
+      if (y < 110) {
+        y = rect.bottom + 16;
       }
     }
+
+    const anchoToast = Math.min(420, window.innerWidth - 32);
+    const mitad = anchoToast / 2;
+
+    if (x < mitad + 16) x = mitad + 16;
+    if (x > window.innerWidth - mitad - 16) {
+      x = window.innerWidth - mitad - 16;
+    }
+
+    setToast({
+      visible: true,
+      texto,
+      x,
+      y,
+    });
+
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({
+        ...prev,
+        visible: false,
+        texto: "",
+      }));
+    }, 2200);
+  }
 
     const anchoToast = Math.min(420, window.innerWidth - 32);
     const mitad = anchoToast / 2;
@@ -485,18 +512,53 @@ function App() {
   }
 
   function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
-  const salsaFinal = salsaSeleccionada || "BBQ Reactor";
-  const cartKey = `${combo.id}-combo-${salsaFinal}`;
+      const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+      const cartKey = `${combo.id}-combo-${salsaFinal}`;
 
-  setCarrito((prev) => {
-    const existente = prev.find((item) => item.cartKey === cartKey);
+      setCarrito((prev) => {
+        const existente = prev.find((item) => item.cartKey === cartKey);
 
-    if (existente) {
-      return prev.map((item) =>
-        item.cartKey === cartKey
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
-      );
+        if (existente) {
+          return prev.map((item) =>
+            item.cartKey === cartKey
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item
+          );
+        }
+
+        return [
+          ...prev,
+          {
+            id: combo.id,
+            nombre: combo.nombre,
+            descripcion: combo.descripcion,
+            precio: combo.precio,
+            cantidad: 1,
+            cartKey,
+            esCombo: true,
+            badge: combo.badge,
+            emoji: combo.emoji,
+            salsa: salsaFinal,
+            experimento: "Combos del Lab",
+            categoriaExperimento: "Combos del Lab",
+            detalleCombo: combo.itemsInternos.map((item) => {
+              if (item.nombre.toLowerCase().includes("alitas")) {
+                return {
+                  ...item,
+                  salsa: salsaFinal,
+                };
+              }
+
+              return { ...item };
+            }),
+          },
+        ];
+      });
+
+      setCarritoAnimando(true);
+      setTimeout(() => setCarritoAnimando(false), 650);
+
+      mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
     }
 
     return [
@@ -1827,6 +1889,7 @@ function prepararCombo(combo, target = null) {
           <div
             style={{
               ...styles.panelSticky,
+              ...(carritoAnimando ? styles.panelStickyPulse : {}),
               position: esMovil ? "static" : "sticky",
             }}
           >
@@ -2138,7 +2201,12 @@ function prepararCombo(combo, target = null) {
               {SALSAS.map((salsa) => (
                 <button
                   key={salsa.nombre}
-                  style={styles.sauceVisualCard}
+                  style={{
+                      ...styles.sauceVisualCard,
+                      ...(salsaSeleccionAnimando === salsa.nombre
+                        ? styles.sauceVisualCardSelected
+                        : {}),
+                    }}
                   onClick={(e) =>
                     seleccionarSalsa(
                       formulaSeleccionada,
@@ -2193,25 +2261,31 @@ function prepararCombo(combo, target = null) {
                   key={salsa.nombre}
                   style={styles.sauceVisualCard}
                   onClick={() => {
-                    if (salsa.nombre === "Fuego Atómico") {
-                      setComboSalsaPendiente({
-                        combo: comboPendiente.combo,
-                        target: comboPendiente.target,
-                        salsa,
-                      });
-                      setComboPendiente(null);
-                      setNivelAtomico("");
-                      return;
-                    }
+                    setSalsaSeleccionAnimando(salsa.nombre);
 
-                    agregarCombo(
-                      comboPendiente.combo,
-                      comboPendiente.target,
-                      salsa.nombre
-                    );
-                    setComboPendiente(null);
+                    setTimeout(() => {
+                      if (salsa.nombre === "Fuego Atómico") {
+                        setComboSalsaPendiente({
+                          combo: comboPendiente.combo,
+                          target: comboPendiente.target,
+                          salsa,
+                        });
+                        setComboPendiente(null);
+                        setNivelAtomico("");
+                        setSalsaSeleccionAnimando("");
+                        return;
+                      }
+
+                      agregarCombo(
+                        comboPendiente.combo,
+                        comboPendiente.target,
+                        salsa.nombre
+                      );
+                      setComboPendiente(null);
+                      setSalsaSeleccionAnimando("");
+                    }, 220);
                   }}
-                >
+                                  >
                   <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
                   <div style={styles.sauceVisualName}>{salsa.nombre}</div>
                   <div style={styles.sauceVisualDesc}>{salsa.descripcion}</div>
@@ -2282,14 +2356,16 @@ function prepararCombo(combo, target = null) {
                   return;
                 }
 
-                agregarCombo(
-                  comboSalsaPendiente.combo,
-                  comboSalsaPendiente.target,
-                  `Fuego Atómico - ${nivelAtomico}`
-                );
+                setTimeout(() => {
+                  agregarCombo(
+                    comboSalsaPendiente.combo,
+                    comboSalsaPendiente.target,
+                    `Fuego Atómico - ${nivelAtomico}`
+                  );
 
-                setComboSalsaPendiente(null);
-                setNivelAtomico("");
+                  setComboSalsaPendiente(null);
+                  setNivelAtomico("");
+                }, 180);
               }}
             >
               Confirmar nivel
@@ -3532,12 +3608,26 @@ const styles = {
     boxShadow: "0 12px 28px rgba(0,0,0,0.18)",
   },
   panelSticky: {
-    background: "rgba(17,17,17,0.96)",
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.06), transparent 26%), rgba(17,17,17,0.96)",
     border: "1px solid rgba(255,255,255,0.05)",
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 24,
     top: 20,
-    boxShadow: "0 12px 28px rgba(0,0,0,0.18)",
+    boxShadow: "0 16px 34px rgba(0,0,0,0.22)",
+    transition: "transform 0.28s ease, box-shadow 0.28s ease",
+  },
+  sauceVisualCardSelected: {
+    transform: "scale(0.97)",
+    border: "1px solid rgba(255,209,102,0.55)",
+    boxShadow: "0 0 0 2px rgba(255,209,102,0.12), 0 18px 34px rgba(255,0,0,0.16)",
+    background:
+      "radial-gradient(circle at top right, rgba(255,209,102,0.12), transparent 28%), linear-gradient(180deg, rgba(30,20,10,0.98), rgba(12,12,12,1))",
+  },
+
+  panelStickyPulse: {
+    transform: "translateY(-4px) scale(1.01)",
+    boxShadow: "0 24px 44px rgba(255,0,0,0.14)",
   },
   panelTitle: {
     marginTop: 0,
@@ -3797,12 +3887,14 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "flex-start",
     gap: 12,
-    background: "linear-gradient(180deg, rgba(28,28,28,0.98), rgba(18,18,18,0.98))",
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.06), transparent 30%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(18,18,18,0.98))",
     border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 12,
     flexWrap: "nowrap",
+    boxShadow: "0 10px 22px rgba(0,0,0,0.16)",
   },
   cartSub: {
     color: "#bdbdbd",
@@ -4534,32 +4626,36 @@ const styles = {
   modalBackdrop: {
     position: "fixed",
     inset: 0,
-    background: "rgba(0,0,0,0.72)",
+    background: "rgba(0,0,0,0.78)",
+    backdropFilter: "blur(10px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    padding: 18,
     zIndex: 50,
+    animation: "fadeInSoft 0.22s ease",
   },
   modalCard: {
     width: "100%",
-    maxWidth: 1100,
-    background: "linear-gradient(180deg, #171717, #0d0d0d)",
+    maxWidth: 920,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(20,20,20,0.98), rgba(8,8,8,0.99))",
     border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 24,
-    padding: 24,
-    boxShadow: "0 30px 80px rgba(0,0,0,0.45)",
+    padding: 22,
+    boxShadow: "0 30px 90px rgba(0,0,0,0.56)",
+    animation: "modalPopIn 0.24s ease",
   },
   modalTop: {
     display: "flex",
     justifyContent: "space-between",
     gap: 16,
     alignItems: "flex-start",
-    marginBottom: 20,
+    marginBottom: 18,
   },
   modalTitle: {
     margin: 0,
-    fontSize: 56,
+    fontSize: 44,
     color: "#fff",
     textTransform: "uppercase",
     fontFamily: '"Bebas Neue", sans-serif',
@@ -4570,44 +4666,51 @@ const styles = {
     marginTop: 8,
     color: "#cfcfcf",
     marginBottom: 0,
+    fontSize: 15,
+    lineHeight: 1.45,
   },
   modalCloseBtn: {
-    background: "#1e1e1e",
+    background: "rgba(255,255,255,0.04)",
     color: "#fff",
-    border: "1px solid #444",
-    borderRadius: 12,
-    width: 42,
-    height: 42,
+    border: "1px solid rgba(255,255,255,0.12)",
+    borderRadius: 14,
+    width: 46,
+    height: 46,
     cursor: "pointer",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
+    transition: "transform 0.18s ease, border 0.18s ease, background 0.18s ease",
   },
   sauceVisualGrid: {
     display: "grid",
-    gap: 16,
+    gap: 14,
   },
   sauceVisualCard: {
     background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(12,12,12,1))",
+      "radial-gradient(circle at top right, rgba(255,0,0,0.14), transparent 28%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(12,12,12,1))",
     border: "1px solid rgba(255,0,0,0.18)",
-    borderRadius: 22,
-    padding: 22,
+    borderRadius: 20,
+    padding: 18,
     cursor: "pointer",
     textAlign: "left",
     color: "#fff",
+    transition:
+      "transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease, background 0.2s ease",
+    boxShadow: "0 12px 24px rgba(0,0,0,0.18)",
   },
   sauceVisualCardActive: {
     border: "1px solid #ff2d2d",
-    boxShadow: "0 0 0 2px rgba(255,45,45,0.18)",
+    boxShadow: "0 0 0 2px rgba(255,45,45,0.18), 0 14px 32px rgba(255,0,0,0.14)",
+    transform: "translateY(-3px)",
   },
   sauceVisualEmoji: {
-    fontSize: 34,
+    fontSize: 30,
     marginBottom: 10,
   },
   sauceVisualName: {
-    fontSize: 42,
+    fontSize: 34,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 6,
     textTransform: "uppercase",
     fontFamily: '"Bebas Neue", sans-serif',
     letterSpacing: 1,
@@ -4615,7 +4718,9 @@ const styles = {
   },
   sauceVisualDesc: {
     color: "#d0d0d0",
-    marginBottom: 12,
+    marginBottom: 0,
+    fontSize: 14,
+    lineHeight: 1.45,
   },
   cocinaGrid: {
     display: "grid",
@@ -4711,12 +4816,13 @@ const styles = {
     justifyContent: "center",
     gap: 10,
     background:
-      "linear-gradient(135deg, rgba(18,18,18,0.98), rgba(8,8,8,0.98))",
+      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(135deg, rgba(18,18,18,0.98), rgba(8,8,8,0.98))",
     border: "1px solid rgba(255,0,0,0.25)",
     color: "#fff",
     padding: "16px 18px",
     borderRadius: 18,
     boxShadow: "0 18px 45px rgba(0,0,0,0.42)",
+    animation: "toastPop 0.22s ease",
   },
   toastIcon: {
     fontSize: 20,
