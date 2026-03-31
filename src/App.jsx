@@ -489,7 +489,6 @@ function App() {
   setCarrito((prev) => {
     const existente = prev.find((item) => item.cartKey === cartKey);
 
-    // 👉 Si ya existe el combo, solo suma cantidad
     if (existente) {
       return prev.map((item) =>
         item.cartKey === cartKey
@@ -498,24 +497,20 @@ function App() {
       );
     }
 
-    // 👉 Si no existe, lo agrega como UN SOLO PRODUCTO (clave del fix)
     return [
       ...prev,
       {
         id: combo.id,
         nombre: combo.nombre,
         descripcion: combo.descripcion,
-        precio: combo.precio, // 🔥 ESTE ES EL PRECIO QUE SE COBRA
+        precio: combo.precio,
         cantidad: 1,
         cartKey,
         esCombo: true,
         badge: combo.badge,
         emoji: combo.emoji,
-
         experimento: "Combos del Lab",
         categoriaExperimento: "Combos del Lab",
-
-        // 👉 solo para mostrar detalle (NO afecta precio)
         detalleCombo: combo.itemsInternos.map((item) => ({
           ...item,
         })),
@@ -523,8 +518,6 @@ function App() {
     ];
   });
 
-  mostrarToast(`🔥 ${combo.nombre} agregado al carrito`, target);
-}
   mostrarToast(`🔥 ${combo.nombre} agregado al carrito`, target);
 }
 
@@ -1277,35 +1270,55 @@ function App() {
   }
 
   function renderComboCard(combo) {
-    return (
-      <div
-        key={combo.id}
-        style={{
-          ...styles.comboCard,
-          ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeatured : {}),
-        }}
-      >
-        <div style={styles.comboTopRow}>
-          <div style={styles.comboEmoji}>{combo.emoji}</div>
-          <div style={styles.comboBadge}>{combo.badge}</div>
-        </div>
-
-        <h3 style={styles.comboTitle}>{combo.nombre}</h3>
-        <p style={styles.comboDesc}>{combo.descripcion}</p>
-
-        <div style={styles.comboPrice}>
-          ${combo.precio.toLocaleString("es-CO")}
-        </div>
-
-        <button
-          style={styles.comboBtn}
-          onClick={(e) => agregarCombo(combo, e.currentTarget)}
-        >
-          🔥 Activar combo
-        </button>
+  return (
+    <div
+      key={combo.id}
+      style={{
+        ...styles.comboCard,
+        ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeatured : {}),
+      }}
+    >
+      <div style={styles.comboTopRow}>
+        <div style={styles.comboEmoji}>{combo.emoji}</div>
+        <div style={styles.comboBadge}>{combo.badge}</div>
       </div>
-    );
-  }
+
+      <h3 style={styles.comboTitle}>{combo.nombre}</h3>
+      <p style={styles.comboDesc}>{combo.descripcion}</p>
+
+      <div style={{ marginTop: 12, marginBottom: 6 }}>
+        {combo.itemsInternos.map((item) => (
+          <div
+            key={item.id}
+            style={{
+              fontSize: 13,
+              color: "#cfcfcf",
+              marginBottom: 6,
+              padding: "8px 10px",
+              borderRadius: 10,
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.05)",
+            }}
+          >
+            • {item.nombre} x{item.cantidad}
+            {item.salsa ? ` • ${item.salsa}` : ""}
+          </div>
+        ))}
+      </div>
+
+      <div style={styles.comboPrice}>
+        ${combo.precio.toLocaleString("es-CO")}
+      </div>
+
+      <button
+        style={styles.comboBtn}
+        onClick={(e) => agregarCombo(combo, e.currentTarget)}
+      >
+        🔥 Activar combo
+      </button>
+    </div>
+  );
+}
 
   function renderHeroInicio() {
     return (
@@ -1819,15 +1832,37 @@ function App() {
             ) : (
               carrito.map((item) => (
                 <div key={item.cartKey} style={styles.cartItem}>
-                  <div>
-                    <strong>{item.nombre}</strong>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <strong style={{ display: "block", marginBottom: 4 }}>
+                      {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                    </strong>
+
                     <div style={styles.cartSub}>
                       {item.experimento || "Experimento 1"}
                     </div>
+
                     {item.salsa && (
                       <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
                     )}
-                    <div style={styles.cartSub}>
+
+                    {item.esCombo && Array.isArray(item.detalleCombo) && (
+                      <div style={{ marginTop: 8 }}>
+                        {formatearDetalleCombo(item.detalleCombo).map((detalle, idx) => (
+                          <div key={idx} style={styles.cartSub}>
+                            • {detalle}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div
+                      style={{
+                        ...styles.cartSub,
+                        marginTop: 8,
+                        fontWeight: "bold",
+                        color: "#fff",
+                      }}
+                    >
                       ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
                     </div>
                   </div>
