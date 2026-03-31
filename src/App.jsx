@@ -1317,11 +1317,14 @@ function prepararCombo(combo, target = null) {
       </div>
 
       <button
-        style={styles.comboBtn}
-        onClick={(e) => prepararCombo(combo, e.currentTarget)}
-      >
-        Elegir salsa y pedir
-      </button>
+      style={styles.comboBtn}
+      onClick={(e) => {
+        console.log("CLICK COMBO");
+        prepararCombo(combo, e.currentTarget);
+      }}
+    >
+      Elegir salsa y pedir
+    </button>
     </div>
   );
 }
