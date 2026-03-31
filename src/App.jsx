@@ -51,9 +51,9 @@ const COMBOS = [
   {
     id: "combo1",
     nombre: "Combo Individual",
-    descripcion: "6 alitas + papas fritas + Coca-Cola PET 400",
-    precio: 37900,
-    emoji: "🔥",
+    descripcion: "6 alitas + 1 porción de papas + 1 Coca-Cola 400 ml",
+    precio: 31900,
+    emoji: "🧪",
     badge: "RÁPIDO",
     itemsInternos: [
       {
@@ -80,8 +80,8 @@ const COMBOS = [
   {
     id: "combo2",
     nombre: "Combo Pareja",
-    descripcion: "12 alitas + 2 papas fritas + 2 Coca-Cola PET 400",
-    precio: 67900,
+    descripcion: "12 alitas + 2 porciones de papas + 2 Coca-Cola 400 ml",
+    precio: 55900,
     emoji: "⭐",
     badge: "MÁS PEDIDO",
     itemsInternos: [
@@ -109,9 +109,9 @@ const COMBOS = [
   {
     id: "combo3",
     nombre: "Combo Pro",
-    descripcion: "18 alitas + 2 papas fritas + Coca-Cola 1½",
-    precio: 89900,
-    emoji: "💣",
+    descripcion: "18 alitas + 3 porciones de papas + 1 Coca-Cola 1.5 L",
+    precio: 79900,
+    emoji: "🔥",
     badge: "MEJOR VALOR",
     itemsInternos: [
       {
@@ -125,12 +125,41 @@ const COMBOS = [
         id: "combo3-papas",
         nombre: "Papas fritas",
         precio: 5000,
-        cantidad: 2,
+        cantidad: 3,
       },
       {
         id: "combo3-bebida",
-        nombre: "Coca-Cola 1½",
+        nombre: "Coca-Cola 1.5 L",
         precio: 8000,
+        cantidad: 1,
+      },
+    ],
+  },
+  {
+    id: "combo4",
+    nombre: "Combo Familia",
+    descripcion: "24 alitas + 4 porciones de papas + 1 Coca-Cola 2.25 L",
+    precio: 100900,
+    emoji: "🚀",
+    badge: "FAMILIAR",
+    itemsInternos: [
+      {
+        id: "combo4-alitas",
+        nombre: "Alitas x24",
+        precio: 92900,
+        cantidad: 1,
+        salsa: "BBQ Reactor",
+      },
+      {
+        id: "combo4-papas",
+        nombre: "Papas fritas",
+        precio: 5000,
+        cantidad: 4,
+      },
+      {
+        id: "combo4-bebida",
+        nombre: "Coca-Cola 2.25 L",
+        precio: 10000,
         cantidad: 1,
       },
     ],
@@ -378,8 +407,19 @@ function App() {
   }
 
   function getCartKey(producto) {
+  if (producto.esCombo) {
+    return `${producto.id}-combo`;
+  }
+
     return `${producto.id}-${producto.salsa || "sin-salsa"}`;
   }
+
+  function formatearDetalleCombo(detalleCombo = []) {
+  return detalleCombo.map((item) => {
+    const salsa = item.salsa ? ` • ${item.salsa}` : "";
+    return `${item.nombre} x${item.cantidad}${salsa}`;
+  });
+}
 
   function agregarProducto(producto, target) {
     const key = getCartKey(producto);
@@ -444,19 +484,49 @@ function App() {
   }
 
   function agregarCombo(combo, target = null) {
-    combo.itemsInternos.forEach((item) => {
-      agregarProductoDirecto(
-        {
-          ...item,
-          experimento: combo.nombre,
-          categoriaExperimento: "Combos del Lab",
-        },
-        item.cantidad || 1
-      );
-    });
+  const cartKey = `${combo.id}-combo`;
 
-    mostrarToast(`🔥 ${combo.nombre} activado`, target);
-  }
+  setCarrito((prev) => {
+    const existente = prev.find((item) => item.cartKey === cartKey);
+
+    // 👉 Si ya existe el combo, solo suma cantidad
+    if (existente) {
+      return prev.map((item) =>
+        item.cartKey === cartKey
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      );
+    }
+
+    // 👉 Si no existe, lo agrega como UN SOLO PRODUCTO (clave del fix)
+    return [
+      ...prev,
+      {
+        id: combo.id,
+        nombre: combo.nombre,
+        descripcion: combo.descripcion,
+        precio: combo.precio, // 🔥 ESTE ES EL PRECIO QUE SE COBRA
+        cantidad: 1,
+        cartKey,
+        esCombo: true,
+        badge: combo.badge,
+        emoji: combo.emoji,
+
+        experimento: "Combos del Lab",
+        categoriaExperimento: "Combos del Lab",
+
+        // 👉 solo para mostrar detalle (NO afecta precio)
+        detalleCombo: combo.itemsInternos.map((item) => ({
+          ...item,
+        })),
+      },
+    ];
+  });
+
+  mostrarToast(`🔥 ${combo.nombre} agregado al carrito`, target);
+}
+  mostrarToast(`🔥 ${combo.nombre} agregado al carrito`, target);
+}
 
   function seleccionarSalsa(producto, salsa, target) {
     if (salsa.nombre === "Fuego Atómico") {
