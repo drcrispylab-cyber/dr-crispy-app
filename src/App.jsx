@@ -2221,6 +2221,7 @@ function prepararCombo(combo, target = null) {
         </div>
       )}
 
+
       {comboSalsaPendiente && (
         <div style={styles.modalBackdrop}>
           <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
@@ -2295,6 +2296,8 @@ function prepararCombo(combo, target = null) {
           </div>
         </div>
       )}
+
+      
 
       {salsaPendiente && (
         <div style={styles.modalBackdrop}>
