@@ -1283,52 +1283,49 @@ function prepararCombo(combo, target = null) {
   }
 
   function renderComboCard(combo) {
-    return (
-      <div
-        key={combo.id}
-        style={{
-          ...styles.comboCard,
-          ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeatured : {}),
-        }}
-      >
-        <div style={styles.comboTopRow}>
-          <div style={styles.comboEmoji}>{combo.emoji}</div>
-          <div style={styles.comboBadge}>{combo.badge}</div>
-        </div>
-
-        <h3 style={styles.comboTitle}>{combo.nombre}</h3>
-        <p style={styles.comboDesc}>{combo.descripcion}</p>
-
-        <div style={styles.comboIncludesWrap}>
-          {combo.itemsInternos.map((item) => (
-            <div key={item.id} style={styles.comboIncludeItem}>
-              • {item.nombre} x{item.cantidad}
-            </div>
-          ))}
-        </div>
-
-        <div style={styles.comboFooter}>
-          <div>
-            <div style={styles.comboMiniLabel}>Domicilio incluido</div>
-            <div style={styles.comboPrice}>
-              TEST ${combo.precio.toLocaleString("es-CO")}
-            </div>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          style={styles.comboBtn}
-          onClick={() => {
-            alert(`CLICK ${combo.nombre}`);
-            setComboPendiente({ combo, target: null });
+      return (
+        <div
+          key={combo.id}
+          style={{
+            ...styles.comboCard,
+            ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeatured : {}),
           }}
         >
-          Elegir salsa y pedir
-        </button>
-      </div>
-    );
-  }
+          <div style={styles.comboTopRow}>
+            <div style={styles.comboEmoji}>{combo.emoji}</div>
+            <div style={styles.comboBadge}>{combo.badge}</div>
+          </div>
+
+          <h3 style={styles.comboTitle}>{combo.nombre}</h3>
+          <p style={styles.comboDesc}>{combo.descripcion}</p>
+
+          <div style={styles.comboIncludesWrap}>
+            {combo.itemsInternos.map((item) => (
+              <div key={item.id} style={styles.comboIncludeItem}>
+                • {item.nombre} x{item.cantidad}
+              </div>
+            ))}
+          </div>
+
+          <div style={styles.comboFooter}>
+            <div>
+              <div style={styles.comboMiniLabel}>Domicilio incluido</div>
+              <div style={styles.comboPrice}>
+                ${combo.precio.toLocaleString("es-CO")}
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            style={styles.comboBtn}
+            onClick={() => setComboPendiente({ combo, target: null })}
+          >
+            Elegir salsa y pedir
+          </button>
+        </div>
+      );
+    }
 
   function renderHeroInicio() {
     return (
