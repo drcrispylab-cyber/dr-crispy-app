@@ -332,7 +332,8 @@ function App() {
   const [formulaSeleccionada, setFormulaSeleccionada] = useState(null);
   const [salsaPendiente, setSalsaPendiente] = useState(null);
   const [nivelAtomico, setNivelAtomico] = useState("");
-
+  const [comboPendiente, setComboPendiente] = useState(null);
+  const [comboSalsaPendiente, setComboSalsaPendiente] = useState(null);
   const audioRef = useRef(null);
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
@@ -483,8 +484,9 @@ function App() {
     }
   }
 
-  function agregarCombo(combo, target = null) {
-  const cartKey = `${combo.id}-combo`;
+  function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
+  const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+  const cartKey = `${combo.id}-combo-${salsaFinal}`;
 
   setCarrito((prev) => {
     const existente = prev.find((item) => item.cartKey === cartKey);
@@ -509,16 +511,27 @@ function App() {
         esCombo: true,
         badge: combo.badge,
         emoji: combo.emoji,
+        salsa: salsaFinal,
         experimento: "Combos del Lab",
         categoriaExperimento: "Combos del Lab",
-        detalleCombo: combo.itemsInternos.map((item) => ({
-          ...item,
-        })),
+        detalleCombo: combo.itemsInternos.map((item) => {
+          if (item.nombre.toLowerCase().includes("alitas")) {
+            return {
+              ...item,
+              salsa: salsaFinal,
+            };
+          }
+
+          return { ...item };
+        }),
       },
     ];
   });
 
-  mostrarToast(`🔥 ${combo.nombre} agregado al carrito`, target);
+function prepararCombo(combo, target = null) {
+  setComboPendiente({ combo, target });
+}
+  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
 }
 
   function seleccionarSalsa(producto, salsa, target) {
@@ -1286,35 +1299,28 @@ function App() {
       <h3 style={styles.comboTitle}>{combo.nombre}</h3>
       <p style={styles.comboDesc}>{combo.descripcion}</p>
 
-      <div style={{ marginTop: 12, marginBottom: 6 }}>
+      <div style={styles.comboIncludesWrap}>
         {combo.itemsInternos.map((item) => (
-          <div
-            key={item.id}
-            style={{
-              fontSize: 13,
-              color: "#cfcfcf",
-              marginBottom: 6,
-              padding: "8px 10px",
-              borderRadius: 10,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.05)",
-            }}
-          >
+          <div key={item.id} style={styles.comboIncludeItem}>
             • {item.nombre} x{item.cantidad}
-            {item.salsa ? ` • ${item.salsa}` : ""}
           </div>
         ))}
       </div>
 
-      <div style={styles.comboPrice}>
-        ${combo.precio.toLocaleString("es-CO")}
+      <div style={styles.comboFooter}>
+        <div>
+          <div style={styles.comboMiniLabel}>Domicilio incluido</div>
+          <div style={styles.comboPrice}>
+            ${combo.precio.toLocaleString("es-CO")}
+          </div>
+        </div>
       </div>
 
       <button
         style={styles.comboBtn}
-        onClick={(e) => agregarCombo(combo, e.currentTarget)}
+        onClick={(e) => prepararCombo(combo, e.currentTarget)}
       >
-        🔥 Activar combo
+        Elegir salsa y pedir
       </button>
     </div>
   );
@@ -1842,7 +1848,9 @@ function App() {
                     </div>
 
                     {item.salsa && (
-                      <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
+                      <div style={{ ...styles.cartSub, color: "#ffd166", fontWeight: "bold" }}>
+                        Sabor: {item.salsa}
+                      </div>
                     )}
 
                     {item.esCombo && Array.isArray(item.detalleCombo) && (
@@ -2144,6 +2152,146 @@ function App() {
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {comboPendiente && (
+        <div
+          style={styles.modalBackdrop}
+          onClick={() => setComboPendiente(null)}
+        >
+          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalTop}>
+              <div>
+                <div style={styles.menuInteractiveBadge}>🔥 SALSA DEL COMBO</div>
+                <h2 style={styles.modalTitle}>{comboPendiente.combo.nombre}</h2>
+                <p style={styles.modalSubtitle}>
+                  Elige el sabor de tus alitas para este combo
+                </p>
+              </div>
+
+              <button
+                style={styles.modalCloseBtn}
+                onClick={() => setComboPendiente(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div
+              style={{
+                ...styles.sauceVisualGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(3, minmax(0, 1fr))",
+              }}
+            >
+              {SALSAS.map((salsa) => (
+                <button
+                  key={salsa.nombre}
+                  style={styles.sauceVisualCard}
+                  onClick={() => {
+                    if (salsa.nombre === "Fuego Atómico") {
+                      setComboSalsaPendiente({
+                        combo: comboPendiente.combo,
+                        target: comboPendiente.target,
+                        salsa,
+                      });
+                      setComboPendiente(null);
+                      setNivelAtomico("");
+                      return;
+                    }
+
+                    agregarCombo(
+                      comboPendiente.combo,
+                      comboPendiente.target,
+                      salsa.nombre
+                    );
+                    setComboPendiente(null);
+                  }}
+                >
+                  <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
+                  <div style={styles.sauceVisualName}>{salsa.nombre}</div>
+                  <div style={styles.sauceVisualDesc}>{salsa.descripcion}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {comboSalsaPendiente && (
+        <div style={styles.modalBackdrop}>
+          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalTop}>
+              <div>
+                <div style={styles.menuInteractiveBadge}>🌶️ FUEGO ATÓMICO</div>
+                <h2 style={styles.modalTitle}>Selecciona nivel de picante</h2>
+                <p style={styles.modalSubtitle}>
+                  Esta opción aplica para las alitas del combo.
+                </p>
+              </div>
+
+              <button
+                style={styles.modalCloseBtn}
+                onClick={() => {
+                  setComboSalsaPendiente(null);
+                  setNivelAtomico("");
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div
+              style={{
+                ...styles.sauceVisualGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(3, minmax(0, 1fr))",
+              }}
+            >
+              {["Bajo", "Medio", "Alto"].map((nivel) => (
+                <button
+                  key={nivel}
+                  style={{
+                    ...styles.sauceVisualCard,
+                    ...(nivelAtomico === nivel
+                      ? styles.sauceVisualCardActive
+                      : {}),
+                  }}
+                  onClick={() => setNivelAtomico(nivel)}
+                >
+                  <div style={styles.sauceVisualEmoji}>🌶️</div>
+                  <div style={styles.sauceVisualName}>{nivel}</div>
+                  <div style={styles.sauceVisualDesc}>
+                    Intensidad {nivel.toLowerCase()}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <button
+              style={{ ...styles.confirmBtn, marginTop: 18 }}
+              onClick={() => {
+                if (!nivelAtomico) {
+                  mostrarMensaje("error", "Selecciona el nivel de picante.");
+                  return;
+                }
+
+                agregarCombo(
+                  comboSalsaPendiente.combo,
+                  comboSalsaPendiente.target,
+                  `Fuego Atómico - ${nivelAtomico}`
+                );
+
+                setComboSalsaPendiente(null);
+                setNivelAtomico("");
+              }}
+            >
+              Confirmar nivel
+            </button>
           </div>
         </div>
       )}
@@ -3643,14 +3791,14 @@ const styles = {
   cartItem: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 12,
-    background: "#191919",
+    background: "linear-gradient(180deg, rgba(28,28,28,0.98), rgba(18,18,18,0.98))",
     border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 16,
+    padding: 16,
     marginBottom: 12,
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
   },
   cartSub: {
     color: "#bdbdbd",
@@ -3998,6 +4146,43 @@ const styles = {
     letterSpacing: 1,
     marginBottom: 16,
   },
+  comboIncludesWrap: {
+    display: "grid",
+    gap: 8,
+    marginTop: 14,
+    marginBottom: 16,
+  },
+
+  comboIncludeItem: {
+    fontSize: 13,
+    color: "#d8d8d8",
+    padding: "9px 11px",
+    borderRadius: 12,
+    background: "rgba(255,255,255,0.045)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    lineHeight: 1.35,
+  },
+
+  comboFooter: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    gap: 12,
+    marginBottom: 14,
+  },
+
+  comboMiniLabel: {
+    display: "inline-block",
+    background: "rgba(255,209,102,0.10)",
+    color: "#ffd166",
+    border: "1px solid rgba(255,209,102,0.18)",
+    padding: "6px 10px",
+    borderRadius: 999,
+    fontSize: 11,
+    fontWeight: "bold",
+    marginBottom: 10,
+    letterSpacing: 0.4,
+  },
   posterMainTitle: {
     margin: 0,
     fontSize: 72,
@@ -4122,11 +4307,14 @@ const styles = {
   comboCard: {
     position: "relative",
     background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(10,10,10,1))",
+      "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 28%), linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
     border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 20,
-    padding: 22,
-    boxShadow: "0 16px 30px rgba(0,0,0,0.22)",
+    padding: 18,
+    boxShadow: "0 16px 30px rgba(0,0,0,0.20)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   comboCardFeatured: {
     border: "1px solid rgba(255,0,0,0.34)",
@@ -4154,18 +4342,18 @@ const styles = {
   },
   comboTitle: {
     margin: "0 0 8px 0",
-    fontSize: 44,
+    fontSize: 36,
     color: "#fff",
     textTransform: "uppercase",
     fontFamily: '"Bebas Neue", sans-serif',
     letterSpacing: 1,
-    lineHeight: 0.95,
+    lineHeight: 0.92,
   },
   comboDesc: {
     margin: 0,
     color: "#d2d2d2",
     lineHeight: 1.5,
-    minHeight: 48,
+    fontSize: 15,
   },
   comboPrice: {
     marginTop: 16,
@@ -4177,15 +4365,15 @@ const styles = {
   },
   comboBtn: {
     width: "100%",
-    background: "linear-gradient(135deg, #ff0000, #b30000)",
+    background: "linear-gradient(135deg, #ff1200, #c30000)",
     color: "#fff",
     border: "none",
-    padding: "14px 16px",
+    padding: "15px 16px",
     borderRadius: 14,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
-    boxShadow: "0 12px 24px rgba(255,0,0,0.16)",
+    boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
   },
   menuInteractiveSection: {
     padding: 24,
