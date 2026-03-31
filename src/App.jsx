@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import alertaSound from "./assets/alerta.mp3";
-import heroImage from "./assets/hero.png";
 import drCrispyFull from "./assets/drcrispy.png";
 import drCrispyIcon from "./assets/icono.jpg";
 import alitasBg from "./assets/alitas-bg.png";
@@ -45,6 +44,96 @@ const FORMULAS = [
     precio: 92900,
     emoji: "💥",
     categoria: "formulas",
+  },
+];
+
+const COMBOS = [
+  {
+    id: "combo1",
+    nombre: "Combo Individual",
+    descripcion: "6 alitas + papas fritas + Coca-Cola PET 400",
+    precio: 37900,
+    emoji: "🔥",
+    badge: "RÁPIDO",
+    itemsInternos: [
+      {
+        id: "combo1-alitas",
+        nombre: "Alitas x6",
+        precio: 28900,
+        cantidad: 1,
+        salsa: "BBQ Reactor",
+      },
+      {
+        id: "combo1-papas",
+        nombre: "Papas fritas",
+        precio: 5000,
+        cantidad: 1,
+      },
+      {
+        id: "combo1-bebida",
+        nombre: "Coca-Cola PET 400",
+        precio: 4500,
+        cantidad: 1,
+      },
+    ],
+  },
+  {
+    id: "combo2",
+    nombre: "Combo Pareja",
+    descripcion: "12 alitas + 2 papas fritas + 2 Coca-Cola PET 400",
+    precio: 67900,
+    emoji: "⭐",
+    badge: "MÁS PEDIDO",
+    itemsInternos: [
+      {
+        id: "combo2-alitas",
+        nombre: "Alitas x12",
+        precio: 48900,
+        cantidad: 1,
+        salsa: "BBQ Reactor",
+      },
+      {
+        id: "combo2-papas",
+        nombre: "Papas fritas",
+        precio: 5000,
+        cantidad: 2,
+      },
+      {
+        id: "combo2-bebida",
+        nombre: "Coca-Cola PET 400",
+        precio: 4500,
+        cantidad: 2,
+      },
+    ],
+  },
+  {
+    id: "combo3",
+    nombre: "Combo Pro",
+    descripcion: "18 alitas + 2 papas fritas + Coca-Cola 1½",
+    precio: 89900,
+    emoji: "💣",
+    badge: "MEJOR VALOR",
+    itemsInternos: [
+      {
+        id: "combo3-alitas",
+        nombre: "Alitas x18",
+        precio: 71900,
+        cantidad: 1,
+        salsa: "BBQ Reactor",
+      },
+      {
+        id: "combo3-papas",
+        nombre: "Papas fritas",
+        precio: 5000,
+        cantidad: 2,
+      },
+      {
+        id: "combo3-bebida",
+        nombre: "Coca-Cola 1½",
+        precio: 8000,
+        cantidad: 1,
+      },
+    ],
   },
 ];
 
@@ -123,7 +212,7 @@ const EXPERIMENTOS = [
     badge: "ACTIVO",
   },
   {
-  id: "exp2",
+    id: "exp2",
     titulo: "EXPERIMENTO 02",
     subtitulo: "PROYECTO DEL LABORATORIO",
     descripcion:
@@ -132,16 +221,15 @@ const EXPERIMENTOS = [
     estado: "proximamente",
     badge: "🔒 CLASIFICADO",
   },
-
   {
-  id: "exp3",
-  titulo: "EXPERIMENTO 03",
-  subtitulo: "PROYECTO CLASIFICADO",
-  descripcion:
-    "Otro experimento del laboratorio sigue en fase de pruebas. Muy pronto mostraremos más información.",
-  imagen: "/clasificado.png",
-  estado: "proximamente",
-  badge: "🔒 CLASIFICADO",
+    id: "exp3",
+    titulo: "EXPERIMENTO 03",
+    subtitulo: "PROYECTO CLASIFICADO",
+    descripcion:
+      "Otro experimento del laboratorio sigue en fase de pruebas. Muy pronto mostraremos más información.",
+    imagen: "/clasificado.png",
+    estado: "proximamente",
+    badge: "🔒 CLASIFICADO",
   },
 ];
 
@@ -154,11 +242,8 @@ function App() {
   const [ancho, setAncho] = useState(window.innerWidth);
   const [seccionCliente, setSeccionCliente] = useState("inicio");
   const [cardHover, setCardHover] = useState("");
-  const [audioLab] = useState(() => new Audio("/lab-beep.mp3"));
 
   const [carrito, setCarrito] = useState([]);
-
-  
 
   const [cliente, setCliente] = useState({
     nombre: "",
@@ -193,7 +278,12 @@ function App() {
   const [eliminandoPedidoId, setEliminandoPedidoId] = useState("");
 
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
-  const [toast, setToast] = useState({visible: false, texto: "", x: 0, y: 0,});
+  const [toast, setToast] = useState({
+    visible: false,
+    texto: "",
+    x: 0,
+    y: 0,
+  });
   const [modalPedidoAbierto, setModalPedidoAbierto] = useState(false);
   const [pedidoConfirmadoInfo, setPedidoConfirmadoInfo] = useState(null);
 
@@ -236,45 +326,46 @@ function App() {
   }
 
   function mostrarToast(texto, target) {
-  if (toastTimerRef.current) {
-    clearTimeout(toastTimerRef.current);
-  }
-
-  let x = window.innerWidth / 2;
-  let y = 100;
-
-  if (target) {
-    const rect = target.getBoundingClientRect();
-
-    x = rect.left + rect.width / 2;
-    y = rect.top - 12;
-
-    if (y < 90) {
-      y = rect.bottom + 12;
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
     }
+
+    let x = window.innerWidth / 2;
+    let y = 100;
+
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      x = rect.left + rect.width / 2;
+      y = rect.top - 12;
+
+      if (y < 90) {
+        y = rect.bottom + 12;
+      }
+    }
+
+    const anchoToast = Math.min(420, window.innerWidth - 32);
+    const mitad = anchoToast / 2;
+
+    if (x < mitad + 16) x = mitad + 16;
+    if (x > window.innerWidth - mitad - 16) {
+      x = window.innerWidth - mitad - 16;
+    }
+
+    setToast({
+      visible: true,
+      texto,
+      x,
+      y,
+    });
+
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({
+        ...prev,
+        visible: false,
+        texto: "",
+      }));
+    }, 2200);
   }
-
-  const anchoToast = Math.min(420, window.innerWidth - 32);
-  const mitad = anchoToast / 2;
-
-  if (x < mitad + 16) x = mitad + 16;
-  if (x > window.innerWidth - mitad - 16) x = window.innerWidth - mitad - 16;
-
-  setToast({
-    visible: true,
-    texto,
-    x,
-    y,
-  });
-
-  toastTimerRef.current = setTimeout(() => {
-    setToast((prev) => ({
-      ...prev,
-      visible: false,
-      texto: "",
-    }));
-  }, 2200);
-}
 
   function limpiarCliente() {
     setCliente({
@@ -291,54 +382,99 @@ function App() {
   }
 
   function agregarProducto(producto, target) {
-  const key = getCartKey(producto);
-  const existente = carrito.find((item) => item.cartKey === key);
+    const key = getCartKey(producto);
+    const existente = carrito.find((item) => item.cartKey === key);
 
-  if (existente) {
-    setCarrito((prev) =>
-      prev.map((item) =>
-        item.cartKey === key
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
-      )
-    );
+    if (existente) {
+      setCarrito((prev) =>
+        prev.map((item) =>
+          item.cartKey === key
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        )
+      );
+
+      mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
+      return;
+    }
+
+    setCarrito((prev) => [
+      ...prev,
+      {
+        ...producto,
+        cantidad: 1,
+        cartKey: key,
+        experimento: "Experimento 1",
+        categoriaExperimento: "Alitas Crispy",
+      },
+    ]);
 
     mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
-    return;
   }
 
-  setCarrito((prev) => [
-    ...prev,
-    {
+  function agregarProductoDirecto(producto, cantidad = 1, target = null) {
+    const nuevoProducto = {
       ...producto,
-      cantidad: 1,
-      cartKey: key,
-      experimento: "Experimento 1",
-      categoriaExperimento: "Alitas Crispy",
-    },
-  ]);
+      cantidad,
+      cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
+      experimento: producto.experimento || "Experimento 1",
+      categoriaExperimento:
+        producto.categoriaExperimento || "Alitas Crispy",
+    };
 
-  mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
-}
-  
+    setCarrito((prev) => {
+      const existente = prev.find(
+        (item) => item.cartKey === nuevoProducto.cartKey
+      );
+
+      if (existente) {
+        return prev.map((item) =>
+          item.cartKey === nuevoProducto.cartKey
+            ? { ...item, cantidad: item.cantidad + cantidad }
+            : item
+        );
+      }
+
+      return [...prev, nuevoProducto];
+    });
+
+    if (target) {
+      mostrarToast(`✅ ${producto.nombre} agregado`, target);
+    }
+  }
+
+  function agregarCombo(combo, target = null) {
+    combo.itemsInternos.forEach((item) => {
+      agregarProductoDirecto(
+        {
+          ...item,
+          experimento: combo.nombre,
+          categoriaExperimento: "Combos del Lab",
+        },
+        item.cantidad || 1
+      );
+    });
+
+    mostrarToast(`🔥 ${combo.nombre} activado`, target);
+  }
 
   function seleccionarSalsa(producto, salsa, target) {
-  if (salsa.nombre === "Fuego Atómico") {
-    setSalsaPendiente({ producto, salsa, target });
-    setNivelAtomico("");
-    return;
+    if (salsa.nombre === "Fuego Atómico") {
+      setSalsaPendiente({ producto, salsa, target });
+      setNivelAtomico("");
+      return;
+    }
+
+    agregarProducto(
+      {
+        ...producto,
+        salsa: salsa.nombre,
+      },
+      target
+    );
+
+    setFormulaSeleccionada(null);
   }
-
-  agregarProducto(
-    {
-      ...producto,
-      salsa: salsa.nombre,
-    },
-    target
-  );
-
-  setFormulaSeleccionada(null);
-}
 
   function confirmarFuegoAtomico() {
     if (!salsaPendiente || !nivelAtomico) {
@@ -398,7 +534,9 @@ function App() {
     const hoy = new Date().toLocaleDateString("es-CO");
     return pedidos.filter((pedido) => {
       const fechaPedido = new Date(pedido.fecha);
-      if (isNaN(fechaPedido.getTime())) return String(pedido.fecha).includes(hoy);
+      if (isNaN(fechaPedido.getTime())) {
+        return String(pedido.fecha).includes(hoy);
+      }
       return fechaPedido.toLocaleDateString("es-CO") === hoy;
     }).length;
   }, [pedidos]);
@@ -436,7 +574,7 @@ function App() {
 
   function construirTextoWhatsApp() {
     const lineas = [
-      "🧪 *Pedido Dr. Crispy Lab*",
+      "🔥 *QUIERO ACTIVAR ESTE EXPERIMENTO*",
       "",
       `👤 Cliente: ${cliente.nombre || "-"}`,
       `📞 Teléfono: ${cliente.telefono || "-"}`,
@@ -447,9 +585,11 @@ function App() {
       "*Productos:*",
       ...carrito.map(
         (item) =>
-          `- ${item.experimento || "Experimento 1"} | ${item.nombre} x${item.cantidad}${
-            item.salsa ? ` | ${item.salsa}` : ""
-          } | $${(item.precio * item.cantidad).toLocaleString("es-CO")}`
+          `- ${item.experimento || "Experimento 1"} | ${item.nombre} x${
+            item.cantidad
+          }${item.salsa ? ` | ${item.salsa}` : ""} | $${(
+            item.precio * item.cantidad
+          ).toLocaleString("es-CO")}`
       ),
       "",
       `Subtotal: $${subtotal.toLocaleString("es-CO")}`,
@@ -468,11 +608,17 @@ function App() {
     }
 
     const texto = construirTextoWhatsApp();
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+      texto
+    )}`;
     window.open(url, "_blank");
   }
 
   function imprimirTicketPedido(pedido) {
+    const metodoPago =
+      pedido?.metodoPago || pedido?.cliente?.pago || "No definido";
+    const estadoPago = pedido?.estadoPago || "Pendiente";
+
     const contenido = `
       <html>
         <head>
@@ -498,14 +644,8 @@ function App() {
           <p><strong>Teléfono:</strong> ${pedido.cliente.telefono}</p>
           <p><strong>Dirección:</strong> ${pedido.cliente.direccion}</p>
           <p><strong>Referencia:</strong> ${pedido.cliente.referencia || "N/A"}</p>
-          <p>
-            <strong>Método de pago:</strong>{" "}
-            {pedidoConsultado?.metodoPago || pedidoConsultado?.cliente?.pago || "No definido"}
-          </p>
-          <p>
-            <strong>Estado del pago:</strong>{" "}
-            {pedidoConsultado?.estadoPago || "Pendiente"}
-          </p>
+          <p><strong>Método de pago:</strong> ${metodoPago}</p>
+          <p><strong>Estado del pago:</strong> ${estadoPago}</p>
           <div class="linea"></div>
           <h3>Productos</h3>
           <ul>
@@ -514,7 +654,9 @@ function App() {
                 (item) =>
                   `<li>${item.experimento || "Experimento 1"} | ${item.nombre} x${item.cantidad}${
                     item.salsa ? ` - ${item.salsa}` : ""
-                  } - $${(item.precio * item.cantidad).toLocaleString("es-CO")}</li>`
+                  } - $${(item.precio * item.cantidad).toLocaleString(
+                    "es-CO"
+                  )}</li>`
               )
               .join("")}
           </ul>
@@ -536,88 +678,91 @@ function App() {
   }
 
   async function confirmarPedido() {
-  const errorValidacion = validarCliente();
+    const errorValidacion = validarCliente();
 
-  if (errorValidacion) {
-    mostrarMensaje("error", errorValidacion);
-    return;
-  }
+    if (errorValidacion) {
+      mostrarMensaje("error", errorValidacion);
+      return;
+    }
 
-  try {
-    setCargandoPedido(true);
+    try {
+      setCargandoPedido(true);
 
-    const clienteLimpio = {
-      ...cliente,
-      nombre: cliente.nombre.trim(),
-      telefono: cliente.telefono.trim(),
-      direccion: cliente.direccion.trim(),
-      referencia: cliente.referencia.trim(),
-    };
+      const clienteLimpio = {
+        ...cliente,
+        nombre: cliente.nombre.trim(),
+        telefono: cliente.telefono.trim(),
+        direccion: cliente.direccion.trim(),
+        referencia: cliente.referencia.trim(),
+      };
 
-    const response = await fetch(`${API_URL}/pedidos`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        cliente: clienteLimpio,
-        items: carrito,
-        subtotal,
-        domicilio,
+      const response = await fetch(`${API_URL}/pedidos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cliente: clienteLimpio,
+          items: carrito,
+          subtotal,
+          domicilio,
+          total,
+          metodoPago: cliente.pago,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error guardando pedido");
+      }
+
+      const nuevoPedido = data?.pedido || null;
+      const nuevoId = nuevoPedido?.id || "";
+      const nuevoTrackingToken = nuevoPedido?.trackingToken || "";
+
+      setPedidoCreadoId(nuevoId);
+      setTrackingToken(nuevoTrackingToken);
+      setPedidoConsultado(nuevoPedido);
+
+      if (nuevoTrackingToken) {
+        localStorage.setItem("dr_tracking_token", nuevoTrackingToken);
+      }
+
+      setPedidoConfirmadoInfo({
+        id: nuevoId,
+        nombre: clienteLimpio.nombre,
+        telefono: clienteLimpio.telefono,
         total,
-        metodoPago: cliente.pago,
-      }),
-    });
+      });
 
-    const data = await response.json();
+      setModalPedidoAbierto(true);
+      mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
+      mostrarToast("🎉 Tu pedido fue confirmado correctamente");
 
-    if (!response.ok) {
-      throw new Error(data.error || "Error guardando pedido");
+      setCarrito([]);
+      limpiarCliente();
+
+      setVista("seguimiento");
+
+      if (nuevoTrackingToken) {
+        consultarMiSeguimiento(nuevoTrackingToken);
+      }
+    } catch (error) {
+      mostrarMensaje("error", error.message);
+    } finally {
+      setCargandoPedido(false);
     }
-
-    const nuevoPedido = data?.pedido || null;
-    const nuevoId = nuevoPedido?.id || "";
-    const nuevoTrackingToken = nuevoPedido?.trackingToken || "";
-
-    setPedidoCreadoId(nuevoId);
-    setTrackingToken(nuevoTrackingToken);
-    setPedidoConsultado(nuevoPedido);
-
-    if (nuevoTrackingToken) {
-      localStorage.setItem("dr_tracking_token", nuevoTrackingToken);
-    }
-
-    setPedidoConfirmadoInfo({
-      id: nuevoId,
-      nombre: clienteLimpio.nombre,
-      telefono: clienteLimpio.telefono,
-      total,
-    });
-
-    setModalPedidoAbierto(true);
-    mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
-    mostrarToast("🎉 Tu pedido fue confirmado correctamente");
-
-    setCarrito([]);
-    limpiarCliente();
-
-    setVista("seguimiento");
-
-    if (nuevoTrackingToken) {
-      consultarMiSeguimiento(nuevoTrackingToken);
-    }
-  } catch (error) {
-    mostrarMensaje("error", error.message);
-  } finally {
-    setCargandoPedido(false);
   }
-}
 
   async function consultarMiSeguimiento(tokenManual) {
     const token = (tokenManual ?? trackingToken).trim();
 
     if (!token) {
-      mostrarMensaje("error", "Aún no tienes un pedido asociado en este dispositivo.");
+      mostrarMensaje(
+        "error",
+        "Aún no tienes un pedido asociado en este dispositivo."
+      );
       return;
     }
 
@@ -782,7 +927,7 @@ function App() {
     }
   }
 
-    async function actualizarPagoPedido(id, nuevoEstadoPago) {
+  async function actualizarPagoPedido(id, nuevoEstadoPago) {
     try {
       const response = await fetch(`${API_URL}/pedidos/${id}/pago`, {
         method: "PATCH",
@@ -800,7 +945,10 @@ function App() {
         throw new Error(data.error || "No se pudo actualizar el pago");
       }
 
-      mostrarMensaje("ok", `Pago del pedido ${id} actualizado a "${nuevoEstadoPago}"`);
+      mostrarMensaje(
+        "ok",
+        `Pago del pedido ${id} actualizado a "${nuevoEstadoPago}"`
+      );
 
       if (pedidoConsultado?.id === id) {
         await consultarMiSeguimiento();
@@ -811,7 +959,9 @@ function App() {
   }
 
   async function eliminarPedido(id) {
-    const confirmar = window.confirm(`¿Seguro que deseas eliminar el pedido ${id}?`);
+    const confirmar = window.confirm(
+      `¿Seguro que deseas eliminar el pedido ${id}?`
+    );
     if (!confirmar) return;
 
     try {
@@ -1007,7 +1157,9 @@ function App() {
 
   function notificarProximamente(experimento) {
     const texto = `Hola Dr. Crispy Lab, quiero que me avisen cuando esté disponible ${experimento.titulo} - ${experimento.subtitulo}.`;
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(texto)}`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+      texto
+    )}`;
     window.open(url, "_blank");
   }
 
@@ -1044,543 +1196,657 @@ function App() {
         <div style={styles.simplePrice}>
           ${producto.precio.toLocaleString("es-CO")}
         </div>
-        <button style={styles.addBtnPro} onClick={() => agregarProducto(producto)}>
+        <button
+          style={styles.addBtnPro}
+          onClick={(e) => agregarProducto(producto, e.currentTarget)}
+        >
           Agregar al experimento
         </button>
       </div>
     );
   }
 
-  function renderHeroInicio() {
-  return (
-    <section
-      style={{
-        ...styles.labHero,
-        gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
-      }}
-    >
-      <div style={styles.labHeroContent}>
-        <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
-
-        <h2 style={styles.labHeroTitle}>
-          BIENVENIDO AL LABORATORIO DEL DR. CRISPY
-        </h2>
-
-        <p style={styles.labHeroText}>
-          Aquí no vendemos solo comida. Creamos experimentos crujientes con
-          salsa, fuego y sabor. No es pollo. Es un experimento.
-        </p>
-
-        <div style={styles.heroActionRow}>
-          <button
-            style={styles.heroPrimaryBtn}
-            onClick={() => irASeccionCliente("catalogo")}
-          >
-            Ver experimentos
-          </button>
-
-          <button
-            style={styles.heroSecondaryBtn}
-            onClick={() => setVista("seguimiento")}
-          >
-            Ver mi seguimiento
-          </button>
-        </div>
-      </div>
-
-      <div style={styles.labHeroVisual}>
-        <div style={styles.heroVisualCard}>
-          <div style={styles.reactorGlow}></div>
-          <div style={styles.smokeGlow}></div>
-
-          <span style={{ ...styles.labParticle, ...styles.labParticle1 }}></span>
-          <span style={{ ...styles.labParticle, ...styles.labParticle2 }}></span>
-          <span style={{ ...styles.labParticle, ...styles.labParticle3 }}></span>
-          <span style={{ ...styles.labParticle, ...styles.labParticle4 }}></span>
-          <span style={{ ...styles.labParticle, ...styles.labParticle5 }}></span>
-
-          <div
-            style={{
-              ...styles.heroLogoWrap,
-              animation:
-                "crispyGlow 1.8s ease-in-out infinite, crispyFloat 2.2s ease-in-out infinite",
-            }}
-          >
-            <img
-              src={drCrispyIcon}
-              alt="Dr. Crispy Lab"
-              style={{
-                width: "120%",
-                height: "120%",
-                objectFit: "cover",
-                transform: "scale(1.1)",
-              }}
-            />
-          </div>
-
-          <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
-
-          <img
-            src={drCrispyFull}
-            alt="Dr. Crispy"
-            style={{
-              ...styles.heroFullImage,
-              animation: "crispyFloat 3.5s ease-in-out infinite",
-            }}
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function renderCatalogoExperimentos() {
-  return (
-    <section style={styles.panel}>
-      <div style={styles.catalogHeader}>
-        <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
-        <h2 style={styles.catalogTitle}>ELIGE TU EXPERIMENTO</h2>
-        <p style={styles.catalogText}>
-          El Experimento 1 ya está activo. Los siguientes se están preparando
-          en el laboratorio.
-        </p>
-      </div>
-
+  function renderComboCard(combo) {
+    return (
       <div
+        key={combo.id}
         style={{
-          ...styles.experimentosGrid,
-          gridTemplateColumns: esMovil ? "1fr" : "repeat(3, minmax(0, 1fr))",
+          ...styles.comboCard,
+          ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeatured : {}),
         }}
       >
-        {EXPERIMENTOS.map((experimento) => (
-          <div
-              key={experimento.id}
-              style={{
-                ...styles.experimentCard,
-                ...(experimento.id === "exp1" ? styles.experimentCardActive : {}),
-                ...(cardHover === experimento.id ? styles.experimentCardHover : {}),
-              }}
-              onMouseEnter={() => setCardHover(experimento.id)}
-              onMouseLeave={() => setCardHover("")}
-            >
-            <div
-              style={{
-                ...styles.experimentImage,
-                backgroundImage:
-                  experimento.id === "exp1"
-                    ? `linear-gradient(rgba(0,0,0,0.48), rgba(0,0,0,0.72)), url(${experimento.imagen})`
-                    : `linear-gradient(rgba(0,0,0,0.40), rgba(0,0,0,0.65)), url(${experimento.imagen})`,
-                              }}
-            >
-              {experimento.id === "exp1" && (
-                <>
-                  <div style={styles.exp1Glow}></div>
-                  <div style={styles.exp1BlurWing}></div>
-                  <div style={styles.exp1BlurWing2}></div>
+        <div style={styles.comboTopRow}>
+          <div style={styles.comboEmoji}>{combo.emoji}</div>
+          <div style={styles.comboBadge}>{combo.badge}</div>
+        </div>
 
-                  <span style={{ ...styles.salsaDot, ...styles.salsaDot1 }}></span>
-                  <span style={{ ...styles.salsaDot, ...styles.salsaDot2 }}></span>
-                  <span style={{ ...styles.salsaDot, ...styles.salsaDot3 }}></span>
-                  <span style={{ ...styles.salsaDot, ...styles.salsaDot4 }}></span>
-                </>
-              )}
+        <h3 style={styles.comboTitle}>{combo.nombre}</h3>
+        <p style={styles.comboDesc}>{combo.descripcion}</p>
 
-              <div
-                style={{
-                  ...styles.experimentBadge,
-                  ...(experimento.estado === "activo"
-                    ? styles.experimentBadgeActive
-                    : styles.experimentBadgeSoon),
-                }}
-              >
-                {experimento.badge}
-              </div>
-            </div>
+        <div style={styles.comboPrice}>
+          ${combo.precio.toLocaleString("es-CO")}
+        </div>
 
-            <div style={styles.experimentBody}>
-              <h3 style={styles.experimentTitle}>{experimento.titulo}</h3>
-              <div style={styles.experimentSubtitle}>{experimento.subtitulo}</div>
-              <p style={styles.experimentDescription}>
-                {experimento.descripcion}
-              </p>
-
-              {experimento.estado === "activo" ? (
-                <button
-                  style={styles.experimentBtn}
-                  onClick={entrarExperimento1}
-                >
-                  Entrar al experimento
-                </button>
-              ) : (
-                <button
-                  style={styles.experimentGhostBtn}
-                  onClick={() => notificarProximamente(experimento)}
-                >
-                  Notificarme por WhatsApp
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
+        <button
+          style={styles.comboBtn}
+          onClick={(e) => agregarCombo(combo, e.currentTarget)}
+        >
+          🔥 Activar combo
+        </button>
       </div>
-    </section>
-  );
-}
+    );
+  }
 
-  function renderExperimento1() {
-  return (
-    <section
-      style={{
-        ...styles.mainGrid,
-        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
-      }}
-    >
-      <div>
-        <div style={styles.panel}>
-          <div style={styles.experimentoHeaderRow}>
-            <div>
-              <div style={styles.menuInteractiveBadge}>🔥 EXPERIMENTO 1 ACTIVO</div>
-              <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
-              <p style={styles.experimentScreenText}>
-                Fuego Atómico, Honey Mutante y BBQ Reactor.
-              </p>
-            </div>
+  function renderHeroInicio() {
+    return (
+      <section
+        style={{
+          ...styles.labHero,
+          gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
+        }}
+      >
+        <div style={styles.labHeroContent}>
+          <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
 
+          <h2
+            style={{
+              ...styles.labHeroTitle,
+              fontSize: esMovil ? 48 : 82,
+            }}
+          >
+            BIENVENIDO AL LABORATORIO DEL DR. CRISPY
+          </h2>
+
+          <p style={styles.labHeroText}>
+            Alitas crispy, fórmulas activadas y combos listos para pedir. No es
+            pollo. Es un experimento.
+          </p>
+
+          <div style={styles.heroUrgencyWrap}>
+            <div style={styles.heroUrgencyPill}>🚚 Domicilio incluido</div>
+            <div style={styles.heroUrgencyPill}>🔥 Combos más pedidos</div>
+            <div style={styles.heroUrgencyPill}>⚡ Pide en minutos</div>
+          </div>
+
+          <div style={styles.heroActionRow}>
             <button
-              style={styles.backCatalogBtn}
+              style={styles.heroPrimaryBtn}
               onClick={() => irASeccionCliente("catalogo")}
             >
-              ← Volver a experimentos
+              Ver experimentos
+            </button>
+
+            <button
+              style={styles.heroSecondaryBtn}
+              onClick={() => setVista("seguimiento")}
+            >
+              Ver mi seguimiento
             </button>
           </div>
         </div>
 
-        <div style={styles.posterMenuWrap}>
-          <div
-            style={{
-              ...styles.posterHero,
-              backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0,0,0,0.82)), url(${alitasBg})`,
-            }}
-          >
-            <div style={styles.posterHeroGlow}></div>
-            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot1 }}></span>
-            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot2 }}></span>
-            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot3 }}></span>
+        <div style={styles.labHeroVisual}>
+          <div style={styles.heroVisualCard}>
+            <div style={styles.reactorGlow}></div>
+            <div style={styles.smokeGlow}></div>
 
-            <div style={styles.posterOverlayContent}>
-              <div style={styles.posterBrand}>DR. CRISPY LAB</div>
-              <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
-              <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              ...styles.posterSections,
-              gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
-            }}
-          >
-            <div style={styles.posterLeftCol}>
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
-
-                <div style={styles.posterInfoList}>
-                  <div style={styles.posterInfoItem}>
-                    <strong>BBQ REACTOR</strong>{" "}
-                    <span>(SALSA BBQ AHUMADA)</span>
-                  </div>
-                  <div style={styles.posterInfoItem}>
-                    <strong>HONEY MUTANTE</strong>{" "}
-                    <span>(MIEL MOSTAZA)</span>
-                  </div>
-                  <div style={styles.posterInfoItem}>
-                    <strong>FUEGO ATÓMICO</strong>{" "}
-                    <span>(ACEITE PICANTE NASHVILLE)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
-                <div style={styles.reactionScale}>
-                  <div style={styles.reactionItem}>
-                    Fuego Atómico permite nivel bajo, medio o alto.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={styles.posterRightCol}>
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
-                <div style={styles.posterPriceList}>
-                  {FORMULAS.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
-                <div style={styles.posterPriceList}>
-                  {BEBIDAS.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
-                <div style={styles.posterPriceList}>
-                  {ADICIONALES.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={styles.menuInteractiveSection}>
-            <div style={styles.menuInteractiveHeader}>
-              <div style={styles.menuInteractiveBadge}>🍗 MENÚ INTERACTIVO</div>
-              <h2 style={styles.menuInteractiveTitle}>
-                SELECCIONA TU EXPERIMENTO
-              </h2>
-            </div>
+            <span
+              style={{ ...styles.labParticle, ...styles.labParticle1 }}
+            ></span>
+            <span
+              style={{ ...styles.labParticle, ...styles.labParticle2 }}
+            ></span>
+            <span
+              style={{ ...styles.labParticle, ...styles.labParticle3 }}
+            ></span>
+            <span
+              style={{ ...styles.labParticle, ...styles.labParticle4 }}
+            ></span>
+            <span
+              style={{ ...styles.labParticle, ...styles.labParticle5 }}
+            ></span>
 
             <div
               style={{
-                ...styles.posterFormulaGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(2, minmax(0, 1fr))",
+                ...styles.heroLogoWrap,
+                animation:
+                  "crispyGlow 1.8s ease-in-out infinite, crispyFloat 2.2s ease-in-out infinite",
               }}
             >
-              {FORMULAS.map(renderFormulaCard)}
+              <img
+                src={drCrispyIcon}
+                alt="Dr. Crispy Lab"
+                style={{
+                  width: "120%",
+                  height: "120%",
+                  objectFit: "cover",
+                  transform: "scale(1.1)",
+                }}
+              />
             </div>
 
-            <div style={styles.subSectionTitleWrap}>
-              <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
-            </div>
+            <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
 
-            <div
-              style={{
-                ...styles.simpleGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(2, minmax(0, 1fr))",
-              }}
-            >
-              {BEBIDAS.map(renderSimpleCard)}
-            </div>
-
-            <div style={styles.subSectionTitleWrap}>
-              <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
-            </div>
-
-            <div
-              style={{
-                ...styles.simpleGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(2, minmax(0, 1fr))",
-              }}
-            >
-              {ADICIONALES.map(renderSimpleCard)}
-            </div>
-          </div>
-        </div>
-
-        <div style={styles.panel}>
-          <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
-
-          <Input
-            label="Nombre"
-            value={cliente.nombre}
-            onChange={(e) => actualizarCliente("nombre", e.target.value)}
-          />
-          <Input
-            label="Teléfono"
-            value={cliente.telefono}
-            onChange={(e) => actualizarCliente("telefono", e.target.value)}
-          />
-          <Input
-            label="Dirección"
-            value={cliente.direccion}
-            onChange={(e) => actualizarCliente("direccion", e.target.value)}
-          />
-          <Input
-            label="Referencia"
-            value={cliente.referencia}
-            onChange={(e) => actualizarCliente("referencia", e.target.value)}
-          />
-
-          <div style={{ marginBottom: 14 }}>
-            <label style={styles.label}>Método de pago</label>
-            <select
-              style={styles.input}
-              value={cliente.pago}
-              onChange={(e) => actualizarCliente("pago", e.target.value)}
-            >
-              
-              <option value="Llave">Llave</option>
-              <option value="QR Nequi">QR Nequi</option>
-            </select>
-          </div>
-         
-          {cliente.pago === "Llave" && (
-            <div style={styles.paymentInfoBox}>
-              <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
-              <div style={styles.paymentInfoText}>Llave: 3152487938</div>
-              <div style={styles.paymentInfoText}>
-                El pedido quedará pendiente de verificación.
-              </div>
-            </div>
-          )}
-
-          {cliente.pago === "QR Nequi" && (
-            <div style={styles.paymentInfoBox}>
-              <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
-              <div style={styles.paymentInfoText}>
-                Escanea este QR para realizar el pago.
-              </div>
-
-              <div style={styles.qrWrap}>
-                <img
-                  src="/qr-nequi.png"
-                  alt="QR Nequi Dr. Crispy Lab"
-                  style={styles.qrImage}
-                />
-              </div>
-
-              <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-              <div style={styles.paymentInfoText}>
-                El pedido quedará pendiente de verificación.
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div>
-        <div
-          style={{
-            ...styles.panelSticky,
-            position: esMovil ? "static" : "sticky",
-          }}
-        >
-          <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
-
-          {carrito.length === 0 ? (
-            <div style={styles.emptyBox}>
-              No has agregado productos todavía.
-            </div>
-          ) : (
-            carrito.map((item) => (
-              <div key={item.cartKey} style={styles.cartItem}>
-                <div>
-                  <strong>{item.nombre}</strong>
-                  <div style={styles.cartSub}>
-                    {item.experimento || "Experimento 1"}
-                  </div>
-                  {item.salsa && (
-                    <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
-                  )}
-                  <div style={styles.cartSub}>
-                    ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
-                  </div>
-                </div>
-
-                <div style={styles.qtyBox}>
-                  <button
-                    style={styles.qtyBtn}
-                    onClick={() => cambiarCantidad(item.cartKey, -1)}
-                  >
-                    -
-                  </button>
-                  <span>{item.cantidad}</span>
-                  <button
-                    style={styles.qtyBtn}
-                    onClick={() => cambiarCantidad(item.cartKey, 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-
-          <div style={styles.summaryBox}>
-            <div style={styles.summaryRow}>
-              <span>Subtotal</span>
-              <span>${subtotal.toLocaleString("es-CO")}</span>
-            </div>
-            <div style={styles.summaryRow}>
-              <span>Domicilio</span>
-              <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                Incluido
-              </span>
-            </div>
-            <div style={styles.summaryTotal}>
-              <span>Total</span>
-              <span>${total.toLocaleString("es-CO")}</span>
-            </div>
-          </div>
-
-          <button
-            style={{
-              ...styles.confirmBtn,
-              ...(cargandoPedido ? styles.disabledBtn : {}),
-            }}
-            onClick={confirmarPedido}
-            disabled={cargandoPedido}
-          >
-            {cargandoPedido ? "Guardando pedido..." : "Confirmar pedido"}
-          </button>
-
-          <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
-            Enviar pedido por WhatsApp
-          </button>
-
-          <div style={styles.drCrispyFullWrap}>
             <img
               src={drCrispyFull}
-              alt="Dr. Crispy completo"
-              style={styles.drCrispyFullImage}
+              alt="Dr. Crispy"
+              style={{
+                ...styles.heroFullImage,
+                animation: "crispyFloat 3.5s ease-in-out infinite",
+              }}
             />
           </div>
+        </div>
+      </section>
+    );
+  }
 
-          {pedidoCreadoId && (
-            <div style={styles.lastOrderBox}>
-              <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
-                Último pedido creado:
-              </p>
-              <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
-              <button
-                style={styles.secondaryBtn}
-                onClick={() => {
-                  setVista("seguimiento");
-                  consultarMiSeguimiento();
+  function renderCatalogoExperimentos() {
+    return (
+      <section style={styles.panel}>
+        <div style={styles.catalogHeader}>
+          <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
+          <h2 style={styles.catalogTitle}>ELIGE TU EXPERIMENTO</h2>
+          <p style={styles.catalogText}>
+            El Experimento 1 ya está activo. Los siguientes se están preparando
+            en el laboratorio.
+          </p>
+        </div>
+
+        <div
+          style={{
+            ...styles.experimentosGrid,
+            gridTemplateColumns: esMovil
+              ? "1fr"
+              : "repeat(3, minmax(0, 1fr))",
+          }}
+        >
+          {EXPERIMENTOS.map((experimento) => (
+            <div
+              key={experimento.id}
+              style={{
+                ...styles.experimentCard,
+                ...(experimento.id === "exp1"
+                  ? styles.experimentCardActive
+                  : {}),
+                ...(cardHover === experimento.id
+                  ? styles.experimentCardHover
+                  : {}),
+              }}
+              onMouseEnter={() => setCardHover(experimento.id)}
+              onMouseLeave={() => setCardHover("")}
+            >
+              <div
+                style={{
+                  ...styles.experimentImage,
+                  backgroundImage:
+                    experimento.id === "exp1"
+                      ? `linear-gradient(rgba(0,0,0,0.48), rgba(0,0,0,0.72)), url(${experimento.imagen})`
+                      : `linear-gradient(rgba(0,0,0,0.40), rgba(0,0,0,0.65)), url(${experimento.imagen})`,
                 }}
               >
-                Ver mi seguimiento
+                {experimento.id === "exp1" && (
+                  <>
+                    <div style={styles.exp1Glow}></div>
+                    <div style={styles.exp1BlurWing}></div>
+                    <div style={styles.exp1BlurWing2}></div>
+
+                    <span
+                      style={{ ...styles.salsaDot, ...styles.salsaDot1 }}
+                    ></span>
+                    <span
+                      style={{ ...styles.salsaDot, ...styles.salsaDot2 }}
+                    ></span>
+                    <span
+                      style={{ ...styles.salsaDot, ...styles.salsaDot3 }}
+                    ></span>
+                    <span
+                      style={{ ...styles.salsaDot, ...styles.salsaDot4 }}
+                    ></span>
+                  </>
+                )}
+
+                <div
+                  style={{
+                    ...styles.experimentBadge,
+                    ...(experimento.estado === "activo"
+                      ? styles.experimentBadgeActive
+                      : styles.experimentBadgeSoon),
+                  }}
+                >
+                  {experimento.badge}
+                </div>
+              </div>
+
+              <div style={styles.experimentBody}>
+                <h3 style={styles.experimentTitle}>{experimento.titulo}</h3>
+                <div style={styles.experimentSubtitle}>
+                  {experimento.subtitulo}
+                </div>
+                <p style={styles.experimentDescription}>
+                  {experimento.descripcion}
+                </p>
+
+                {experimento.estado === "activo" ? (
+                  <button
+                    style={styles.experimentBtn}
+                    onClick={entrarExperimento1}
+                  >
+                    Entrar al experimento
+                  </button>
+                ) : (
+                  <button
+                    style={styles.experimentGhostBtn}
+                    onClick={() => notificarProximamente(experimento)}
+                  >
+                    Notificarme por WhatsApp
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  function renderExperimento1() {
+    return (
+      <section
+        style={{
+          ...styles.mainGrid,
+          gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+        }}
+      >
+        <div>
+          <div style={styles.panel}>
+            <div style={styles.experimentoHeaderRow}>
+              <div>
+                <div style={styles.menuInteractiveBadge}>
+                  🔥 EXPERIMENTO 1 ACTIVO
+                </div>
+                <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
+                <p style={styles.experimentScreenText}>
+                  Fuego Atómico, Honey Mutante y BBQ Reactor.
+                </p>
+              </div>
+
+              <button
+                style={styles.backCatalogBtn}
+                onClick={() => irASeccionCliente("catalogo")}
+              >
+                ← Volver a experimentos
               </button>
             </div>
-          )}
+          </div>
+
+          <div style={styles.posterMenuWrap}>
+            <div
+              style={{
+                ...styles.posterHero,
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0,0,0,0.82)), url(${alitasBg})`,
+                filter: "brightness(1.08) contrast(1.12)",
+              }}
+            >
+              <div style={styles.posterHeroGlow}></div>
+              <span
+                style={{
+                  ...styles.posterSauceDot,
+                  ...styles.posterSauceDot1,
+                }}
+              ></span>
+              <span
+                style={{
+                  ...styles.posterSauceDot,
+                  ...styles.posterSauceDot2,
+                }}
+              ></span>
+              <span
+                style={{
+                  ...styles.posterSauceDot,
+                  ...styles.posterSauceDot3,
+                }}
+              ></span>
+
+              <div style={styles.posterOverlayContent}>
+                <div style={styles.posterBrand}>DR. CRISPY LAB</div>
+                <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
+                <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                ...styles.posterSections,
+                gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
+              }}
+            >
+              <div style={styles.posterLeftCol}>
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
+
+                  <div style={styles.posterInfoList}>
+                    <div style={styles.posterInfoItem}>
+                      <strong>BBQ REACTOR</strong> <span>(SALSA BBQ AHUMADA)</span>
+                    </div>
+                    <div style={styles.posterInfoItem}>
+                      <strong>HONEY MUTANTE</strong>{" "}
+                      <span>(MIEL MOSTAZA)</span>
+                    </div>
+                    <div style={styles.posterInfoItem}>
+                      <strong>FUEGO ATÓMICO</strong>{" "}
+                      <span>(ACEITE PICANTE NASHVILLE)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
+                  <div style={styles.reactionScale}>
+                    <div style={styles.reactionItem}>
+                      Fuego Atómico permite nivel bajo, medio o alto.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={styles.posterRightCol}>
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
+                  <div style={styles.posterPriceList}>
+                    {FORMULAS.map((item) => (
+                      <div key={item.id} style={styles.posterPriceRow}>
+                        <span>{item.nombre.toUpperCase()}</span>
+                        <span>${item.precio.toLocaleString("es-CO")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
+                  <div style={styles.posterPriceList}>
+                    {BEBIDAS.map((item) => (
+                      <div key={item.id} style={styles.posterPriceRow}>
+                        <span>{item.nombre.toUpperCase()}</span>
+                        <span>${item.precio.toLocaleString("es-CO")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={styles.posterBlock}>
+                  <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
+                  <div style={styles.posterPriceList}>
+                    {ADICIONALES.map((item) => (
+                      <div key={item.id} style={styles.posterPriceRow}>
+                        <span>{item.nombre.toUpperCase()}</span>
+                        <span>${item.precio.toLocaleString("es-CO")}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.comboSection}>
+              <div style={styles.menuInteractiveHeader}>
+                <div style={styles.menuInteractiveBadge}>💥 COMBOS DEL LAB</div>
+                <h2 style={styles.menuInteractiveTitle}>LOS MÁS PEDIDOS</h2>
+                <p style={styles.catalogText}>
+                  Más valor, más antojo y más fácil para pedir.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  ...styles.comboGrid,
+                  gridTemplateColumns: esMovil
+                    ? "1fr"
+                    : "repeat(3, minmax(0, 1fr))",
+                }}
+              >
+                {COMBOS.map(renderComboCard)}
+              </div>
+            </div>
+
+            <div style={styles.menuInteractiveSection}>
+              <div style={styles.menuInteractiveHeader}>
+                <div style={styles.menuInteractiveBadge}>
+                  🍗 MENÚ INTERACTIVO
+                </div>
+                <h2 style={styles.menuInteractiveTitle}>
+                  SELECCIONA TU EXPERIMENTO
+                </h2>
+              </div>
+
+              <div
+                style={{
+                  ...styles.posterFormulaGrid,
+                  gridTemplateColumns: esMovil
+                    ? "1fr"
+                    : "repeat(2, minmax(0, 1fr))",
+                }}
+              >
+                {FORMULAS.map(renderFormulaCard)}
+              </div>
+
+              <div style={styles.subSectionTitleWrap}>
+                <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
+              </div>
+
+              <div
+                style={{
+                  ...styles.simpleGrid,
+                  gridTemplateColumns: esMovil
+                    ? "1fr"
+                    : "repeat(2, minmax(0, 1fr))",
+                }}
+              >
+                {BEBIDAS.map(renderSimpleCard)}
+              </div>
+
+              <div style={styles.subSectionTitleWrap}>
+                <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
+              </div>
+
+              <div
+                style={{
+                  ...styles.simpleGrid,
+                  gridTemplateColumns: esMovil
+                    ? "1fr"
+                    : "repeat(2, minmax(0, 1fr))",
+                }}
+              >
+                {ADICIONALES.map(renderSimpleCard)}
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
+
+            <Input
+              label="Nombre"
+              value={cliente.nombre}
+              onChange={(e) => actualizarCliente("nombre", e.target.value)}
+            />
+            <Input
+              label="Teléfono"
+              value={cliente.telefono}
+              onChange={(e) => actualizarCliente("telefono", e.target.value)}
+            />
+            <Input
+              label="Dirección"
+              value={cliente.direccion}
+              onChange={(e) => actualizarCliente("direccion", e.target.value)}
+            />
+            <Input
+              label="Referencia"
+              value={cliente.referencia}
+              onChange={(e) => actualizarCliente("referencia", e.target.value)}
+            />
+
+            <div style={{ marginBottom: 14 }}>
+              <label style={styles.label}>Método de pago</label>
+              <select
+                style={styles.input}
+                value={cliente.pago}
+                onChange={(e) => actualizarCliente("pago", e.target.value)}
+              >
+                <option value="Llave">Llave</option>
+                <option value="QR Nequi">QR Nequi</option>
+              </select>
+            </div>
+
+            {cliente.pago === "Llave" && (
+              <div style={styles.paymentInfoBox}>
+                <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
+                <div style={styles.paymentInfoText}>Llave: 3152487938</div>
+                <div style={styles.paymentInfoText}>
+                  El pedido quedará pendiente de verificación.
+                </div>
+              </div>
+            )}
+
+            {cliente.pago === "QR Nequi" && (
+              <div style={styles.paymentInfoBox}>
+                <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
+                <div style={styles.paymentInfoText}>
+                  Escanea este QR para realizar el pago.
+                </div>
+
+                <div style={styles.qrWrap}>
+                  <img
+                    src="/qr-nequi.png"
+                    alt="QR Nequi Dr. Crispy Lab"
+                    style={styles.qrImage}
+                  />
+                </div>
+
+                <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+                <div style={styles.paymentInfoText}>
+                  El pedido quedará pendiente de verificación.
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
-  );
-}
+
+        <div>
+          <div
+            style={{
+              ...styles.panelSticky,
+              position: esMovil ? "static" : "sticky",
+            }}
+          >
+            <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
+
+            {carrito.length === 0 ? (
+              <div style={styles.emptyBox}>
+                No has agregado productos todavía.
+              </div>
+            ) : (
+              carrito.map((item) => (
+                <div key={item.cartKey} style={styles.cartItem}>
+                  <div>
+                    <strong>{item.nombre}</strong>
+                    <div style={styles.cartSub}>
+                      {item.experimento || "Experimento 1"}
+                    </div>
+                    {item.salsa && (
+                      <div style={styles.cartSub}>Fórmula: {item.salsa}</div>
+                    )}
+                    <div style={styles.cartSub}>
+                      ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                    </div>
+                  </div>
+
+                  <div style={styles.qtyBox}>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => cambiarCantidad(item.cartKey, -1)}
+                    >
+                      -
+                    </button>
+                    <span>{item.cantidad}</span>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => cambiarCantidad(item.cartKey, 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+
+            <div style={styles.summaryBox}>
+              <div style={styles.summaryRow}>
+                <span>Subtotal</span>
+                <span>${subtotal.toLocaleString("es-CO")}</span>
+              </div>
+              <div style={styles.summaryRow}>
+                <span>Domicilio</span>
+                <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                  Incluido
+                </span>
+              </div>
+              <div style={styles.summaryTotal}>
+                <span>Total</span>
+                <span>${total.toLocaleString("es-CO")}</span>
+              </div>
+            </div>
+
+            <button
+              style={{
+                ...styles.confirmBtn,
+                ...(cargandoPedido ? styles.disabledBtn : {}),
+              }}
+              onClick={confirmarPedido}
+              disabled={cargandoPedido}
+            >
+              {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+            </button>
+
+            <div style={styles.cartTrustText}>
+              ⚡ Recíbelo caliente. Domicilio incluido.
+            </div>
+
+            <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+              Enviar pedido por WhatsApp
+            </button>
+
+            <div style={styles.drCrispyFullWrap}>
+              <img
+                src={drCrispyFull}
+                alt="Dr. Crispy completo"
+                style={styles.drCrispyFullImage}
+              />
+            </div>
+
+            {pedidoCreadoId && (
+              <div style={styles.lastOrderBox}>
+                <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
+                  Último pedido creado:
+                </p>
+                <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
+                <button
+                  style={styles.secondaryBtn}
+                  onClick={() => {
+                    setVista("seguimiento");
+                    consultarMiSeguimiento();
+                  }}
+                >
+                  Ver mi seguimiento
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   function renderCliente() {
     return (
@@ -1589,7 +1855,9 @@ function renderCatalogoExperimentos() {
           <button
             style={{
               ...styles.clientNavBtn,
-              ...(seccionCliente === "inicio" ? styles.clientNavBtnActive : {}),
+              ...(seccionCliente === "inicio"
+                ? styles.clientNavBtnActive
+                : {}),
             }}
             onClick={() => irASeccionCliente("inicio")}
           >
@@ -1599,7 +1867,9 @@ function renderCatalogoExperimentos() {
           <button
             style={{
               ...styles.clientNavBtn,
-              ...(seccionCliente === "catalogo" ? styles.clientNavBtnActive : {}),
+              ...(seccionCliente === "catalogo"
+                ? styles.clientNavBtnActive
+                : {}),
             }}
             onClick={() => irASeccionCliente("catalogo")}
           >
@@ -1627,7 +1897,6 @@ function renderCatalogoExperimentos() {
         )}
 
         {seccionCliente === "catalogo" && renderCatalogoExperimentos()}
-
         {seccionCliente === "experimento1" && renderExperimento1()}
       </>
     );
@@ -1637,88 +1906,88 @@ function renderCatalogoExperimentos() {
     <div style={styles.page}>
       <audio ref={audioRef} src={alertaSound} preload="auto" />
       <div style={styles.overlay}></div>
-        {toast.visible && (
-      <div
-        style={{
-          ...styles.toastBox,
-          left: toast.x,
-          top: toast.y,
-          transform: "translate(-50%, -100%)",
-        }}
-      >
-        <div style={styles.toastInner}>
-          <div style={styles.toastIcon}>✅</div>
-          <div style={styles.toastText}>{toast.texto}</div>
-        </div>
-      </div>
-    )}
 
-      {modalPedidoAbierto && (
-  <div
-    style={styles.modalBackdrop}
-    onClick={() => setModalPedidoAbierto(false)}
-  >
-    <div
-      style={styles.successModalCard}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div style={styles.successEmoji}>🎉🍗</div>
-
-      <h2 style={styles.successTitle}>
-        Experimento confirmado
-      </h2>
-
-      <p style={styles.successText}>
-        Tu pedido fue recibido correctamente en el laboratorio.
-      </p>
-
-      {pedidoConfirmadoInfo && (
-        <div style={styles.successDataBox}>
-          <div style={styles.successDataRow}>
-            <span>Pedido</span>
-            <strong>{pedidoConfirmadoInfo.id}</strong>
-          </div>
-
-          <div style={styles.successDataRow}>
-            <span>Cliente</span>
-            <strong>{pedidoConfirmadoInfo.nombre}</strong>
-          </div>
-
-          <div style={styles.successDataRow}>
-            <span>Total</span>
-            <strong>
-              ${pedidoConfirmadoInfo.total.toLocaleString("es-CO")}
-            </strong>
+      {toast.visible && (
+        <div
+          style={{
+            ...styles.toastBox,
+            left: toast.x,
+            top: toast.y,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          <div style={styles.toastInner}>
+            <div style={styles.toastIcon}>✅</div>
+            <div style={styles.toastText}>{toast.texto}</div>
           </div>
         </div>
       )}
 
-      <p style={styles.successHint}>
-        Puedes seguir el estado de tu pedido en la sección de seguimiento.
-      </p>
-
-      <div style={styles.successActions}>
-        <button
-          style={styles.heroSecondaryBtn}
-          onClick={() => {
-            setModalPedidoAbierto(false);
-            setVista("seguimiento");
-            consultarMiSeguimiento();
-          }}
-        >
-          Ver seguimiento
-        </button>
-
-        <button
-          style={styles.heroPrimaryBtn}
+      {modalPedidoAbierto && (
+        <div
+          style={styles.modalBackdrop}
           onClick={() => setModalPedidoAbierto(false)}
         >
-          Entendido
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div
+            style={styles.successModalCard}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={styles.successEmoji}>🎉🍗</div>
+
+            <h2 style={styles.successTitle}>Experimento confirmado</h2>
+
+            <p style={styles.successText}>
+              Tu pedido fue recibido correctamente en el laboratorio.
+            </p>
+
+            {pedidoConfirmadoInfo && (
+              <div style={styles.successDataBox}>
+                <div style={styles.successDataRow}>
+                  <span>Pedido</span>
+                  <strong>{pedidoConfirmadoInfo.id}</strong>
+                </div>
+
+                <div style={styles.successDataRow}>
+                  <span>Cliente</span>
+                  <strong>{pedidoConfirmadoInfo.nombre}</strong>
+                </div>
+
+                <div style={styles.successDataRow}>
+                  <span>Total</span>
+                  <strong>
+                    ${pedidoConfirmadoInfo.total.toLocaleString("es-CO")}
+                  </strong>
+                </div>
+              </div>
+            )}
+
+            <p style={styles.successHint}>
+              Puedes seguir el estado de tu pedido en la sección de seguimiento.
+            </p>
+
+            <div style={styles.successActions}>
+              <button
+                style={styles.heroSecondaryBtn}
+                onClick={() => {
+                  setModalPedidoAbierto(false);
+                  setVista("seguimiento");
+                  consultarMiSeguimiento();
+                }}
+              >
+                Ver seguimiento
+              </button>
+
+              <button
+                style={styles.heroPrimaryBtn}
+                onClick={() => setModalPedidoAbierto(false)}
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {formulaSeleccionada && (
         <div
           style={styles.modalBackdrop}
@@ -1727,7 +1996,9 @@ function renderCatalogoExperimentos() {
           <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalTop}>
               <div>
-                <div style={styles.menuInteractiveBadge}>🧪 SELECCIÓN DE FÓRMULA</div>
+                <div style={styles.menuInteractiveBadge}>
+                  🧪 SELECCIÓN DE FÓRMULA
+                </div>
                 <h2 style={styles.modalTitle}>{formulaSeleccionada.nombre}</h2>
                 <p style={styles.modalSubtitle}>
                   Elige la salsa base del experimento
@@ -1754,7 +2025,13 @@ function renderCatalogoExperimentos() {
                 <button
                   key={salsa.nombre}
                   style={styles.sauceVisualCard}
-                  onClick={(e) => seleccionarSalsa(formulaSeleccionada, salsa, e.currentTarget)}
+                  onClick={(e) =>
+                    seleccionarSalsa(
+                      formulaSeleccionada,
+                      salsa,
+                      e.currentTarget
+                    )
+                  }
                 >
                   <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
                   <div style={styles.sauceVisualName}>{salsa.nombre}</div>
@@ -1802,7 +2079,9 @@ function renderCatalogoExperimentos() {
                   key={nivel}
                   style={{
                     ...styles.sauceVisualCard,
-                    ...(nivelAtomico === nivel ? styles.sauceVisualCardActive : {}),
+                    ...(nivelAtomico === nivel
+                      ? styles.sauceVisualCardActive
+                      : {}),
                   }}
                   onClick={() => setNivelAtomico(nivel)}
                 >
@@ -1869,6 +2148,30 @@ function renderCatalogoExperimentos() {
             >
               Seguimiento
             </button>
+
+            {puedeVerAdmin && (
+              <button
+                style={{
+                  ...styles.navBtn,
+                  ...(vista === "admin" ? styles.navBtnActive : {}),
+                }}
+                onClick={() => setVista("admin")}
+              >
+                Admin
+              </button>
+            )}
+
+            {puedeVerRepartidor && (
+              <button
+                style={{
+                  ...styles.navBtn,
+                  ...(vista === "repartidor" ? styles.navBtnActive : {}),
+                }}
+                onClick={() => setVista("repartidor")}
+              >
+                Repartidor
+              </button>
+            )}
           </div>
         </header>
 
@@ -1876,7 +2179,9 @@ function renderCatalogoExperimentos() {
           <div
             style={{
               ...styles.messageBox,
-              ...(mensaje.tipo === "ok" ? styles.messageOk : styles.messageError),
+              ...(mensaje.tipo === "ok"
+                ? styles.messageOk
+                : styles.messageError),
             }}
           >
             {mensaje.texto}
@@ -1953,7 +2258,9 @@ function renderCatalogoExperimentos() {
                 </p>
                 <p>
                   <strong>Método de pago:</strong>{" "}
-                  {pedidoConsultado?.metodoPago || pedidoConsultado?.cliente?.pago || "No definido"}
+                  {pedidoConsultado?.metodoPago ||
+                    pedidoConsultado?.cliente?.pago ||
+                    "No definido"}
                 </p>
                 <p>
                   <strong>Estado del pago:</strong>{" "}
@@ -2111,19 +2418,28 @@ function renderCatalogoExperimentos() {
                   <div style={styles.kpiCard}>
                     <div style={styles.kpiLabel}>Recibidos</div>
                     <div style={styles.kpiValue}>
-                      {pedidosCocina.filter((p) => p.estado === "Recibido").length}
+                      {
+                        pedidosCocina.filter((p) => p.estado === "Recibido")
+                          .length
+                      }
                     </div>
                   </div>
                   <div style={styles.kpiCard}>
                     <div style={styles.kpiLabel}>En cocina</div>
                     <div style={styles.kpiValue}>
-                      {pedidosCocina.filter((p) => p.estado === "En cocina").length}
+                      {
+                        pedidosCocina.filter((p) => p.estado === "En cocina")
+                          .length
+                      }
                     </div>
                   </div>
                   <div style={styles.kpiCard}>
                     <div style={styles.kpiLabel}>En camino</div>
                     <div style={styles.kpiValue}>
-                      {pedidosCocina.filter((p) => p.estado === "En camino").length}
+                      {
+                        pedidosCocina.filter((p) => p.estado === "En camino")
+                          .length
+                      }
                     </div>
                   </div>
                 </div>
@@ -2160,7 +2476,7 @@ function renderCatalogoExperimentos() {
                         </div>
 
                         <div style={styles.cocinaDireccion}>
-                          📍 {pedido.cliente.direccion}
+                                                  📍 {pedido.cliente.direccion}
                         </div>
 
                         <div style={{ marginTop: 12 }}>
@@ -2293,7 +2609,9 @@ function renderCatalogoExperimentos() {
                       </p>
                       <p>
                         <strong>Método de pago:</strong>{" "}
-                        {pedido?.metodoPago || pedido?.cliente?.pago || "No definido"}
+                        {pedido?.metodoPago ||
+                          pedido?.cliente?.pago ||
+                          "No definido"}
                       </p>
                       <p>
                         <strong>Estado del pago:</strong>{" "}
@@ -2361,25 +2679,36 @@ function renderCatalogoExperimentos() {
                         <div style={styles.statusButtons}>
                           <button
                             style={styles.statusBtn}
-                            onClick={() => actualizarPagoPedido(pedido.id, "Pendiente")}
+                            onClick={() =>
+                              actualizarPagoPedido(pedido.id, "Pendiente")
+                            }
                           >
                             Pendiente
                           </button>
                           <button
                             style={styles.statusBtn}
-                            onClick={() => actualizarPagoPedido(pedido.id, "Pendiente de verificación")}
+                            onClick={() =>
+                              actualizarPagoPedido(
+                                pedido.id,
+                                "Pendiente de verificación"
+                              )
+                            }
                           >
                             Verificar
                           </button>
                           <button
                             style={styles.statusBtn}
-                            onClick={() => actualizarPagoPedido(pedido.id, "Pagado")}
+                            onClick={() =>
+                              actualizarPagoPedido(pedido.id, "Pagado")
+                            }
                           >
                             Pagado
                           </button>
                           <button
                             style={styles.statusBtn}
-                            onClick={() => actualizarPagoPedido(pedido.id, "Rechazado")}
+                            onClick={() =>
+                              actualizarPagoPedido(pedido.id, "Rechazado")
+                            }
                           >
                             Rechazado
                           </button>
@@ -2547,7 +2876,8 @@ function renderCatalogoExperimentos() {
                     {pedido.cliente.referencia || "N/A"}
                   </p>
                   <p>
-                    <strong>Pago:</strong> {pedido.cliente.pago}
+                    <strong>Pago:</strong>{" "}
+                    {pedido.metodoPago || pedido.cliente.pago}
                   </p>
                   <p>
                     <strong>Asignado a:</strong>{" "}
@@ -2704,15 +3034,15 @@ const styles = {
     fontSize: 15,
   },
   labHeroTitle: {
-   margin: 0,
-   fontSize: 74,
-   lineHeight: 0.9,
-   color: "#fff",
-   textTransform: "uppercase",
-   fontFamily: '"Bebas Neue", sans-serif',
-   letterSpacing: 1.2,
-   textShadow: "0 8px 24px rgba(0,0,0,0.35)",
-   maxWidth: 760,
+    margin: 0,
+    fontSize: 74,
+    lineHeight: 0.9,
+    color: "#fff",
+    textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1.2,
+    textShadow: "0 8px 24px rgba(0,0,0,0.35)",
+    maxWidth: 760,
   },
   labHeroText: {
     color: "#d2d2d2",
@@ -2720,6 +3050,21 @@ const styles = {
     maxWidth: 620,
     fontSize: 17,
     marginTop: 18,
+  },
+  heroUrgencyWrap: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 18,
+  },
+  heroUrgencyPill: {
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    color: "#ffd8d8",
+    padding: "9px 12px",
+    borderRadius: 999,
+    fontWeight: "bold",
+    fontSize: 13,
   },
   heroActionRow: {
     display: "flex",
@@ -2854,18 +3199,8 @@ const styles = {
     justifyContent: "center",
     position: "relative",
     zIndex: 3,
-    animation: "crispyGlow 2s ease-in-out infinite, crispyFloat 2.4s ease-in-out infinite",
-  },
-  heroFullImage: {
-    width: "100%",
-    maxWidth: 300,
-    height: "auto",
-    objectFit: "contain",
-    display: "block",
-    filter: "drop-shadow(0 18px 34px rgba(255,0,0,0.22))",
-    animation: "crispyFloat 3.5s ease-in-out infinite",
-    position: "relative",
-    zIndex: 3,
+    animation:
+      "crispyGlow 2s ease-in-out infinite, crispyFloat 2.4s ease-in-out infinite",
   },
   heroVisualTag: {
     display: "inline-block",
@@ -2896,45 +3231,41 @@ const styles = {
     gap: 24,
   },
   posterHeroGlow: {
-  position: "absolute",
-  inset: 0,
-  background:
-    "radial-gradient(circle at 75% 30%, rgba(255,0,0,0.22), transparent 28%), radial-gradient(circle at 20% 75%, rgba(255,120,0,0.10), transparent 24%)",
-  pointerEvents: "none",
-},
-
-posterSauceDot: {
-  position: "absolute",
-  display: "block",
-  borderRadius: "50%",
-  background: "radial-gradient(circle, #ff6a1f 0%, #ff0000 58%, #9e0000 100%)",
-  boxShadow: "0 0 10px rgba(255,0,0,0.30)",
-  pointerEvents: "none",
-},
-
-posterSauceDot1: {
-  width: 10,
-  height: 10,
-  right: 34,
-  top: 30,
-  animation: "sauceParticleFloat 3.2s ease-in-out infinite",
-},
-
-posterSauceDot2: {
-  width: 7,
-  height: 7,
-  left: 26,
-  bottom: 26,
-  animation: "sauceParticleFloat 2.7s ease-in-out infinite",
-},
-
-posterSauceDot3: {
-  width: 12,
-  height: 12,
-  right: 90,
-  bottom: 38,
-  animation: "sauceParticleFloat 3.6s ease-in-out infinite",
-},
+    position: "absolute",
+    inset: 0,
+    background:
+      "radial-gradient(circle at 75% 30%, rgba(255,0,0,0.22), transparent 28%), radial-gradient(circle at 20% 75%, rgba(255,120,0,0.10), transparent 24%)",
+    pointerEvents: "none",
+  },
+  posterSauceDot: {
+    position: "absolute",
+    display: "block",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, #ff6a1f 0%, #ff0000 58%, #9e0000 100%)",
+    boxShadow: "0 0 10px rgba(255,0,0,0.30)",
+    pointerEvents: "none",
+  },
+  posterSauceDot1: {
+    width: 10,
+    height: 10,
+    right: 34,
+    top: 30,
+    animation: "sauceParticleFloat 3.2s ease-in-out infinite",
+  },
+  posterSauceDot2: {
+    width: 7,
+    height: 7,
+    left: 26,
+    bottom: 26,
+    animation: "sauceParticleFloat 2.7s ease-in-out infinite",
+  },
+  posterSauceDot3: {
+    width: 12,
+    height: 12,
+    right: 90,
+    bottom: 38,
+    animation: "sauceParticleFloat 3.6s ease-in-out infinite",
+  },
   panel: {
     background: "rgba(17,17,17,0.94)",
     border: "1px solid rgba(255,255,255,0.05)",
@@ -3017,7 +3348,8 @@ posterSauceDot3: {
     borderRadius: 20,
     overflow: "hidden",
     boxShadow: "0 14px 30px rgba(255,0,0,0.06)",
-    transition: "transform 0.25s ease, box-shadow 0.25s ease, border 0.25s ease",
+    transition:
+      "transform 0.25s ease, box-shadow 0.25s ease, border 0.25s ease",
   },
   experimentCardActive: {
     border: "1px solid rgba(255,0,0,0.22)",
@@ -3115,7 +3447,6 @@ posterSauceDot3: {
     mixBlendMode: "screen",
     pointerEvents: "none",
   },
-
   exp1BlurWing: {
     position: "absolute",
     width: 180,
@@ -3131,7 +3462,6 @@ posterSauceDot3: {
     animation: "wingDrift 5.5s ease-in-out infinite",
     pointerEvents: "none",
   },
-
   exp1BlurWing2: {
     position: "absolute",
     width: 150,
@@ -3147,7 +3477,6 @@ posterSauceDot3: {
     animation: "wingDrift2 6s ease-in-out infinite",
     pointerEvents: "none",
   },
-
   salsaDot: {
     position: "absolute",
     display: "block",
@@ -3156,7 +3485,6 @@ posterSauceDot3: {
     boxShadow: "0 0 10px rgba(255,0,0,0.32)",
     pointerEvents: "none",
   },
-
   salsaDot1: {
     width: 10,
     height: 10,
@@ -3164,7 +3492,6 @@ posterSauceDot3: {
     top: 18,
     animation: "salsaFloat1 3s ease-in-out infinite",
   },
-
   salsaDot2: {
     width: 7,
     height: 7,
@@ -3172,7 +3499,6 @@ posterSauceDot3: {
     bottom: 28,
     animation: "salsaFloat2 2.7s ease-in-out infinite",
   },
-
   salsaDot3: {
     width: 12,
     height: 12,
@@ -3180,7 +3506,6 @@ posterSauceDot3: {
     top: 42,
     animation: "salsaFloat1 3.2s ease-in-out infinite",
   },
-
   salsaDot4: {
     width: 8,
     height: 8,
@@ -3211,17 +3536,17 @@ posterSauceDot3: {
     color: "#bbb",
   },
   cartItem: {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 12,
-  background: "#191919",
-  border: "1px solid rgba(255,255,255,0.06)",
-  borderRadius: 14,
-  padding: 14,
-  marginBottom: 12,
-  flexWrap: "wrap",
-},
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    background: "#191919",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+    flexWrap: "wrap",
+  },
   cartSub: {
     color: "#bdbdbd",
     marginTop: 4,
@@ -3275,6 +3600,13 @@ posterSauceDot3: {
     boxShadow: "0 10px 24px rgba(255,0,0,0.22)",
     animation: "confirmGlow 2.4s ease-in-out infinite",
     transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  },
+  cartTrustText: {
+    marginTop: 12,
+    textAlign: "center",
+    color: "#ffd1d1",
+    fontWeight: "bold",
+    fontSize: 14,
   },
   secondaryBtn: {
     background: "#1c1c1c",
@@ -3570,7 +3902,6 @@ posterSauceDot3: {
     textShadow: "0 0 18px rgba(255,0,0,0.35)",
     fontFamily: '"Bebas Neue", sans-serif',
     letterSpacing: 1.2,
-    
   },
   posterExperiment: {
     display: "inline-block",
@@ -3593,7 +3924,6 @@ posterSauceDot3: {
       "radial-gradient(circle at 50% 45%, rgba(255,0,0,0.16), transparent 30%), radial-gradient(circle at 70% 20%, rgba(255,80,0,0.10), transparent 22%)",
     pointerEvents: "none",
   },
-
   classifiedOverlay: {
     position: "absolute",
     inset: 0,
@@ -3603,7 +3933,6 @@ posterSauceDot3: {
     transition: "opacity 0.25s ease, transform 0.25s ease",
     pointerEvents: "none",
   },
-
   classifiedOverlayHover: {
     opacity: 1,
     transform: "scale(1.03)",
@@ -3675,6 +4004,84 @@ posterSauceDot3: {
     borderBottom: "1px dashed rgba(255,255,255,0.10)",
     paddingBottom: 8,
   },
+  comboSection: {
+    padding: 24,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.08), transparent 24%), linear-gradient(180deg, rgba(12,12,12,0.98), rgba(8,8,8,1))",
+    borderTop: "1px solid rgba(255,255,255,0.06)",
+  },
+  comboGrid: {
+    display: "grid",
+    gap: 18,
+  },
+  comboCard: {
+    position: "relative",
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(10,10,10,1))",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 20,
+    padding: 22,
+    boxShadow: "0 16px 30px rgba(0,0,0,0.22)",
+  },
+  comboCardFeatured: {
+    border: "1px solid rgba(255,0,0,0.34)",
+    boxShadow: "0 20px 40px rgba(255,0,0,0.18)",
+    transform: "translateY(-4px)",
+  },
+  comboTopRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12,
+  },
+  comboEmoji: {
+    fontSize: 34,
+  },
+  comboBadge: {
+    background: "linear-gradient(135deg, #ff0000, #b30000)",
+    color: "#fff",
+    padding: "8px 12px",
+    borderRadius: 999,
+    fontWeight: "bold",
+    fontSize: 11,
+    letterSpacing: 1,
+  },
+  comboTitle: {
+    margin: "0 0 8px 0",
+    fontSize: 44,
+    color: "#fff",
+    textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 0.95,
+  },
+  comboDesc: {
+    margin: 0,
+    color: "#d2d2d2",
+    lineHeight: 1.5,
+    minHeight: 48,
+  },
+  comboPrice: {
+    marginTop: 16,
+    marginBottom: 16,
+    fontSize: 34,
+    fontWeight: "bold",
+    color: "#ff3535",
+    textShadow: "0 0 16px rgba(255,0,0,0.20)",
+  },
+  comboBtn: {
+    width: "100%",
+    background: "linear-gradient(135deg, #ff0000, #b30000)",
+    color: "#fff",
+    border: "none",
+    padding: "14px 16px",
+    borderRadius: 14,
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: 15,
+    boxShadow: "0 12px 24px rgba(255,0,0,0.16)",
+  },
   menuInteractiveSection: {
     padding: 24,
     background: "rgba(8,8,8,0.98)",
@@ -3709,13 +4116,13 @@ posterSauceDot3: {
     gap: 18,
   },
   posterProductCard: {
-  background:
-    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(28,28,28,0.96) 0%, rgba(12,12,12,0.98) 100%)",
-  border: "1px solid rgba(255,255,255,0.07)",
-  borderRadius: 18,
-  padding: 22,
-  boxShadow: "0 14px 28px rgba(255,0,0,0.05)",
-},
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(28,28,28,0.96) 0%, rgba(12,12,12,0.98) 100%)",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 18,
+    padding: 22,
+    boxShadow: "0 14px 28px rgba(255,0,0,0.05)",
+  },
   posterProductTop: {
     display: "flex",
     justifyContent: "space-between",
@@ -3928,7 +4335,6 @@ posterSauceDot3: {
     borderRadius: 18,
     padding: 16,
   },
-
   qrImage: {
     width: "100%",
     maxWidth: 240,
@@ -3992,99 +4398,89 @@ posterSauceDot3: {
     fontWeight: "bold",
   },
   toastBox: {
-  position: "fixed",
-  zIndex: 9999,
-  width: "calc(100% - 32px)",
-  maxWidth: 420,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  pointerEvents: "none",
-},
-
+    position: "fixed",
+    zIndex: 9999,
+    width: "calc(100% - 32px)",
+    maxWidth: 420,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    pointerEvents: "none",
+  },
   toastInner: {
     width: "100%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    background: "linear-gradient(135deg, rgba(18,18,18,0.98), rgba(8,8,8,0.98))",
+    background:
+      "linear-gradient(135deg, rgba(18,18,18,0.98), rgba(8,8,8,0.98))",
     border: "1px solid rgba(255,0,0,0.25)",
     color: "#fff",
     padding: "16px 18px",
     borderRadius: 18,
     boxShadow: "0 18px 45px rgba(0,0,0,0.42)",
   },
-
   toastIcon: {
     fontSize: 20,
     flexShrink: 0,
   },
-
   toastText: {
     fontWeight: "bold",
     fontSize: 15,
     lineHeight: 1.35,
     textAlign: "center",
   },
-
-successModalCard: {
-  width: "100%",
-  maxWidth: 520,
-  background:
-    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 28%), linear-gradient(180deg, #171717, #0c0c0c)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 24,
-  padding: 28,
-  boxShadow: "0 30px 80px rgba(0,0,0,0.50)",
-  textAlign: "center",
-},
-
-successEmoji: {
-  fontSize: 42,
-  marginBottom: 10,
-},
-
-successTitle: {
-  margin: "0 0 10px 0",
-  fontSize: 52,
-  color: "#fff",
-  textTransform: "uppercase",
-  fontFamily: '"Bebas Neue", sans-serif',
-},
-
-successText: {
-  marginBottom: 18,
-  color: "#d7d7d7",
-},
-
-successDataBox: {
-  background: "rgba(255,255,255,0.03)",
-  border: "1px solid rgba(255,255,255,0.07)",
-  borderRadius: 16,
-  padding: 16,
-  marginBottom: 16,
-},
-
-successDataRow: {
-  display: "flex",
-  justifyContent: "space-between",
-  padding: "6px 0",
-  color: "#f2f2f2",
-},
-
-successHint: {
-  color: "#ffbdbd",
-  fontSize: 14,
-  marginBottom: 18,
-},
-
-successActions: {
-  display: "flex",
-  gap: 12,
-  justifyContent: "center",
-  flexWrap: "wrap",
-},
+  successModalCard: {
+    width: "100%",
+    maxWidth: 520,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 28%), linear-gradient(180deg, #171717, #0c0c0c)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 24,
+    padding: 28,
+    boxShadow: "0 30px 80px rgba(0,0,0,0.50)",
+    textAlign: "center",
+  },
+  successEmoji: {
+    fontSize: 42,
+    marginBottom: 10,
+  },
+  successTitle: {
+    margin: "0 0 10px 0",
+    fontSize: 52,
+    color: "#fff",
+    textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+  },
+  successText: {
+    marginBottom: 18,
+    color: "#d7d7d7",
+  },
+  successDataBox: {
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  successDataRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "6px 0",
+    color: "#f2f2f2",
+  },
+  successHint: {
+    color: "#ffbdbd",
+    fontSize: 14,
+    marginBottom: 18,
+  },
+  successActions: {
+    display: "flex",
+    gap: 12,
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
 };
 
 export default App;
