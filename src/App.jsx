@@ -338,10 +338,17 @@ function App() {
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
 
+  const [drawerCarritoAbierto, setDrawerCarritoAbierto] = useState(false);
+
   const [salsaSeleccionAnimando, setSalsaSeleccionAnimando] = useState("");
   const [carritoAnimando, setCarritoAnimando] = useState(false);
 
   const esMovil = ancho < 900;
+
+  const totalItemsCarrito = useMemo(() => {
+    return carrito.reduce((acc, item) => acc + item.cantidad, 0);
+  }, [carrito]);
+
   const puedeVerAdmin = rutaPrivada === "admin";
   const puedeVerRepartidor = rutaPrivada === "repartidor";
 
@@ -588,13 +595,13 @@ function App() {
         }),
       },
     ];
-  });
+  ;
 
 function prepararCombo(combo, target = null) {
   setComboPendiente({ combo, target });
 }
   mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-}
+    
 
   function seleccionarSalsa(producto, salsa, target) {
     if (salsa.nombre === "Fuego Atómico") {
@@ -1891,6 +1898,7 @@ function prepararCombo(combo, target = null) {
               ...styles.panelSticky,
               ...(carritoAnimando ? styles.panelStickyPulse : {}),
               position: esMovil ? "static" : "sticky",
+              display: esMovil ? "none" : "block",
             }}
           >
             <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
@@ -1957,6 +1965,35 @@ function prepararCombo(combo, target = null) {
                 </div>
               ))
             )}
+
+                        <div style={styles.upsellBox}>
+              <div style={styles.upsellTextWrap}>
+                <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+                <div style={styles.upsellText}>
+                  Súmale una porción por solo $4.000 más
+                </div>
+              </div>
+
+              <button
+                type="button"
+                style={styles.upsellBtn}
+                onClick={(e) =>
+                  agregarProducto(
+                    {
+                      id: "upsell-papas-4000",
+                      nombre: "Papas fritas promo",
+                      descripcion: "Upsell del laboratorio",
+                      precio: 4000,
+                      emoji: "🍟",
+                      categoria: "adicionales",
+                    },
+                    e.currentTarget
+                  )
+                }
+              >
+                Agregar
+              </button>
+            </div>
 
             <div style={styles.summaryBox}>
               <div style={styles.summaryRow}>
@@ -2433,6 +2470,181 @@ function prepararCombo(combo, target = null) {
             >
               Confirmar nivel
             </button>
+          </div>
+        </div>
+      )}
+
+      {esMovil && carrito.length > 0 && !drawerCarritoAbierto && (
+        <button
+          type="button"
+          style={styles.floatingCartBtn}
+          onClick={() => setDrawerCarritoAbierto(true)}
+        >
+          <span>🛒 Ver pedido</span>
+          <span>
+            {totalItemsCarrito} • ${total.toLocaleString("es-CO")}
+          </span>
+        </button>
+      )}
+
+      {esMovil && drawerCarritoAbierto && (
+        <div
+          style={styles.drawerBackdrop}
+          onClick={() => setDrawerCarritoAbierto(false)}
+        >
+          <div
+            style={styles.drawerCart}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={styles.drawerHeader}>
+              <div>
+                <div style={styles.drawerMini}>🛒 TU PEDIDO</div>
+                <h2 style={styles.drawerTitle}>Tu experimento está listo</h2>
+                <div style={styles.drawerEta}>⚡ Entrega estimada: 25 - 35 min</div>
+              </div>
+
+              <button
+                type="button"
+                style={styles.drawerCloseBtn}
+                onClick={() => setDrawerCarritoAbierto(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {carrito.length === 0 ? (
+              <div style={styles.emptyBox}>No has agregado productos todavía.</div>
+            ) : (
+              <>
+                <div style={styles.drawerItemsWrap}>
+                  {carrito.map((item) => (
+                    <div key={item.cartKey} style={styles.cartItem}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <strong style={{ display: "block", marginBottom: 4 }}>
+                          {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                        </strong>
+
+                        <div style={styles.cartSub}>
+                          {item.experimento || "Experimento 1"}
+                        </div>
+
+                        {item.salsa && (
+                          <div
+                            style={{
+                              ...styles.cartSub,
+                              color: "#ffd166",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            Sabor: {item.salsa}
+                          </div>
+                        )}
+
+                        {item.esCombo && Array.isArray(item.detalleCombo) && (
+                          <div style={{ marginTop: 8 }}>
+                            {formatearDetalleCombo(item.detalleCombo).map(
+                              (detalle, idx) => (
+                                <div key={idx} style={styles.cartSub}>
+                                  • {detalle}
+                                </div>
+                              )
+                            )}
+                          </div>
+                        )}
+
+                        <div
+                          style={{
+                            ...styles.cartSub,
+                            marginTop: 8,
+                            fontWeight: "bold",
+                            color: "#fff",
+                          }}
+                        >
+                          ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                        </div>
+                      </div>
+
+                      <div style={styles.qtyBox}>
+                        <button
+                          style={styles.qtyBtn}
+                          onClick={() => cambiarCantidad(item.cartKey, -1)}
+                        >
+                          -
+                        </button>
+                        <span>{item.cantidad}</span>
+                        <button
+                          style={styles.qtyBtn}
+                          onClick={() => cambiarCantidad(item.cartKey, 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={styles.upsellBox}>
+                  <div style={styles.upsellTextWrap}>
+                    <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+                    <div style={styles.upsellText}>
+                      Súmale una porción por solo $4.000 más
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    style={styles.upsellBtn}
+                    onClick={(e) =>
+                      agregarProducto(
+                        {
+                          id: "upsell-papas-4000",
+                          nombre: "Papas fritas promo",
+                          descripcion: "Upsell del laboratorio",
+                          precio: 4000,
+                          emoji: "🍟",
+                          categoria: "adicionales",
+                        },
+                        e.currentTarget
+                      )
+                    }
+                  >
+                    Agregar
+                  </button>
+                </div>
+
+                <div style={styles.summaryBox}>
+                  <div style={styles.summaryRow}>
+                    <span>Subtotal</span>
+                    <span>${subtotal.toLocaleString("es-CO")}</span>
+                  </div>
+                  <div style={styles.summaryRow}>
+                    <span>Domicilio</span>
+                    <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                      Incluido
+                    </span>
+                  </div>
+                  <div style={styles.summaryTotal}>
+                    <span>Total</span>
+                    <span>${total.toLocaleString("es-CO")}</span>
+                  </div>
+                </div>
+
+                <button
+                  style={{
+                    ...styles.confirmBtn,
+                    ...(cargandoPedido ? styles.disabledBtn : {}),
+                  }}
+                  onClick={confirmarPedido}
+                  disabled={cargandoPedido}
+                >
+                  {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+                </button>
+
+                <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+                  Enviar pedido por WhatsApp
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -3234,7 +3446,7 @@ function prepararCombo(combo, target = null) {
       </div>
     </div>
   );
-}
+
 
 function Input({ label, value, onChange }) {
   return (
@@ -3617,6 +3829,145 @@ const styles = {
     boxShadow: "0 16px 34px rgba(0,0,0,0.22)",
     transition: "transform 0.28s ease, box-shadow 0.28s ease",
   },
+   
+  floatingCartBtn: {
+    position: "fixed",
+    left: 16,
+    right: 16,
+    bottom: 16,
+    zIndex: 80,
+    border: "none",
+    borderRadius: 18,
+    background: "linear-gradient(135deg, #ff1200, #b30000)",
+    color: "#fff",
+    padding: "15px 18px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    fontWeight: "bold",
+    fontSize: 15,
+    boxShadow: "0 18px 36px rgba(255,0,0,0.28)",
+  },
+
+  drawerBackdrop: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.76)",
+    backdropFilter: "blur(8px)",
+    zIndex: 90,
+    display: "flex",
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
+
+  drawerCart: {
+    width: "100%",
+    maxHeight: "88vh",
+    overflowY: "auto",
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.08), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    border: "1px solid rgba(255,255,255,0.06)",
+    padding: 18,
+    boxShadow: "0 -20px 60px rgba(0,0,0,0.42)",
+  },
+
+  drawerHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 14,
+    marginBottom: 16,
+  },
+
+  drawerMini: {
+    display: "inline-block",
+    background: "rgba(255,0,0,0.12)",
+    border: "1px solid rgba(255,0,0,0.24)",
+    color: "#ffb0b0",
+    padding: "7px 12px",
+    borderRadius: 999,
+    fontWeight: "bold",
+    fontSize: 12,
+    marginBottom: 10,
+  },
+
+  drawerTitle: {
+    margin: 0,
+    fontSize: 34,
+    lineHeight: 0.95,
+    textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+  },
+
+  drawerEta: {
+    marginTop: 8,
+    color: "#ffd166",
+    fontWeight: "bold",
+    fontSize: 13,
+  },
+
+  drawerCloseBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.12)",
+    background: "rgba(255,255,255,0.04)",
+    color: "#fff",
+    fontSize: 18,
+    cursor: "pointer",
+  },
+
+  drawerItemsWrap: {
+    display: "grid",
+    gap: 10,
+    marginBottom: 16,
+  },
+
+  upsellBox: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    background:
+      "radial-gradient(circle at top right, rgba(255,209,102,0.08), transparent 30%), rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,209,102,0.18)",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+  },
+
+  upsellTextWrap: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  upsellTitle: {
+    color: "#ffd166",
+    fontWeight: "bold",
+    marginBottom: 4,
+    fontSize: 14,
+  },
+
+  upsellText: {
+    color: "#d3d3d3",
+    fontSize: 13,
+    lineHeight: 1.35,
+  },
+
+  upsellBtn: {
+    border: "none",
+    background: "linear-gradient(135deg, #ff1200, #b30000)",
+    color: "#fff",
+    borderRadius: 12,
+    padding: "10px 14px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    flexShrink: 0,
+  },
+
   sauceVisualCardSelected: {
     transform: "scale(0.97)",
     border: "1px solid rgba(255,209,102,0.55)",
