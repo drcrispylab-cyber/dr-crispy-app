@@ -388,6 +388,12 @@ function App() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+   
+  useEffect(() => {
+  if (clienteSesion?.id) {
+    cargarPerfilCliente(clienteSesion.id);
+  }
+}, [clienteSesion?.id]);
 
   function mostrarMensaje(tipo, texto) {
     setMensaje({ tipo, texto });
@@ -513,178 +519,153 @@ function App() {
     }));
   }
 
-  async function cargarPerfilCliente(clienteId, opciones = {}) {
-    try {
-      const response = await fetch(`${API_URL}/clientes/${clienteId}`);
-      const data = await response.json();
+  async function cargarPerfilCliente(clienteId, direccionPreferidaId = "") {
+  try {
+    const response = await fetch(`${API_URL}/clientes/${clienteId}`);
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "No se pudo cargar el perfil del cliente");
-      }
-
-      guardarSesionCliente(data.cliente);
-      aplicarClienteAlFormulario(data.cliente, opciones);
-      return data.cliente;
-    } catch (error) {
-      mostrarMensaje("error", error.message);
-      return null;
+    if (!response.ok) {
+      throw new Error(data.error || "No se pudo cargar el perfil");
     }
+
+    const clienteApi = data.cliente || null;
+    if (!clienteApi) return;
+
+    setClienteSesion(clienteApi);
+    localStorage.setItem("dr_cliente_sesion", JSON.stringify(clienteApi));
+
+    const direcciones = Array.isArray(clienteApi.direcciones)
+      ? clienteApi.direcciones
+      : [];
+
+    setDireccionesCliente(direcciones);
+
+    if (direcciones.length > 0) {
+      const principal =
+        direcciones.find((d) => d.id === direccionPreferidaId) ||
+        direcciones.find((d) => d.principal) ||
+        direcciones[0];
+
+      setDireccionSeleccionadaId(principal?.id || "");
+
+      if (!usarOtraDireccion && principal) {
+        setCliente((prev) => ({
+          ...prev,
+          nombre: clienteApi.nombre || "",
+          telefono: clienteApi.telefono || "",
+          direccion: principal.direccion || "",
+          referencia: principal.referencia || "",
+          pago: clienteApi.pagoPreferido || prev.pago || "Llave",
+        }));
+      } else {
+        setCliente((prev) => ({
+          ...prev,
+          nombre: clienteApi.nombre || "",
+          telefono: clienteApi.telefono || "",
+          pago: clienteApi.pagoPreferido || prev.pago || "Llave",
+        }));
+      }
+    } else {
+      setDireccionSeleccionadaId("");
+      setCliente((prev) => ({
+        ...prev,
+        nombre: clienteApi.nombre || "",
+        telefono: clienteApi.telefono || "",
+        pago: clienteApi.pagoPreferido || prev.pago || "Llave",
+      }));
+    }
+  } catch (error) {
+    mostrarMensaje("error", error.message);
   }
+}
 
   async function iniciarSesionCliente() {
+  try {
     if (!clienteLoginData.telefono.trim() || !clienteLoginData.password.trim()) {
       mostrarMensaje("error", "Completa teléfono y contraseña.");
       return;
     }
 
-    try {
-      setCargandoClienteAuth(true);
+    setCargandoClienteAuth(true);
 
-      const response = await fetch(`${API_URL}/clientes/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(clienteLoginData),
-      });
+    const response = await fetch(`${API_URL}/clientes/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        telefono: clienteLoginData.telefono.trim(),
+        password: clienteLoginData.password,
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "No se pudo iniciar sesión");
-      }
-
-      guardarSesionCliente(data.cliente);
-      aplicarClienteAlFormulario(data.cliente);
-      setClienteAuthModo("perfil");
-      mostrarMensaje("ok", `Bienvenido de nuevo, ${data.cliente.nombre}`);
-    } catch (error) {
-      mostrarMensaje("error", error.message);
-    } finally {
-      setCargandoClienteAuth(false);
+    if (!response.ok) {
+      throw new Error(data.error || "No se pudo iniciar sesión");
     }
+
+    const clienteApi = data.cliente;
+    setClienteSesion(clienteApi);
+    localStorage.setItem("dr_cliente_sesion", JSON.stringify(clienteApi));
+    setClienteAuthModo("");
+    setClienteLoginData({
+      telefono: "",
+      password: "",
+    });
+    setUsarOtraDireccion(false);
+
+    await cargarPerfilCliente(clienteApi.id);
+
+    mostrarMensaje("ok", `Bienvenido ${clienteApi.nombre}`);
+  } catch (error) {
+    mostrarMensaje("error", error.message);
+  } finally {
+    setCargandoClienteAuth(false);
   }
+}
 
   async function registrarCliente() {
-    const payload = {
-      nombre: clienteRegistroData.nombre.trim() || cliente.nombre.trim(),
-      telefono: clienteRegistroData.telefono.trim() || cliente.telefono.trim(),
-      password: clienteRegistroData.password.trim(),
-      direccion: clienteRegistroData.direccion.trim() || cliente.direccion.trim(),
-      referencia:
-        clienteRegistroData.referencia.trim() || cliente.referencia.trim(),
-      aliasDireccion: clienteRegistroData.aliasDireccion.trim() || "Casa",
-      pagoPreferido: clienteRegistroData.pagoPreferido || cliente.pago || "Llave",
-    };
-
-    if (!payload.nombre || !payload.telefono || !payload.password) {
+  try {
+    if (
+      !clienteRegistroData.nombre.trim() ||
+      !clienteRegistroData.telefono.trim() ||
+      !clienteRegistroData.password.trim()
+    ) {
       mostrarMensaje("error", "Completa nombre, teléfono y contraseña.");
       return;
     }
 
-    try {
-      setCargandoClienteAuth(true);
+    setCargandoClienteAuth(true);
 
-      const response = await fetch(`${API_URL}/clientes/registro`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+    const response = await fetch(`${API_URL}/clientes/registro`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nombre: clienteRegistroData.nombre.trim(),
+        telefono: clienteRegistroData.telefono.trim(),
+        password: clienteRegistroData.password,
+        pagoPreferido: clienteRegistroData.pagoPreferido || "Llave",
+        direccion: clienteRegistroData.direccion.trim(),
+        referencia: clienteRegistroData.referencia.trim(),
+        aliasDireccion: clienteRegistroData.aliasDireccion.trim() || "Casa",
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "No se pudo registrar el cliente");
-      }
-
-      guardarSesionCliente(data.cliente);
-      aplicarClienteAlFormulario(data.cliente);
-      setClienteAuthModo("perfil");
-      setClienteLoginData({
-        telefono: payload.telefono,
-        password: payload.password,
-      });
-
-      mostrarMensaje("ok", "Perfil creado correctamente. Tus datos quedaron guardados.");
-    } catch (error) {
-      mostrarMensaje("error", error.message);
-    } finally {
-      setCargandoClienteAuth(false);
-    }
-  }
-
-  async function guardarDireccionActualCliente() {
-    if (!clienteSesion?.id) {
-      mostrarMensaje("error", "Primero inicia sesión como cliente.");
-      return;
+    if (!response.ok) {
+      throw new Error(data.error || "No se pudo registrar el cliente");
     }
 
-    if (!cliente.direccion.trim()) {
-      mostrarMensaje("error", "Escribe la dirección actual antes de guardarla.");
-      return;
-    }
-
-    try {
-      setGuardandoDireccionCliente(true);
-
-      const response = await fetch(
-        `${API_URL}/clientes/${clienteSesion.id}/direcciones`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            alias:
-              clienteRegistroData.aliasDireccion.trim() ||
-              `Dirección ${direccionesCliente.length + 1}`,
-            direccion: cliente.direccion.trim(),
-            referencia: cliente.referencia.trim(),
-            principal: direccionesCliente.length === 0,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "No se pudo guardar la dirección");
-      }
-
-      const perfilActualizado = await cargarPerfilCliente(clienteSesion.id, {
-        mantenerDireccionManual: false,
-      });
-
-      if (perfilActualizado) {
-        mostrarMensaje("ok", "Dirección guardada en tu perfil.");
-        setUsarOtraDireccion(false);
-      }
-    } catch (error) {
-      mostrarMensaje("error", error.message);
-    } finally {
-      setGuardandoDireccionCliente(false);
-    }
-  }
-
-  function usarDireccionGuardada(direccionId) {
-    setDireccionSeleccionadaId(direccionId);
-    const direccion = direccionesCliente.find((item) => item.id === direccionId);
-    if (!direccion) return;
-
+    const clienteApi = data.cliente;
+    setClienteSesion(clienteApi);
+    localStorage.setItem("dr_cliente_sesion", JSON.stringify(clienteApi));
+    setClienteAuthModo("");
     setUsarOtraDireccion(false);
-    setCliente((prev) => ({
-      ...prev,
-      direccion: direccion.direccion || "",
-      referencia: direccion.referencia || "",
-    }));
-  }
 
-  function cerrarSesionCliente() {
-    limpiarSesionCliente();
-    limpiarCliente();
-    setClienteLoginData({ telefono: "", password: "" });
     setClienteRegistroData({
       nombre: "",
       telefono: "",
@@ -694,9 +675,112 @@ function App() {
       aliasDireccion: "Casa",
       pagoPreferido: "Llave",
     });
-    setClienteAuthModo("login");
-    mostrarMensaje("ok", "Sesión de cliente cerrada.");
+
+    await cargarPerfilCliente(clienteApi.id);
+
+    mostrarMensaje("ok", "Perfil creado correctamente.");
+  } catch (error) {
+    mostrarMensaje("error", error.message);
+  } finally {
+    setCargandoClienteAuth(false);
   }
+}
+
+function usarDireccionGuardada(direccionId) {
+  setDireccionSeleccionadaId(direccionId);
+
+  const direccion = direccionesCliente.find((d) => d.id === direccionId);
+  if (!direccion) return;
+
+  setUsarOtraDireccion(false);
+  setCliente((prev) => ({
+    ...prev,
+    direccion: direccion.direccion || "",
+    referencia: direccion.referencia || "",
+  }));
+}
+
+  async function guardarDireccionActualCliente() {
+  try {
+    if (!clienteSesion?.id) {
+      mostrarMensaje("error", "Debes iniciar sesión primero.");
+      return;
+    }
+
+    if (!cliente.direccion.trim()) {
+      mostrarMensaje("error", "Escribe una dirección antes de guardarla.");
+      return;
+    }
+
+    setGuardandoDireccionCliente(true);
+
+    const response = await fetch(
+      `${API_URL}/clientes/${clienteSesion.id}/direcciones`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          alias: `Dirección ${direccionesCliente.length + 1}`,
+          direccion: cliente.direccion.trim(),
+          referencia: cliente.referencia.trim(),
+          principal: direccionesCliente.length === 0,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "No se pudo guardar la dirección");
+    }
+
+    const nuevasDirecciones = Array.isArray(data.direcciones)
+      ? data.direcciones
+      : [];
+
+    setDireccionesCliente(nuevasDirecciones);
+
+    const principal =
+      nuevasDirecciones.find((d) => d.direccion === cliente.direccion.trim()) ||
+      nuevasDirecciones.find((d) => d.principal) ||
+      nuevasDirecciones[0];
+
+    setDireccionSeleccionadaId(principal?.id || "");
+    setUsarOtraDireccion(false);
+
+    await cargarPerfilCliente(clienteSesion.id, principal?.id || "");
+
+    mostrarMensaje("ok", "Dirección guardada correctamente.");
+  } catch (error) {
+    mostrarMensaje("error", error.message);
+  } finally {
+    setGuardandoDireccionCliente(false);
+  }
+}
+
+  function cerrarSesionCliente() {
+  localStorage.removeItem("dr_cliente_sesion");
+  setClienteSesion(null);
+  setDireccionesCliente([]);
+  setDireccionSeleccionadaId("");
+  setUsarOtraDireccion(false);
+  setClienteAuthModo("login");
+  setClienteLoginData({
+    telefono: "",
+    password: "",
+  });
+  setClienteRegistroData({
+    nombre: "",
+    telefono: "",
+    password: "",
+    direccion: "",
+    referencia: "",
+    aliasDireccion: "Casa",
+    pagoPreferido: "Llave",
+  });
+}
 
 
   function getCartKey(producto) {
@@ -2102,283 +2186,327 @@ function prepararCombo(combo, target = null) {
             <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
 
             <div
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 18,
-                padding: 16,
-                marginBottom: 18,
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-                <div>
-                  <div style={styles.menuInteractiveBadge}>👤 PERFIL DE CLIENTE</div>
-                  <div style={{ color: "#d8d8d8", marginTop: 6 }}>
-                    Guarda tus datos para pedir más rápido y reutilizar direcciones.
-                  </div>
-                </div>
+  
+  style={{
+    marginBottom: 20,
+    padding: 18,
+    borderRadius: 16,
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.08)",
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 12,
+      flexWrap: "wrap",
+      alignItems: "center",
+    }}
+  >
+    <div>
+      <div style={styles.menuInteractiveBadge}>👤 PERFIL DE CLIENTE</div>
+      <div style={{ color: "#d8d8d8", marginTop: 6 }}>
+        Guarda tus datos para pedir más rápido y reutilizar direcciones.
+      </div>
+    </div>
 
-                {clienteSesion?.id ? (
-                  <button style={styles.secondaryBtn} onClick={cerrarSesionCliente}>
-                    Cerrar sesión
-                  </button>
-                ) : (
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button
-                      style={{
-                        ...styles.secondaryBtn,
-                        ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
-                      }}
-                      onClick={() => setClienteAuthModo("login")}
-                    >
-                      Ingresar
-                    </button>
-                    <button
-                      style={{
-                        ...styles.secondaryBtn,
-                        ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
-                      }}
-                      onClick={() => setClienteAuthModo("registro")}
-                    >
-                      Crear perfil
-                    </button>
-                  </div>
-                )}
-              </div>
+    {clienteSesion?.id ? (
+      <button
+        type="button"
+        style={styles.secondaryBtn}
+        onClick={cerrarSesionCliente}
+      >
+        Cerrar sesión
+      </button>
+    ) : (
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <button
+          type="button"
+          style={{
+            ...styles.secondaryBtn,
+            ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
+          }}
+          onClick={() => setClienteAuthModo("login")}
+        >
+          Ingresar
+        </button>
+        <button
+          type="button"
+          style={{
+            ...styles.secondaryBtn,
+            ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
+          }}
+          onClick={() => setClienteAuthModo("registro")}
+        >
+          Crear perfil
+        </button>
+      </div>
+    )}
+  </div>
 
-              {clienteSesion?.id ? (
-                <div style={{ marginTop: 14 }}>
-                  <div style={{ color: "#fff", fontWeight: "bold", marginBottom: 8 }}>
-                    Sesión activa: {clienteSesion.nombre}
-                  </div>
-                  <div style={{ color: "#cfcfcf", marginBottom: 12 }}>
-                    Teléfono: {clienteSesion.telefono}
-                  </div>
+  {clienteSesion?.id ? (
+    <div style={{ marginTop: 14 }}>
+      <div style={{ color: "#fff", fontWeight: "bold", marginBottom: 8 }}>
+        Sesión activa: {clienteSesion.nombre}
+      </div>
 
-                  {direccionesCliente.length > 0 && (
-                    <div style={{ marginBottom: 14 }}>
-                      <label style={styles.label}>Dirección guardada</label>
-                      <select
-                        style={styles.input}
-                        value={direccionSeleccionadaId}
-                        onChange={(e) => usarDireccionGuardada(e.target.value)}
-                        disabled={usarOtraDireccion}
-                      >
-                        {direccionesCliente.map((direccion) => (
-                          <option key={direccion.id} value={direccion.id}>
-                            {direccion.alias} — {direccion.direccion}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+      <div style={{ color: "#cfcfcf", marginBottom: 12 }}>
+        Teléfono: {clienteSesion.telefono}
+      </div>
 
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    <button
-                      style={styles.secondaryBtn}
-                      onClick={() => setUsarOtraDireccion((prev) => !prev)}
-                    >
-                      {usarOtraDireccion ? "Usar dirección guardada" : "Pedir a otra dirección hoy"}
-                    </button>
+      {direccionesCliente.length > 0 && (
+        <div style={{ marginBottom: 14 }}>
+          <label style={styles.label}>Dirección guardada</label>
+          <select
+            style={styles.input}
+            value={direccionSeleccionadaId}
+            onChange={(e) => usarDireccionGuardada(e.target.value)}
+            disabled={usarOtraDireccion}
+          >
+            {direccionesCliente.map((direccion) => (
+              <option key={direccion.id} value={direccion.id}>
+                {direccion.alias} — {direccion.direccion}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-                    <button
-                      style={{
-                        ...styles.secondaryBtn,
-                        ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
-                      }}
-                      onClick={guardarDireccionActualCliente}
-                      disabled={guardandoDireccionCliente}
-                    >
-                      {guardandoDireccionCliente ? "Guardando..." : "Guardar dirección actual"}
-                    </button>
-                  </div>
-                </div>
-              ) : clienteAuthModo === "login" ? (
-                <div style={{ marginTop: 14 }}>
-                  <Input
-                    label="Teléfono registrado"
-                    value={clienteLoginData.telefono}
-                    onChange={(e) =>
-                      setClienteLoginData((prev) => ({
-                        ...prev,
-                        telefono: e.target.value,
-                      }))
-                    }
-                  />
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={styles.label}>Contraseña</label>
-                    <input
-                      type="password"
-                      style={styles.input}
-                      value={clienteLoginData.password}
-                      onChange={(e) =>
-                        setClienteLoginData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <button
-                    style={{
-                      ...styles.confirmBtn,
-                      marginTop: 0,
-                      ...(cargandoClienteAuth ? styles.disabledBtn : {}),
-                    }}
-                    onClick={iniciarSesionCliente}
-                    disabled={cargandoClienteAuth}
-                  >
-                    {cargandoClienteAuth ? "Ingresando..." : "Ingresar con mi perfil"}
-                  </button>
-                </div>
-              ) : (
-                <div style={{ marginTop: 14 }}>
-                  <Input
-                    label="Nombre"
-                    value={clienteRegistroData.nombre}
-                    onChange={(e) =>
-                      setClienteRegistroData((prev) => ({
-                        ...prev,
-                        nombre: e.target.value,
-                      }))
-                    }
-                  />
-                  <Input
-                    label="Teléfono"
-                    value={clienteRegistroData.telefono}
-                    onChange={(e) =>
-                      setClienteRegistroData((prev) => ({
-                        ...prev,
-                        telefono: e.target.value,
-                      }))
-                    }
-                  />
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={styles.label}>Contraseña</label>
-                    <input
-                      type="password"
-                      style={styles.input}
-                      value={clienteRegistroData.password}
-                      onChange={(e) =>
-                        setClienteRegistroData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                  <Input
-                    label="Dirección principal"
-                    value={clienteRegistroData.direccion}
-                    onChange={(e) =>
-                      setClienteRegistroData((prev) => ({
-                        ...prev,
-                        direccion: e.target.value,
-                      }))
-                    }
-                  />
-                  <Input
-                    label="Referencia"
-                    value={clienteRegistroData.referencia}
-                    onChange={(e) =>
-                      setClienteRegistroData((prev) => ({
-                        ...prev,
-                        referencia: e.target.value,
-                      }))
-                    }
-                  />
-                  <Input
-                    label="Alias de dirección"
-                    value={clienteRegistroData.aliasDireccion}
-                    onChange={(e) =>
-                      setClienteRegistroData((prev) => ({
-                        ...prev,
-                        aliasDireccion: e.target.value,
-                      }))
-                    }
-                  />
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <button
+          type="button"
+          style={styles.secondaryBtn}
+          onClick={() => setUsarOtraDireccion((prev) => !prev)}
+        >
+          {usarOtraDireccion
+            ? "Usar dirección guardada"
+            : "Pedir a otra dirección hoy"}
+        </button>
 
-                  <button
-                    style={{
-                      ...styles.confirmBtn,
-                      marginTop: 0,
-                      ...(cargandoClienteAuth ? styles.disabledBtn : {}),
-                    }}
-                    onClick={registrarCliente}
-                    disabled={cargandoClienteAuth}
-                  >
-                    {cargandoClienteAuth ? "Creando perfil..." : "Crear perfil y guardar datos"}
-                  </button>
-                </div>
-              )}
-            </div>
+        <button
+          type="button"
+          style={{
+            ...styles.secondaryBtn,
+            ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
+          }}
+          onClick={guardarDireccionActualCliente}
+          disabled={guardandoDireccionCliente}
+        >
+          {guardandoDireccionCliente
+            ? "Guardando..."
+            : "Guardar dirección actual"}
+        </button>
+      </div>
+    </div>
+  ) : clienteAuthModo === "login" ? (
+    <div style={{ marginTop: 14 }}>
+      <Input
+        label="Teléfono registrado"
+        value={clienteLoginData.telefono}
+        onChange={(e) =>
+          setClienteLoginData((prev) => ({
+            ...prev,
+            telefono: e.target.value,
+          }))
+        }
+      />
 
-            <Input
-              label="Nombre"
-              value={cliente.nombre}
-              onChange={(e) => actualizarCliente("nombre", e.target.value)}
-            />
-            <Input
-              label="Teléfono"
-              value={cliente.telefono}
-              onChange={(e) => actualizarCliente("telefono", e.target.value)}
-            />
-            <Input
-              label="Dirección"
-              value={cliente.direccion}
-              onChange={(e) => actualizarCliente("direccion", e.target.value)}
-              disabled={Boolean(clienteSesion?.id && direccionesCliente.length > 0 && !usarOtraDireccion)}
-            />
-            <Input
-              label="Referencia"
-              value={cliente.referencia}
-              onChange={(e) => actualizarCliente("referencia", e.target.value)}
-              disabled={Boolean(clienteSesion?.id && direccionesCliente.length > 0 && !usarOtraDireccion)}
-            />
+      <div style={{ marginBottom: 14 }}>
+        <label style={styles.label}>Contraseña</label>
+        <input
+          type="password"
+          style={styles.input}
+          value={clienteLoginData.password}
+          onChange={(e) =>
+            setClienteLoginData((prev) => ({
+              ...prev,
+              password: e.target.value,
+            }))
+          }
+        />
+      </div>
 
-            <div style={{ marginBottom: 14 }}>
-              <label style={styles.label}>Método de pago</label>
-              <select
-                style={styles.input}
-                value={cliente.pago}
-                onChange={(e) => actualizarCliente("pago", e.target.value)}
-              >
-                <option value="Llave">Llave</option>
-                <option value="QR Nequi">QR Nequi</option>
-              </select>
-            </div>
+      <button
+        type="button"
+        style={{
+          ...styles.confirmBtn,
+          marginTop: 0,
+          ...(cargandoClienteAuth ? styles.disabledBtn : {}),
+        }}
+        onClick={iniciarSesionCliente}
+        disabled={cargandoClienteAuth}
+      >
+        {cargandoClienteAuth ? "Ingresando..." : "Ingresar con mi perfil"}
+      </button>
+    </div>
+  ) : (
+    <div style={{ marginTop: 14 }}>
+      <Input
+        label="Nombre"
+        value={clienteRegistroData.nombre}
+        onChange={(e) =>
+          setClienteRegistroData((prev) => ({
+            ...prev,
+            nombre: e.target.value,
+          }))
+        }
+      />
 
-            {cliente.pago === "Llave" && (
-              <div style={styles.paymentInfoBox}>
-                <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
-                <div style={styles.paymentInfoText}>Llave: 3152487938</div>
-                <div style={styles.paymentInfoText}>
-                  El pedido quedará pendiente de verificación.
-                </div>
-              </div>
-            )}
+      <Input
+        label="Teléfono"
+        value={clienteRegistroData.telefono}
+        onChange={(e) =>
+          setClienteRegistroData((prev) => ({
+            ...prev,
+            telefono: e.target.value,
+          }))
+        }
+      />
 
-            {cliente.pago === "QR Nequi" && (
-              <div style={styles.paymentInfoBox}>
-                <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
-                <div style={styles.paymentInfoText}>
-                  Escanea este QR para realizar el pago.
-                </div>
+      <div style={{ marginBottom: 14 }}>
+        <label style={styles.label}>Contraseña</label>
+        <input
+          type="password"
+          style={styles.input}
+          value={clienteRegistroData.password}
+          onChange={(e) =>
+            setClienteRegistroData((prev) => ({
+              ...prev,
+              password: e.target.value,
+            }))
+          }
+        />
+      </div>
 
-                <div style={styles.qrWrap}>
-                  <img
-                    src="/qr-nequi.png"
-                    alt="QR Nequi Dr. Crispy Lab"
-                    style={styles.qrImage}
-                  />
-                </div>
+      <Input
+        label="Dirección principal"
+        value={clienteRegistroData.direccion}
+        onChange={(e) =>
+          setClienteRegistroData((prev) => ({
+            ...prev,
+            direccion: e.target.value,
+          }))
+        }
+      />
 
-                <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-                <div style={styles.paymentInfoText}>
-                  El pedido quedará pendiente de verificación.
-                </div>
-              </div>
-            )}
+      <Input
+        label="Referencia"
+        value={clienteRegistroData.referencia}
+        onChange={(e) =>
+          setClienteRegistroData((prev) => ({
+            ...prev,
+            referencia: e.target.value,
+          }))
+        }
+      />
+
+      <Input
+        label="Alias de dirección"
+        value={clienteRegistroData.aliasDireccion}
+        onChange={(e) =>
+          setClienteRegistroData((prev) => ({
+            ...prev,
+            aliasDireccion: e.target.value,
+          }))
+        }
+      />
+
+      <button
+        type="button"
+        style={{
+          ...styles.confirmBtn,
+          marginTop: 0,
+          ...(cargandoClienteAuth ? styles.disabledBtn : {}),
+        }}
+        onClick={registrarCliente}
+        disabled={cargandoClienteAuth}
+      >
+        {cargandoClienteAuth
+          ? "Creando perfil..."
+          : "Crear perfil y guardar datos"}
+      </button>
+    </div>
+  )}
+</div>
+
+<Input
+  label="Nombre"
+  value={cliente.nombre}
+  onChange={(e) => actualizarCliente("nombre", e.target.value)}
+/>
+
+<Input
+  label="Teléfono"
+  value={cliente.telefono}
+  onChange={(e) => actualizarCliente("telefono", e.target.value)}
+/>
+
+<Input
+  label="Dirección"
+  value={cliente.direccion}
+  onChange={(e) => actualizarCliente("direccion", e.target.value)}
+  disabled={Boolean(
+    clienteSesion?.id &&
+      direccionesCliente.length > 0 &&
+      !usarOtraDireccion
+  )}
+/>
+
+<Input
+  label="Referencia"
+  value={cliente.referencia}
+  onChange={(e) => actualizarCliente("referencia", e.target.value)}
+  disabled={Boolean(
+    clienteSesion?.id &&
+      direccionesCliente.length > 0 &&
+      !usarOtraDireccion
+  )}
+/>
+
+<div style={{ marginBottom: 14 }}>
+  <label style={styles.label}>Método de pago</label>
+  <select
+    style={styles.input}
+    value={cliente.pago}
+    onChange={(e) => actualizarCliente("pago", e.target.value)}
+  >
+    <option value="Llave">Llave</option>
+    <option value="QR Nequi">QR Nequi</option>
+  </select>
+</div>
+
+{cliente.pago === "Llave" && (
+  <div style={styles.paymentInfoBox}>
+    <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
+    <div style={styles.paymentInfoText}>Llave: 3152487938</div>
+    <div style={styles.paymentInfoText}>
+      El pedido quedará pendiente de verificación.
+    </div>
+  </div>
+)}
+
+{cliente.pago === "QR Nequi" && (
+  <div style={styles.paymentInfoBox}>
+    <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
+    <div style={styles.paymentInfoText}>
+      Escanea este QR para realizar el pago.
+    </div>
+
+    <div style={styles.qrWrap}>
+      <img
+        src="/qr-nequi.png"
+        alt="QR Nequi Dr. Crispy Lab"
+        style={styles.qrImage}
+      />
+    </div>
+
+    <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+    <div style={styles.paymentInfoText}>
+      El pedido quedará pendiente de verificación.
+    </div>
+  </div>
+)}
           </div>
         </div>
 
@@ -3947,9 +4075,8 @@ function Input({ label, value, onChange, disabled = false }) {
           ...styles.input,
           ...(disabled
             ? {
-                opacity: 0.72,
+                opacity: 0.7,
                 cursor: "not-allowed",
-                background: "#121212",
               }
             : {}),
         }}
