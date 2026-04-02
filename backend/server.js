@@ -252,10 +252,7 @@ function construirMensajeConfirmacionCliente(pedido) {
 function sanitizarClienteParaRespuesta(cliente) {
   if (!cliente) return null;
 
-  const {
-    password,
-    ...clienteSeguro
-  } = cliente;
+  const { password, ...clienteSeguro } = cliente;
 
   return clienteSeguro;
 }
