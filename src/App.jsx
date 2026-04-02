@@ -2156,7 +2156,21 @@ function usarDireccionGuardada(direccionId) {
       </div>
     </div>
 
-    {clienteSesion?.id ? (
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+  {clienteSesion?.id ? (
+    <>
+      <span style={{ color: "#fff", fontSize: 14 }}>
+        👤 {clienteSesion.nombre || "Cliente"}
+      </span>
+
+      <button
+        type="button"
+        style={styles.secondaryBtn}
+        onClick={() => setClienteAuthModo("perfil")}
+      >
+        Mi perfil
+      </button>
+
       <button
         type="button"
         style={styles.secondaryBtn}
@@ -2164,30 +2178,33 @@ function usarDireccionGuardada(direccionId) {
       >
         Cerrar sesión
       </button>
-    ) : (
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <button
-          type="button"
-          style={{
-            ...styles.secondaryBtn,
-            ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
-          }}
-          onClick={() => setClienteAuthModo("login")}
-        >
-          Ingresar
-        </button>
-        <button
-          type="button"
-          style={{
-            ...styles.secondaryBtn,
-            ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
-          }}
-          onClick={() => setClienteAuthModo("registro")}
-        >
-          Crear perfil
-        </button>
-      </div>
-    )}
+    </>
+  ) : (
+    <>
+      <button
+        type="button"
+        style={{
+          ...styles.secondaryBtn,
+          ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
+        }}
+        onClick={() => setClienteAuthModo("login")}
+      >
+        Ingresar
+      </button>
+
+      <button
+        type="button"
+        style={{
+          ...styles.secondaryBtn,
+          ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
+        }}
+        onClick={() => setClienteAuthModo("registro")}
+      >
+        Crear perfil
+      </button>
+    </>
+  )}
+</div>
   </div>
 
   {clienteSesion?.id ? (
