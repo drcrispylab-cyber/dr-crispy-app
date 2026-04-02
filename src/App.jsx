@@ -337,7 +337,7 @@ function App() {
   const audioRef = useRef(null);
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
-
+  const [upsellPapasAbierto, setUpsellPapasAbierto] = useState(false);
   const [drawerCarritoAbierto, setDrawerCarritoAbierto] = useState(false);
 
   const [salsaSeleccionAnimando, setSalsaSeleccionAnimando] = useState("");
@@ -384,52 +384,28 @@ function App() {
     }
 
     const anchoToast = Math.min(420, window.innerWidth - 32);
-    const mitad = anchoToast / 2;
+const mitad = anchoToast / 2;
 
-    if (x < mitad + 16) x = mitad + 16;
-    if (x > window.innerWidth - mitad - 16) {
-      x = window.innerWidth - mitad - 16;
-    }
+if (x < mitad + 16) x = mitad + 16;
+if (x > window.innerWidth - mitad - 16) {
+  x = window.innerWidth - mitad - 16;
+}
 
-    setToast({
-      visible: true,
-      texto,
-      x,
-      y,
-    });
+setToast({
+  visible: true,
+  texto,
+  x,
+  y,
+});
 
-    toastTimerRef.current = setTimeout(() => {
-      setToast((prev) => ({
-        ...prev,
-        visible: false,
-        texto: "",
-      }));
-    }, 2200);
-  }
-
-    const anchoToast = Math.min(420, window.innerWidth - 32);
-    const mitad = anchoToast / 2;
-
-    if (x < mitad + 16) x = mitad + 16;
-    if (x > window.innerWidth - mitad - 16) {
-      x = window.innerWidth - mitad - 16;
-    }
-
-    setToast({
-      visible: true,
-      texto,
-      x,
-      y,
-    });
-
-    toastTimerRef.current = setTimeout(() => {
-      setToast((prev) => ({
-        ...prev,
-        visible: false,
-        texto: "",
-      }));
-    }, 2200);
-  }
+toastTimerRef.current = setTimeout(() => {
+  setToast((prev) => ({
+    ...prev,
+    visible: false,
+    texto: "",
+  }));
+}, 2200);
+}
 
   function limpiarCliente() {
     setCliente({
@@ -496,7 +472,21 @@ function App() {
       categoriaExperimento:
         producto.categoriaExperimento || "Alitas Crispy",
     };
+  function agregarPapasAdicional(target = null) {
+  agregarProducto(
+    {
+      id: "papas-adicional",
+      nombre: "Papas fritas",
+      descripcion: "Adicional del laboratorio",
+      precio: 5000,
+      emoji: "🍟",
+      categoria: "adicionales",
+    },
+    target
+  );
 
+  setUpsellPapasAbierto(false);
+}
     setCarrito((prev) => {
       const existente = prev.find(
         (item) => item.cartKey === nuevoProducto.cartKey
@@ -562,10 +552,11 @@ function App() {
         ];
       });
 
-      setCarritoAnimando(true);
+        setCarritoAnimando(true);
       setTimeout(() => setCarritoAnimando(false), 650);
 
       mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
+      setUpsellPapasAbierto(true);
     }
 
     return [
@@ -1362,7 +1353,15 @@ function prepararCombo(combo, target = null) {
         >
           <div style={styles.comboTopRow}>
             <div style={styles.comboEmoji}>{combo.emoji}</div>
-            <div style={styles.comboBadge}>{combo.badge}</div>
+            <div
+              style={{
+                ...styles.comboBadge,
+                ...(combo.badge === "MÁS PEDIDO" ? styles.comboBadgeFeatured : {}),
+              }}
+            >
+              {combo.badge === "MÁS PEDIDO" ? "🔥 MÁS PEDIDO" : combo.badge}
+            </div>          
+
           </div>
 
           <h3 style={styles.comboTitle}>{combo.nombre}</h3>
@@ -1379,7 +1378,12 @@ function prepararCombo(combo, target = null) {
           <div style={styles.comboFooter}>
             <div>
               <div style={styles.comboMiniLabel}>Domicilio incluido</div>
-              <div style={styles.comboPrice}>
+              <div
+                  style={{
+                    ...styles.comboPrice,
+                    ...(combo.badge === "MÁS PEDIDO" ? styles.comboPriceFeatured : {}),
+                  }}
+                >
                 ${combo.precio.toLocaleString("es-CO")}
               </div>
             </div>
@@ -1387,7 +1391,10 @@ function prepararCombo(combo, target = null) {
 
           <button
             type="button"
-            style={styles.comboBtn}
+            style={{
+              ...styles.comboBtn,
+              ...(combo.badge === "MÁS PEDIDO" ? styles.comboBtnFeatured : {}),
+            }}
             onClick={() => setComboPendiente({ combo, target: null })}
           >
             Elegir salsa y pedir
@@ -1423,8 +1430,8 @@ function prepararCombo(combo, target = null) {
 
           <div style={styles.heroUrgencyWrap}>
             <div style={styles.heroUrgencyPill}>🚚 Domicilio incluido</div>
+            <div style={styles.heroUrgencyPill}>🍗 Alitas crispy premium</div>
             <div style={styles.heroUrgencyPill}>🔥 Combos más pedidos</div>
-            <div style={styles.heroUrgencyPill}>⚡ Pide en minutos</div>
           </div>
 
           <div style={styles.heroActionRow}>
@@ -1507,8 +1514,7 @@ function prepararCombo(combo, target = null) {
           <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
           <h2 style={styles.catalogTitle}>ELIGE TU EXPERIMENTO</h2>
           <p style={styles.catalogText}>
-            El Experimento 1 ya está activo. Los siguientes se están preparando
-            en el laboratorio.
+            Elige lo que quieres pedir hoy. El Experimento 1 está activo y listo para despacho.
           </p>
         </div>
 
@@ -2201,7 +2207,60 @@ function prepararCombo(combo, target = null) {
           </div>
         </div>
       )}
+      {upsellPapasAbierto && (
+  <div
+    style={styles.modalBackdrop}
+    onClick={() => setUpsellPapasAbierto(false)}
+  >
+    <div style={styles.upsellModalCard} onClick={(e) => e.stopPropagation()}>
+      <div style={styles.modalTop}>
+        <div>
+          <div style={styles.menuInteractiveBadge}>🍟 MEJORA TU PEDIDO</div>
+          <h2 style={styles.modalTitle}>Agrégale papas</h2>
+          <p style={styles.modalSubtitle}>
+            Suma una porción adicional de papas fritas por solo $5.000.
+          </p>
+        </div>
 
+        <button
+          style={styles.modalCloseBtn}
+          onClick={() => setUpsellPapasAbierto(false)}
+        >
+          ✕
+        </button>
+      </div>
+
+      <div style={styles.upsellModalBox}>
+        <div style={styles.upsellModalEmoji}>🍟</div>
+
+        <div style={{ flex: 1 }}>
+          <div style={styles.upsellModalTitle}>Papas fritas adicional</div>
+          <div style={styles.upsellModalText}>
+            Más contundente, más antojo y mejor ticket promedio.
+          </div>
+        </div>
+
+        <div style={styles.upsellModalPrice}>$5.000</div>
+      </div>
+
+      <div style={styles.upsellModalActions}>
+        <button
+          style={styles.heroPrimaryBtn}
+          onClick={(e) => agregarPapasAdicional(e.currentTarget)}
+        >
+          Sí, agregar papas
+        </button>
+
+        <button
+          style={styles.heroSecondaryBtn}
+          onClick={() => setUpsellPapasAbierto(false)}
+        >
+          No gracias
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {formulaSeleccionada && (
         <div
           style={styles.modalBackdrop}
@@ -3443,10 +3502,10 @@ function prepararCombo(combo, target = null) {
             )}
           </section>
         )}
-      </div>
+           </div>
     </div>
   );
-
+}
 
 function Input({ label, value, onChange }) {
   return (
@@ -3466,6 +3525,25 @@ const styles = {
     fontFamily: '"Inter", sans-serif',
     position: "relative",
   },
+
+    comboBtn: {
+    width: "100%",
+    background: "linear-gradient(135deg, #ff1200, #c30000)",
+    color: "#fff",
+    border: "none",
+    padding: "15px 16px",
+    borderRadius: 14,
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: 15,
+    boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
+  },
+  comboBtnFeatured: {
+    background: "linear-gradient(135deg, #ffcf33, #ff9f0a)",
+    color: "#111",
+    boxShadow: "0 14px 28px rgba(255, 180, 0, 0.22)",
+  },
+
   overlay: {
     position: "fixed",
     inset: 0,
@@ -3475,12 +3553,66 @@ const styles = {
       "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
     backgroundSize: "30px 30px",
   },
-  container: {
-    maxWidth: 1360,
-    margin: "0 auto",
-    padding: 24,
-    position: "relative",
-    zIndex: 2,
+    container: {
+    minHeight: "100vh",
+    background: "#0b0b0b",
+    color: "#fff",
+    padding: "20px 16px 100px",
+  },
+    upsellModalCard: {
+    width: "100%",
+    maxWidth: 560,
+    background:
+      "radial-gradient(circle at top right, rgba(255,209,102,0.10), transparent 26%), linear-gradient(180deg, rgba(20,20,20,0.98), rgba(8,8,8,0.99))",
+    border: "1px solid rgba(255,209,102,0.18)",
+    borderRadius: 24,
+    padding: 22,
+    boxShadow: "0 30px 90px rgba(0,0,0,0.56)",
+    animation: "modalPopIn 0.24s ease",
+  },
+  upsellModalBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    background:
+      "radial-gradient(circle at top right, rgba(255,209,102,0.08), transparent 24%), rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,209,102,0.16)",
+    borderRadius: 18,
+    padding: 18,
+    marginTop: 8,
+  },
+  upsellModalEmoji: {
+    fontSize: 42,
+    flexShrink: 0,
+  },
+  upsellModalTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1,
+    lineHeight: 1,
+    textTransform: "uppercase",
+  },
+  upsellModalText: {
+    color: "#d3d3d3",
+    fontSize: 14,
+    lineHeight: 1.5,
+    marginTop: 6,
+  },
+  upsellModalPrice: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#ffd166",
+    textShadow: "0 0 16px rgba(255,209,102,0.18)",
+    flexShrink: 0,
+  },
+  upsellModalActions: {
+    display: "flex",
+    gap: 12,
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+    marginTop: 20,
   },
   header: {
     display: "flex",
@@ -3555,17 +3687,14 @@ const styles = {
     border: "1px solid #ff0000",
   },
   labHero: {
-    display: "grid",
-    gap: 32,
-    marginBottom: 24,
-    background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(17,17,17,0.96), rgba(10,10,10,0.98))",
-    border: "1px solid rgba(255,255,255,0.05)",
-    borderRadius: 24,
-    padding: 36,
-    boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
-    overflow: "hidden",
-  },
+  display: "grid",
+  gap: 28,
+  marginBottom: 24,
+  background: "#121212",
+  border: "1px solid rgba(255,255,255,0.04)",
+  borderRadius: 26,
+  padding: 36,
+},
   labHeroContent: {
     display: "flex",
     flexDirection: "column",
@@ -3579,22 +3708,22 @@ const styles = {
     fontSize: 15,
   },
   labHeroTitle: {
-    margin: 0,
-    fontSize: 74,
-    lineHeight: 0.9,
-    color: "#fff",
-    textTransform: "uppercase",
-    fontFamily: '"Bebas Neue", sans-serif',
-    letterSpacing: 1.2,
-    textShadow: "0 8px 24px rgba(0,0,0,0.35)",
-    maxWidth: 760,
-  },
+  margin: 0,
+  fontSize: 86,
+  lineHeight: 0.9,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1.2,
+  textShadow: "0 8px 24px rgba(0,0,0,0.35)",
+  maxWidth: 760,
+},
   labHeroText: {
-    color: "#d2d2d2",
-    lineHeight: 1.85,
-    maxWidth: 620,
-    fontSize: 17,
-    marginTop: 18,
+  color: "#d8d8d8",
+  lineHeight: 1.8,
+  maxWidth: 560,
+  fontSize: 18,
+  marginTop: 18,
   },
   heroUrgencyWrap: {
     display: "flex",
@@ -3618,22 +3747,22 @@ const styles = {
     marginTop: 26,
   },
   heroPrimaryBtn: {
-    background: "linear-gradient(135deg, #ff0000, #b30000)",
-    color: "#fff",
-    border: "none",
-    padding: "15px 20px",
-    borderRadius: 12,
-    cursor: "pointer",
-    fontWeight: "bold",
-    fontSize: 15,
-    boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
-  },
+  background: "linear-gradient(135deg, #ff0000, #b30000)",
+  color: "#fff",
+  border: "none",
+  padding: "16px 22px",
+  borderRadius: 14,
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: 15,
+  boxShadow: "0 14px 26px rgba(255,0,0,0.18)",
+},
   heroSecondaryBtn: {
     background: "#151515",
     color: "#fff",
     border: "1px solid #2f2f2f",
-    padding: "15px 22px",
-    borderRadius: 12,
+    padding: "16px 22px",
+    borderRadius: 14,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
@@ -3660,6 +3789,13 @@ const styles = {
     position: "relative",
     overflow: "hidden",
   },
+
+    comboPriceFeatured: {
+    color: "#ffcf33",
+    fontSize: 44,
+    textShadow: "0 0 18px rgba(255, 200, 0, 0.25)",
+  },
+
   reactorGlow: {
     position: "absolute",
     width: 240,
@@ -4752,22 +4888,21 @@ const styles = {
     gap: 18,
   },
   comboCard: {
-    position: "relative",
-    background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 28%), linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
-    border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 20,
-    padding: 18,
-    boxShadow: "0 16px 30px rgba(0,0,0,0.20)",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
+  position: "relative",
+  background: "#151515",
+  border: "1px solid rgba(255,255,255,0.05)",
+  borderRadius: 22,
+  padding: 20,
+  boxShadow: "0 12px 24px rgba(0,0,0,0.25)",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+},
   comboCardFeatured: {
-    border: "1px solid rgba(255,0,0,0.34)",
-    boxShadow: "0 20px 40px rgba(255,0,0,0.18)",
-    transform: "translateY(-4px)",
-  },
+  border: "1px solid rgba(255,180,0,0.34)",
+  boxShadow: "0 24px 48px rgba(255,140,0,0.18)",
+  transform: "translateY(-6px) scale(1.01)",
+},
   comboTopRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -4787,9 +4922,17 @@ const styles = {
     fontSize: 11,
     letterSpacing: 1,
   },
+
+    comboBadgeFeatured: {
+    background: "linear-gradient(135deg, #ffcf33, #ff8c00)",
+    color: "#111",
+    boxShadow: "0 10px 20px rgba(255, 180, 0, 0.25)",
+    transform: "scale(1.05)",
+  },
+
   comboTitle: {
     margin: "0 0 8px 0",
-    fontSize: 36,
+    fontSize: 42,
     color: "#fff",
     textTransform: "uppercase",
     fontFamily: '"Bebas Neue", sans-serif',
@@ -4797,15 +4940,16 @@ const styles = {
     lineHeight: 0.92,
   },
   comboDesc: {
-    margin: 0,
-    color: "#d2d2d2",
-    lineHeight: 1.5,
-    fontSize: 15,
-  },
+  margin: 0,
+  color: "#d8d8d8",
+  lineHeight: 1.55,
+  fontSize: 15,
+  minHeight: 48,
+},
   comboPrice: {
-    marginTop: 16,
-    marginBottom: 16,
-    fontSize: 34,
+    marginTop: 10,
+    marginBottom: 8,
+    fontSize: 40,
     fontWeight: "bold",
     color: "#ff3535",
     textShadow: "0 0 16px rgba(255,0,0,0.20)",
@@ -4815,8 +4959,8 @@ const styles = {
     background: "linear-gradient(135deg, #ff1200, #c30000)",
     color: "#fff",
     border: "none",
-    padding: "15px 16px",
-    borderRadius: 14,
+    padding: "16px 18px",
+    borderRadius: 16,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
