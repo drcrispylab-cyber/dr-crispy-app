@@ -462,8 +462,7 @@ toastTimerRef.current = setTimeout(() => {
 
     mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
   }
-
-  function agregarProductoDirecto(producto, cantidad = 1, target = null) {
+function agregarProductoDirecto(producto, cantidad = 1, target = null) {
   const nuevoProducto = {
     ...producto,
     cantidad,
@@ -559,10 +558,6 @@ function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
 
   mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
   setUpsellPapasAbierto(true);
-}
-
-function prepararCombo(combo, target = null) {
-  setComboPendiente({ combo, target });
 }
 
 function prepararCombo(combo, target = null) {
