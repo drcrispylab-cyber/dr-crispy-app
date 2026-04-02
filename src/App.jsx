@@ -442,30 +442,6 @@ function App() {
     }, 2200);
   }
 
-    const anchoToast = Math.min(420, window.innerWidth - 32);
-    const mitad = anchoToast / 2;
-
-    if (x < mitad + 16) x = mitad + 16;
-    if (x > window.innerWidth - mitad - 16) {
-      x = window.innerWidth - mitad - 16;
-    }
-
-    setToast({
-      visible: true,
-      texto,
-      x,
-      y,
-    });
-
-    toastTimerRef.current = setTimeout(() => {
-      setToast((prev) => ({
-        ...prev,
-        visible: false,
-        texto: "",
-      }));
-    }, 2200);
-  }
-
   function limpiarCliente() {
     setCliente({
       nombre: "",
@@ -861,89 +837,58 @@ function usarDireccionGuardada(direccionId) {
   }
 
   function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
-      const salsaFinal = salsaSeleccionada || "BBQ Reactor";
-      const cartKey = `${combo.id}-combo-${salsaFinal}`;
+    const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+    const cartKey = `${combo.id}-combo-${salsaFinal}`;
 
-      setCarrito((prev) => {
-        const existente = prev.find((item) => item.cartKey === cartKey);
+    setCarrito((prev) => {
+      const existente = prev.find((item) => item.cartKey === cartKey);
 
-        if (existente) {
-          return prev.map((item) =>
-            item.cartKey === cartKey
-              ? { ...item, cantidad: item.cantidad + 1 }
-              : item
-          );
-        }
+      if (existente) {
+        return prev.map((item) =>
+          item.cartKey === cartKey
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
+      }
 
-        return [
-          ...prev,
-          {
-            id: combo.id,
-            nombre: combo.nombre,
-            descripcion: combo.descripcion,
-            precio: combo.precio,
-            cantidad: 1,
-            cartKey,
-            esCombo: true,
-            badge: combo.badge,
-            emoji: combo.emoji,
-            salsa: salsaFinal,
-            experimento: "Combos del Lab",
-            categoriaExperimento: "Combos del Lab",
-            detalleCombo: combo.itemsInternos.map((item) => {
-              if (item.nombre.toLowerCase().includes("alitas")) {
-                return {
-                  ...item,
-                  salsa: salsaFinal,
-                };
-              }
+      return [
+        ...prev,
+        {
+          id: combo.id,
+          nombre: combo.nombre,
+          descripcion: combo.descripcion,
+          precio: combo.precio,
+          cantidad: 1,
+          cartKey,
+          esCombo: true,
+          badge: combo.badge,
+          emoji: combo.emoji,
+          salsa: salsaFinal,
+          experimento: "Combos del Lab",
+          categoriaExperimento: "Combos del Lab",
+          detalleCombo: combo.itemsInternos.map((item) => {
+            if (item.nombre.toLowerCase().includes("alitas")) {
+              return {
+                ...item,
+                salsa: salsaFinal,
+              };
+            }
 
-              return { ...item };
-            }),
-          },
-        ];
-      });
+            return { ...item };
+          }),
+        },
+      ];
+    });
 
-      setCarritoAnimando(true);
-      setTimeout(() => setCarritoAnimando(false), 650);
+    setCarritoAnimando(true);
+    setTimeout(() => setCarritoAnimando(false), 650);
 
-      mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-    }
+    mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
+  }
 
-    return [
-      ...prev,
-      {
-        id: combo.id,
-        nombre: combo.nombre,
-        descripcion: combo.descripcion,
-        precio: combo.precio,
-        cantidad: 1,
-        cartKey,
-        esCombo: true,
-        badge: combo.badge,
-        emoji: combo.emoji,
-        salsa: salsaFinal,
-        experimento: "Combos del Lab",
-        categoriaExperimento: "Combos del Lab",
-        detalleCombo: combo.itemsInternos.map((item) => {
-          if (item.nombre.toLowerCase().includes("alitas")) {
-            return {
-              ...item,
-              salsa: salsaFinal,
-            };
-          }
-
-          return { ...item };
-        }),
-      },
-    ];
-  ;
-
-function prepararCombo(combo, target = null) {
-  setComboPendiente({ combo, target });
-}
-  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-    
+  function prepararCombo(combo, target = null) {
+    setComboPendiente({ combo, target });
+  }
 
   function seleccionarSalsa(producto, salsa, target) {
     if (salsa.nombre === "Fuego Atómico") {
@@ -4064,7 +4009,7 @@ function prepararCombo(combo, target = null) {
       </div>
     </div>
   );
-
+}
 
 function Input({ label, value, onChange, disabled = false }) {
   return (
