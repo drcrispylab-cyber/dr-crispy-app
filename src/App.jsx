@@ -1948,34 +1948,36 @@ function App() {
               ))
             )}
 
-                        <div style={styles.upsellBox}>
-              <div style={styles.upsellTextWrap}>
-                <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
-                <div style={styles.upsellText}>
-                  Súmale una porción por solo $4.000 más
+             {carrito.some((item) => item.categoria === "formulas" || item.esCombo) && (
+              <div style={styles.upsellBox}>
+                <div style={styles.upsellTextWrap}>
+                  <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+                  <div style={styles.upsellText}>
+                    Súmale una porción por solo $4.000 más
+                  </div>
                 </div>
-              </div>
 
-              <button
-                type="button"
-                style={styles.upsellBtn}
-                onClick={(e) =>
-                  agregarProducto(
-                    {
-                      id: "upsell-papas-4000",
-                      nombre: "Papas fritas promo",
-                      descripcion: "Upsell del laboratorio",
-                      precio: 4000,
-                      emoji: "🍟",
-                      categoria: "adicionales",
-                    },
-                    e.currentTarget
-                  )
-                }
-              >
-                Agregar
-              </button>
-            </div>
+                <button
+                  type="button"
+                  style={styles.upsellBtn}
+                  onClick={(e) =>
+                    agregarProducto(
+                      {
+                        id: "upsell-papas-4000",
+                        nombre: "Papas fritas promo",
+                        descripcion: "Upsell del laboratorio",
+                        precio: 4000,
+                        emoji: "🍟",
+                        categoria: "adicionales",
+                      },
+                      e.currentTarget
+                    )
+                  }
+                >
+                  Agregar
+                </button>
+              </div>
+            )}
 
             <div style={styles.summaryBox}>
               <div style={styles.summaryRow}>
@@ -2618,6 +2620,7 @@ function App() {
                   ))}
                 </div>
 
+                {carrito.some((item) => item.categoria === "formulas" || item.esCombo) && (
                 <div style={styles.upsellBox}>
                   <div style={styles.upsellTextWrap}>
                     <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
@@ -2646,6 +2649,7 @@ function App() {
                     Agregar
                   </button>
                 </div>
+              )}
 
                 <div style={styles.summaryBox}>
                   <div style={styles.summaryRow}>
