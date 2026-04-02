@@ -356,6 +356,7 @@ function App() {
     function handleResize() {
       setAncho(window.innerWidth);
     }
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -384,28 +385,28 @@ function App() {
     }
 
     const anchoToast = Math.min(420, window.innerWidth - 32);
-const mitad = anchoToast / 2;
+    const mitad = anchoToast / 2;
 
-if (x < mitad + 16) x = mitad + 16;
-if (x > window.innerWidth - mitad - 16) {
-  x = window.innerWidth - mitad - 16;
-}
+    if (x < mitad + 16) x = mitad + 16;
+    if (x > window.innerWidth - mitad - 16) {
+      x = window.innerWidth - mitad - 16;
+    }
 
-setToast({
-  visible: true,
-  texto,
-  x,
-  y,
-});
+    setToast({
+      visible: true,
+      texto,
+      x,
+      y,
+    });
 
-toastTimerRef.current = setTimeout(() => {
-  setToast((prev) => ({
-    ...prev,
-    visible: false,
-    texto: "",
-  }));
-}, 2200);
-}
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({
+        ...prev,
+        visible: false,
+        texto: "",
+      }));
+    }, 2200);
+  }
 
   function limpiarCliente() {
     setCliente({
@@ -418,19 +419,19 @@ toastTimerRef.current = setTimeout(() => {
   }
 
   function getCartKey(producto) {
-  if (producto.esCombo) {
-    return `${producto.id}-combo`;
-  }
+    if (producto.esCombo) {
+      return `${producto.id}-combo`;
+    }
 
     return `${producto.id}-${producto.salsa || "sin-salsa"}`;
   }
 
   function formatearDetalleCombo(detalleCombo = []) {
-  return detalleCombo.map((item) => {
-    const salsa = item.salsa ? ` • ${item.salsa}` : "";
-    return `${item.nombre} x${item.cantidad}${salsa}`;
-  });
-}
+    return detalleCombo.map((item) => {
+      const salsa = item.salsa ? ` • ${item.salsa}` : "";
+      return `${item.nombre} x${item.cantidad}${salsa}`;
+    });
+  }
 
   function agregarProducto(producto, target) {
     const key = getCartKey(producto);
@@ -462,109 +463,112 @@ toastTimerRef.current = setTimeout(() => {
 
     mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
   }
-function agregarProductoDirecto(producto, cantidad = 1, target = null) {
-  const nuevoProducto = {
-    ...producto,
-    cantidad,
-    cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
-    experimento: producto.experimento || "Experimento 1",
-    categoriaExperimento:
-      producto.categoriaExperimento || "Alitas Crispy",
-  };
 
-  setCarrito((prev) => {
-    const existente = prev.find(
-      (item) => item.cartKey === nuevoProducto.cartKey
+  function agregarProductoDirecto(producto, cantidad = 1, target = null) {
+    const nuevoProducto = {
+      ...producto,
+      cantidad,
+      cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
+      experimento: producto.experimento || "Experimento 1",
+      categoriaExperimento:
+        producto.categoriaExperimento || "Alitas Crispy",
+    };
+
+    setCarrito((prev) => {
+      const existente = prev.find(
+        (item) => item.cartKey === nuevoProducto.cartKey
+      );
+
+      if (existente) {
+        return prev.map((item) =>
+          item.cartKey === nuevoProducto.cartKey
+            ? { ...item, cantidad: item.cantidad + cantidad }
+            : item
+        );
+      }
+
+      return [...prev, nuevoProducto];
+    });
+
+    if (target) {
+      mostrarToast(`✅ ${producto.nombre} agregado`, target);
+    }
+  }
+
+  function agregarPapasAdicional(target = null) {
+    agregarProducto(
+      {
+        id: "papas-adicional",
+        nombre: "Papas fritas",
+        descripcion: "Adicional del laboratorio",
+        precio: 5000,
+        emoji: "🍟",
+        categoria: "adicionales",
+      },
+      target
     );
 
-    if (existente) {
-      return prev.map((item) =>
-        item.cartKey === nuevoProducto.cartKey
-          ? { ...item, cantidad: item.cantidad + cantidad }
-          : item
-      );
-    }
-
-    return [...prev, nuevoProducto];
-  });
-
-  if (target) {
-    mostrarToast(`✅ ${producto.nombre} agregado`, target);
+    setUpsellPapasAbierto(false);
   }
-}
 
-function agregarPapasAdicional(target = null) {
-  agregarProducto(
-    {
-      id: "papas-adicional",
-      nombre: "Papas fritas",
-      descripcion: "Adicional del laboratorio",
-      precio: 5000,
-      emoji: "🍟",
-      categoria: "adicionales",
-    },
-    target
-  );
+  function agregarCombo(
+    combo,
+    target = null,
+    salsaSeleccionada = "BBQ Reactor"
+  ) {
+    const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+    const cartKey = `${combo.id}-combo-${salsaFinal}`;
 
-  setUpsellPapasAbierto(false);
-}
+    setCarrito((prev) => {
+      const existente = prev.find((item) => item.cartKey === cartKey);
 
-function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
-  const salsaFinal = salsaSeleccionada || "BBQ Reactor";
-  const cartKey = `${combo.id}-combo-${salsaFinal}`;
+      if (existente) {
+        return prev.map((item) =>
+          item.cartKey === cartKey
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
+      }
 
-  setCarrito((prev) => {
-    const existente = prev.find((item) => item.cartKey === cartKey);
+      return [
+        ...prev,
+        {
+          id: combo.id,
+          nombre: combo.nombre,
+          descripcion: combo.descripcion,
+          precio: combo.precio,
+          cantidad: 1,
+          cartKey,
+          esCombo: true,
+          badge: combo.badge,
+          emoji: combo.emoji,
+          salsa: salsaFinal,
+          experimento: "Combos del Lab",
+          categoriaExperimento: "Combos del Lab",
+          detalleCombo: combo.itemsInternos.map((item) => {
+            if (item.nombre.toLowerCase().includes("alitas")) {
+              return {
+                ...item,
+                salsa: salsaFinal,
+              };
+            }
 
-    if (existente) {
-      return prev.map((item) =>
-        item.cartKey === cartKey
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
-      );
-    }
+            return { ...item };
+          }),
+        },
+      ];
+    });
 
-    return [
-      ...prev,
-      {
-        id: combo.id,
-        nombre: combo.nombre,
-        descripcion: combo.descripcion,
-        precio: combo.precio,
-        cantidad: 1,
-        cartKey,
-        esCombo: true,
-        badge: combo.badge,
-        emoji: combo.emoji,
-        salsa: salsaFinal,
-        experimento: "Combos del Lab",
-        categoriaExperimento: "Combos del Lab",
-        detalleCombo: combo.itemsInternos.map((item) => {
-          if (item.nombre.toLowerCase().includes("alitas")) {
-            return {
-              ...item,
-              salsa: salsaFinal,
-            };
-          }
+    setCarritoAnimando(true);
+    setTimeout(() => setCarritoAnimando(false), 650);
 
-          return { ...item };
-        }),
-      },
-    ];
-  });
+    mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
+    setUpsellPapasAbierto(true);
+  }
 
-  setCarritoAnimando(true);
-  setTimeout(() => setCarritoAnimando(false), 650);
-
-  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-  setUpsellPapasAbierto(true);
-}
-
-function prepararCombo(combo, target = null) {
-  setComboPendiente({ combo, target });
-}
-  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-    
+  function prepararCombo(combo, target = null) {
+    setComboPendiente({ combo, target });
+  }
 
   function seleccionarSalsa(producto, salsa, target) {
     if (salsa.nombre === "Fuego Atómico") {
