@@ -464,15 +464,37 @@ toastTimerRef.current = setTimeout(() => {
   }
 
   function agregarProductoDirecto(producto, cantidad = 1, target = null) {
-    const nuevoProducto = {
-      ...producto,
-      cantidad,
-      cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
-      experimento: producto.experimento || "Experimento 1",
-      categoriaExperimento:
-        producto.categoriaExperimento || "Alitas Crispy",
-    };
-  function agregarPapasAdicional(target = null) {
+  const nuevoProducto = {
+    ...producto,
+    cantidad,
+    cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
+    experimento: producto.experimento || "Experimento 1",
+    categoriaExperimento:
+      producto.categoriaExperimento || "Alitas Crispy",
+  };
+
+  setCarrito((prev) => {
+    const existente = prev.find(
+      (item) => item.cartKey === nuevoProducto.cartKey
+    );
+
+    if (existente) {
+      return prev.map((item) =>
+        item.cartKey === nuevoProducto.cartKey
+          ? { ...item, cantidad: item.cantidad + cantidad }
+          : item
+      );
+    }
+
+    return [...prev, nuevoProducto];
+  });
+
+  if (target) {
+    mostrarToast(`✅ ${producto.nombre} agregado`, target);
+  }
+}
+
+function agregarPapasAdicional(target = null) {
   agregarProducto(
     {
       id: "papas-adicional",
@@ -487,76 +509,20 @@ toastTimerRef.current = setTimeout(() => {
 
   setUpsellPapasAbierto(false);
 }
-    setCarrito((prev) => {
-      const existente = prev.find(
-        (item) => item.cartKey === nuevoProducto.cartKey
+
+function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
+  const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+  const cartKey = `${combo.id}-combo-${salsaFinal}`;
+
+  setCarrito((prev) => {
+    const existente = prev.find((item) => item.cartKey === cartKey);
+
+    if (existente) {
+      return prev.map((item) =>
+        item.cartKey === cartKey
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
       );
-
-      if (existente) {
-        return prev.map((item) =>
-          item.cartKey === nuevoProducto.cartKey
-            ? { ...item, cantidad: item.cantidad + cantidad }
-            : item
-        );
-      }
-
-      return [...prev, nuevoProducto];
-    });
-
-    if (target) {
-      mostrarToast(`✅ ${producto.nombre} agregado`, target);
-    }
-  }
-
-  function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
-      const salsaFinal = salsaSeleccionada || "BBQ Reactor";
-      const cartKey = `${combo.id}-combo-${salsaFinal}`;
-
-      setCarrito((prev) => {
-        const existente = prev.find((item) => item.cartKey === cartKey);
-
-        if (existente) {
-          return prev.map((item) =>
-            item.cartKey === cartKey
-              ? { ...item, cantidad: item.cantidad + 1 }
-              : item
-          );
-        }
-
-        return [
-          ...prev,
-          {
-            id: combo.id,
-            nombre: combo.nombre,
-            descripcion: combo.descripcion,
-            precio: combo.precio,
-            cantidad: 1,
-            cartKey,
-            esCombo: true,
-            badge: combo.badge,
-            emoji: combo.emoji,
-            salsa: salsaFinal,
-            experimento: "Combos del Lab",
-            categoriaExperimento: "Combos del Lab",
-            detalleCombo: combo.itemsInternos.map((item) => {
-              if (item.nombre.toLowerCase().includes("alitas")) {
-                return {
-                  ...item,
-                  salsa: salsaFinal,
-                };
-              }
-
-              return { ...item };
-            }),
-          },
-        ];
-      });
-
-        setCarritoAnimando(true);
-      setTimeout(() => setCarritoAnimando(false), 650);
-
-      mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-      setUpsellPapasAbierto(true);
     }
 
     return [
@@ -586,7 +552,18 @@ toastTimerRef.current = setTimeout(() => {
         }),
       },
     ];
-  ;
+  });
+
+  setCarritoAnimando(true);
+  setTimeout(() => setCarritoAnimando(false), 650);
+
+  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
+  setUpsellPapasAbierto(true);
+}
+
+function prepararCombo(combo, target = null) {
+  setComboPendiente({ combo, target });
+}
 
 function prepararCombo(combo, target = null) {
   setComboPendiente({ combo, target });
