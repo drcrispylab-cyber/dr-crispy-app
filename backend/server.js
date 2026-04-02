@@ -31,6 +31,7 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 3001;
 const DATA_DIR = __dirname;
 const PEDIDOS_FILE = path.join(DATA_DIR, "pedidos.json");
+const CLIENTES_FILE = path.join(DATA_DIR, "clientes.json");
 
 app.use(
   cors({
@@ -80,10 +81,26 @@ const ESTADOS_PAGO_VALIDOS = [
   "Rechazado",
 ];
 
-function asegurarArchivoPedidos() {
-  if (!fs.existsSync(PEDIDOS_FILE)) {
-    fs.writeFileSync(PEDIDOS_FILE, JSON.stringify([], null, 2), "utf8");
+// ===============================
+// UTILIDADES ARCHIVOS
+// ===============================
+
+function asegurarArchivo(filePath, contenidoInicial = []) {
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(
+      filePath,
+      JSON.stringify(contenidoInicial, null, 2),
+      "utf8"
+    );
   }
+}
+
+function asegurarArchivoPedidos() {
+  asegurarArchivo(PEDIDOS_FILE, []);
+}
+
+function asegurarArchivoClientes() {
+  asegurarArchivo(CLIENTES_FILE, []);
 }
 
 function leerPedidos() {
@@ -110,6 +127,22 @@ function guardarPedidos(pedidos) {
   fs.writeFileSync(PEDIDOS_FILE, JSON.stringify(pedidos, null, 2), "utf8");
 }
 
+function leerClientes() {
+  asegurarArchivoClientes();
+  const contenido = fs.readFileSync(CLIENTES_FILE, "utf8");
+  const clientes = JSON.parse(contenido || "[]");
+
+  return Array.isArray(clientes) ? clientes : [];
+}
+
+function guardarClientes(clientes) {
+  fs.writeFileSync(CLIENTES_FILE, JSON.stringify(clientes, null, 2), "utf8");
+}
+
+// ===============================
+// UTILIDADES GENERALES
+// ===============================
+
 function generarIdPedido(pedidos) {
   const ultimoNumero = pedidos.reduce((max, pedido) => {
     const match = String(pedido.id || "").match(/^PED-(\d+)$/i);
@@ -124,6 +157,14 @@ function generarIdPedido(pedidos) {
 
 function generarTrackingToken() {
   return crypto.randomBytes(18).toString("hex");
+}
+
+function generarIdCliente() {
+  return `CLI-${crypto.randomBytes(6).toString("hex").toUpperCase()}`;
+}
+
+function generarIdDireccion() {
+  return `DIR-${crypto.randomBytes(5).toString("hex").toUpperCase()}`;
 }
 
 function fechaBonita() {
@@ -203,6 +244,136 @@ function construirMensajeConfirmacionCliente(pedido) {
     "Muy pronto continuaremos contigo por este medio.",
   ].join("\n");
 }
+
+// ===============================
+// UTILIDADES CLIENTES
+// ===============================
+
+function sanitizarClienteParaRespuesta(cliente) {
+  if (!cliente) return null;
+
+  const {
+    password,
+    ...clienteSeguro
+  } = cliente;
+
+  return clienteSeguro;
+}
+
+function buscarClientePorTelefono(telefono = "") {
+  const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
+  const clientes = leerClientes();
+
+  return (
+    clientes.find(
+      (c) => limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio
+    ) || null
+  );
+}
+
+function crearDireccionDesdePedido(clienteBody = {}) {
+  const direccion = String(clienteBody.direccion || "").trim();
+  const referencia = String(clienteBody.referencia || "").trim();
+
+  if (!direccion) return null;
+
+  return {
+    id: generarIdDireccion(),
+    alias: "Dirección principal",
+    direccion,
+    referencia,
+    principal: true,
+    creadaEn: fechaBonita(),
+    actualizadaEn: fechaBonita(),
+  };
+}
+
+function sincronizarClienteDesdePedido(clienteBody = {}, metodoPago = "Llave") {
+  try {
+    const nombre = String(clienteBody.nombre || "").trim();
+    const telefono = String(clienteBody.telefono || "").trim();
+    const direccion = String(clienteBody.direccion || "").trim();
+    const referencia = String(clienteBody.referencia || "").trim();
+    const pago = normalizarMetodoPago(metodoPago || clienteBody?.pago || "Llave");
+
+    if (!nombre || !telefono) return;
+
+    const clientes = leerClientes();
+    const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
+
+    let cliente = clientes.find(
+      (c) => limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio
+    );
+
+    if (!cliente) {
+      const direccionPrincipal = direccion
+        ? [
+            {
+              id: generarIdDireccion(),
+              alias: "Dirección principal",
+              direccion,
+              referencia,
+              principal: true,
+              creadaEn: fechaBonita(),
+              actualizadaEn: fechaBonita(),
+            },
+          ]
+        : [];
+
+      cliente = {
+        id: generarIdCliente(),
+        nombre,
+        telefono: telefonoLimpio || telefono,
+        password: "",
+        pagoPreferido: pago,
+        direcciones: direccionPrincipal,
+        creadoEn: fechaBonita(),
+        actualizadoEn: fechaBonita(),
+      };
+
+      clientes.push(cliente);
+      guardarClientes(clientes);
+      return;
+    }
+
+    cliente.nombre = nombre || cliente.nombre;
+    cliente.telefono = telefonoLimpio || cliente.telefono;
+    cliente.pagoPreferido = pago || cliente.pagoPreferido;
+    cliente.actualizadoEn = fechaBonita();
+
+    if (direccion) {
+      if (!Array.isArray(cliente.direcciones)) {
+        cliente.direcciones = [];
+      }
+
+      let principal = cliente.direcciones.find((d) => d.principal);
+
+      if (!principal) {
+        cliente.direcciones.push({
+          id: generarIdDireccion(),
+          alias: "Dirección principal",
+          direccion,
+          referencia,
+          principal: true,
+          creadaEn: fechaBonita(),
+          actualizadaEn: fechaBonita(),
+        });
+      } else {
+        principal.direccion = direccion;
+        principal.referencia = referencia;
+        principal.actualizadaEn = fechaBonita();
+      }
+    }
+
+    guardarClientes(clientes);
+  } catch (error) {
+    console.error("❌ Error sincronizando cliente desde pedido:", error.message);
+  }
+}
+
+// ===============================
+// NOTIFICACIONES BOT
+// ===============================
 
 async function notificarBotPedido(pedido) {
   try {
@@ -321,6 +492,10 @@ async function sincronizarPedidoConSheets(pedido, accion = "actualizar") {
   }
 }
 
+// ===============================
+// SOCKET
+// ===============================
+
 io.on("connection", (socket) => {
   console.log("Cliente conectado:", socket.id);
   socket.emit("pedidos:actualizados", leerPedidos());
@@ -329,6 +504,10 @@ io.on("connection", (socket) => {
     console.log("Cliente desconectado:", socket.id);
   });
 });
+
+// ===============================
+// RUTAS BASE
+// ===============================
 
 app.get("/", (req, res) => {
   res.json({
@@ -392,6 +571,10 @@ app.get("/test-sheets", async (req, res) => {
   }
 });
 
+// ===============================
+// LOGIN ADMIN / REPARTIDOR
+// ===============================
+
 app.post("/login", (req, res) => {
   try {
     const { username, password } = req.body;
@@ -432,6 +615,471 @@ app.post("/login", (req, res) => {
   }
 });
 
+// ===============================
+// CLIENTES
+// ===============================
+
+// Registro cliente
+app.post("/clientes/registro", (req, res) => {
+  try {
+    const {
+      nombre,
+      telefono,
+      password,
+      pagoPreferido,
+      direccion,
+      referencia,
+      aliasDireccion,
+    } = req.body || {};
+
+    if (!nombre || !telefono || !password) {
+      return res.status(400).json({
+        error: "Nombre, teléfono y contraseña son obligatorios",
+      });
+    }
+
+    const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
+
+    if (!telefonoLimpio) {
+      return res.status(400).json({
+        error: "El teléfono no es válido",
+      });
+    }
+
+    const clientes = leerClientes();
+
+    const yaExiste = clientes.find(
+      (c) => limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio
+    );
+
+    if (yaExiste) {
+      return res.status(409).json({
+        error: "Ya existe un cliente registrado con ese teléfono",
+      });
+    }
+
+    const direcciones = [];
+    if (String(direccion || "").trim()) {
+      direcciones.push({
+        id: generarIdDireccion(),
+        alias: String(aliasDireccion || "Dirección principal").trim(),
+        direccion: String(direccion).trim(),
+        referencia: String(referencia || "").trim(),
+        principal: true,
+        creadaEn: fechaBonita(),
+        actualizadaEn: fechaBonita(),
+      });
+    }
+
+    const cliente = {
+      id: generarIdCliente(),
+      nombre: String(nombre).trim(),
+      telefono: telefonoLimpio,
+      password: String(password).trim(),
+      pagoPreferido: normalizarMetodoPago(pagoPreferido || "Llave"),
+      direcciones,
+      creadoEn: fechaBonita(),
+      actualizadoEn: fechaBonita(),
+    };
+
+    clientes.push(cliente);
+    guardarClientes(clientes);
+
+    return res.status(201).json({
+      ok: true,
+      cliente: sanitizarClienteParaRespuesta(cliente),
+    });
+  } catch (error) {
+    console.error("❌ Error registrando cliente:", error.message);
+    return res.status(500).json({
+      error: "Error registrando cliente",
+    });
+  }
+});
+
+// Login cliente
+app.post("/clientes/login", (req, res) => {
+  try {
+    const { telefono, password } = req.body || {};
+
+    if (!telefono || !password) {
+      return res.status(400).json({
+        error: "Teléfono y contraseña son obligatorios",
+      });
+    }
+
+    const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
+    const clientes = leerClientes();
+
+    const cliente = clientes.find(
+      (c) =>
+        limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio &&
+        String(c.password || "") === String(password).trim()
+    );
+
+    if (!cliente) {
+      return res.status(401).json({
+        error: "Credenciales incorrectas",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      cliente: sanitizarClienteParaRespuesta(cliente),
+    });
+  } catch (error) {
+    console.error("❌ Error login cliente:", error.message);
+    return res.status(500).json({
+      error: "Error en login de cliente",
+    });
+  }
+});
+
+// Obtener cliente por ID
+app.get("/clientes/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const clientes = leerClientes();
+
+    const cliente = clientes.find((c) => String(c.id) === String(id));
+
+    if (!cliente) {
+      return res.status(404).json({
+        error: "Cliente no encontrado",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      cliente: sanitizarClienteParaRespuesta(cliente),
+    });
+  } catch (error) {
+    console.error("❌ Error obteniendo cliente:", error.message);
+    return res.status(500).json({
+      error: "Error obteniendo cliente",
+    });
+  }
+});
+
+// Buscar cliente por teléfono
+app.get("/clientes/telefono/:telefono", (req, res) => {
+  try {
+    const { telefono } = req.params;
+    const cliente = buscarClientePorTelefono(telefono);
+
+    if (!cliente) {
+      return res.status(404).json({
+        error: "Cliente no encontrado",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      cliente: sanitizarClienteParaRespuesta(cliente),
+    });
+  } catch (error) {
+    console.error("❌ Error buscando cliente por teléfono:", error.message);
+    return res.status(500).json({
+      error: "Error buscando cliente",
+    });
+  }
+});
+
+// Actualizar perfil cliente
+app.patch("/clientes/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, telefono, pagoPreferido, password } = req.body || {};
+    const clientes = leerClientes();
+
+    const index = clientes.findIndex((c) => String(c.id) === String(id));
+
+    if (index === -1) {
+      return res.status(404).json({
+        error: "Cliente no encontrado",
+      });
+    }
+
+    if (telefono !== undefined) {
+      const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
+
+      if (!telefonoLimpio) {
+        return res.status(400).json({
+          error: "El teléfono no es válido",
+        });
+      }
+
+      const existeTelefonoEnOtro = clientes.find(
+        (c, i) =>
+          i !== index &&
+          limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio
+      );
+
+      if (existeTelefonoEnOtro) {
+        return res.status(409).json({
+          error: "Ya existe otro cliente con ese teléfono",
+        });
+      }
+
+      clientes[index].telefono = telefonoLimpio;
+    }
+
+    if (nombre !== undefined) {
+      clientes[index].nombre = String(nombre || "").trim();
+    }
+
+    if (pagoPreferido !== undefined) {
+      clientes[index].pagoPreferido = normalizarMetodoPago(pagoPreferido);
+    }
+
+    if (password !== undefined && String(password).trim()) {
+      clientes[index].password = String(password).trim();
+    }
+
+    clientes[index].actualizadoEn = fechaBonita();
+
+    guardarClientes(clientes);
+
+    return res.json({
+      ok: true,
+      cliente: sanitizarClienteParaRespuesta(clientes[index]),
+    });
+  } catch (error) {
+    console.error("❌ Error actualizando cliente:", error.message);
+    return res.status(500).json({
+      error: "Error actualizando cliente",
+    });
+  }
+});
+
+// ===============================
+// DIRECCIONES CLIENTE
+// ===============================
+
+// Listar direcciones
+app.get("/clientes/:id/direcciones", (req, res) => {
+  try {
+    const { id } = req.params;
+    const clientes = leerClientes();
+
+    const cliente = clientes.find((c) => String(c.id) === String(id));
+
+    if (!cliente) {
+      return res.status(404).json({
+        error: "Cliente no encontrado",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      direcciones: Array.isArray(cliente.direcciones) ? cliente.direcciones : [],
+    });
+  } catch (error) {
+    console.error("❌ Error listando direcciones:", error.message);
+    return res.status(500).json({
+      error: "Error obteniendo direcciones",
+    });
+  }
+});
+
+// Crear dirección
+app.post("/clientes/:id/direcciones", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { alias, direccion, referencia, principal } = req.body || {};
+
+    if (!direccion || !String(direccion).trim()) {
+      return res.status(400).json({
+        error: "La dirección es obligatoria",
+      });
+    }
+
+    const clientes = leerClientes();
+    const index = clientes.findIndex((c) => String(c.id) === String(id));
+
+    if (index === -1) {
+      return res.status(404).json({
+        error: "Cliente no encontrado",
+      });
+    }
+
+    if (!Array.isArray(clientes[index].direcciones)) {
+      clientes[index].direcciones = [];
+    }
+
+    if (principal) {
+      clientes[index].direcciones = clientes[index].direcciones.map((d) => ({
+        ...d,
+        principal: false,
+      }));
+    }
+
+    const nuevaDireccion = {
+      id: generarIdDireccion(),
+      alias: String(alias || `Dirección ${clientes[index].direcciones.length + 1}`).trim(),
+      direccion: String(direccion).trim(),
+      referencia: String(referencia || "").trim(),
+      principal:
+        Boolean(principal) || clientes[index].direcciones.length === 0,
+      creadaEn: fechaBonita(),
+      actualizadaEn: fechaBonita(),
+    };
+
+    clientes[index].direcciones.push(nuevaDireccion);
+    clientes[index].actualizadoEn = fechaBonita();
+
+    guardarClientes(clientes);
+
+    return res.status(201).json({
+      ok: true,
+      direcciones: clientes[index].direcciones,
+      direccion: nuevaDireccion,
+    });
+  } catch (error) {
+    console.error("❌ Error creando dirección:", error.message);
+    return res.status(500).json({
+      error: "Error creando dirección",
+    });
+  }
+});
+
+// Actualizar dirección
+app.patch("/clientes/:id/direcciones/:direccionId", (req, res) => {
+  try {
+    const { id, direccionId } = req.params;
+    const { alias, direccion, referencia, principal } = req.body || {};
+
+    const clientes = leerClientes();
+    const indexCliente = clientes.findIndex((c) => String(c.id) === String(id));
+
+    if (indexCliente === -1) {
+      return res.status(404).json({
+        error: "Cliente no encontrado",
+      });
+    }
+
+    if (!Array.isArray(clientes[indexCliente].direcciones)) {
+      clientes[indexCliente].direcciones = [];
+    }
+
+    const indexDireccion = clientes[indexCliente].direcciones.findIndex(
+      (d) => String(d.id) === String(direccionId)
+    );
+
+    if (indexDireccion === -1) {
+      return res.status(404).json({
+        error: "Dirección no encontrada",
+      });
+    }
+
+    if (principal === true) {
+      clientes[indexCliente].direcciones =
+        clientes[indexCliente].direcciones.map((d) => ({
+          ...d,
+          principal: false,
+        }));
+    }
+
+    if (alias !== undefined) {
+      clientes[indexCliente].direcciones[indexDireccion].alias = String(alias || "").trim();
+    }
+
+    if (direccion !== undefined) {
+      clientes[indexCliente].direcciones[indexDireccion].direccion = String(
+        direccion || ""
+      ).trim();
+    }
+
+    if (referencia !== undefined) {
+      clientes[indexCliente].direcciones[indexDireccion].referencia = String(
+        referencia || ""
+      ).trim();
+    }
+
+    if (principal !== undefined) {
+      clientes[indexCliente].direcciones[indexDireccion].principal =
+        Boolean(principal);
+    }
+
+    clientes[indexCliente].direcciones[indexDireccion].actualizadaEn =
+      fechaBonita();
+    clientes[indexCliente].actualizadoEn = fechaBonita();
+
+    guardarClientes(clientes);
+
+    return res.json({
+      ok: true,
+      direcciones: clientes[indexCliente].direcciones,
+      direccion: clientes[indexCliente].direcciones[indexDireccion],
+    });
+  } catch (error) {
+    console.error("❌ Error actualizando dirección:", error.message);
+    return res.status(500).json({
+      error: "Error actualizando dirección",
+    });
+  }
+});
+
+// Eliminar dirección
+app.delete("/clientes/:id/direcciones/:direccionId", (req, res) => {
+  try {
+    const { id, direccionId } = req.params;
+
+    const clientes = leerClientes();
+    const indexCliente = clientes.findIndex((c) => String(c.id) === String(id));
+
+    if (indexCliente === -1) {
+      return res.status(404).json({
+        error: "Cliente no encontrado",
+      });
+    }
+
+    if (!Array.isArray(clientes[indexCliente].direcciones)) {
+      clientes[indexCliente].direcciones = [];
+    }
+
+    const indexDireccion = clientes[indexCliente].direcciones.findIndex(
+      (d) => String(d.id) === String(direccionId)
+    );
+
+    if (indexDireccion === -1) {
+      return res.status(404).json({
+        error: "Dirección no encontrada",
+      });
+    }
+
+    const direccionEliminada = clientes[indexCliente].direcciones[indexDireccion];
+    clientes[indexCliente].direcciones.splice(indexDireccion, 1);
+
+    if (
+      direccionEliminada.principal &&
+      clientes[indexCliente].direcciones.length > 0
+    ) {
+      clientes[indexCliente].direcciones[0].principal = true;
+      clientes[indexCliente].direcciones[0].actualizadaEn = fechaBonita();
+    }
+
+    clientes[indexCliente].actualizadoEn = fechaBonita();
+
+    guardarClientes(clientes);
+
+    return res.json({
+      ok: true,
+      direcciones: clientes[indexCliente].direcciones,
+      direccionEliminada,
+    });
+  } catch (error) {
+    console.error("❌ Error eliminando dirección:", error.message);
+    return res.status(500).json({
+      error: "Error eliminando dirección",
+    });
+  }
+});
+
+// ===============================
+// PEDIDOS
+// ===============================
+
 app.post("/pedidos", (req, res) => {
   try {
     const {
@@ -443,6 +1091,8 @@ app.post("/pedidos", (req, res) => {
       metodoPago,
       referenciaPago,
       soportePago,
+      clienteId,
+      direccionId,
     } = req.body || {};
 
     if (!cliente || !cliente.nombre || !cliente.telefono || !cliente.direccion) {
@@ -475,6 +1125,8 @@ app.post("/pedidos", (req, res) => {
       fechaPago:
         String(estadoPagoInicial).toLowerCase() === "pagado" ? fechaBonita() : "",
       repartidor: "",
+      clienteId: clienteId ? String(clienteId).trim() : "",
+      direccionId: direccionId ? String(direccionId).trim() : "",
       cliente: {
         nombre: String(cliente.nombre || "").trim(),
         telefono: String(cliente.telefono || "").trim(),
@@ -490,6 +1142,9 @@ app.post("/pedidos", (req, res) => {
 
     pedidos.push(nuevoPedido);
     guardarPedidos(pedidos);
+
+    // sincronizar cliente si existe por teléfono o si viene como nuevo
+    sincronizarClienteDesdePedido(nuevoPedido.cliente, metodoPagoFinal);
 
     emitirActualizacionPedidos();
     io.emit("pedido:nuevo", nuevoPedido);
@@ -851,8 +1506,13 @@ app.get("/pedidos-repartidor/:nombre", (req, res) => {
   }
 });
 
+// ===============================
+// INICIO
+// ===============================
+
 server.listen(PORT, async () => {
   asegurarArchivoPedidos();
+  asegurarArchivoClientes();
 
   try {
     await ensureSheetExists();

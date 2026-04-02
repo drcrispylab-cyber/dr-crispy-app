@@ -282,6 +282,35 @@ function App() {
     pago: "Llave",
   });
 
+  const [clienteSesion, setClienteSesion] = useState(() => {
+    try {
+      const guardado = localStorage.getItem("dr_cliente_sesion");
+      return guardado ? JSON.parse(guardado) : null;
+    } catch (error) {
+      return null;
+    }
+  });
+  const [clienteAuthModo, setClienteAuthModo] = useState("login");
+  const [clienteLoginData, setClienteLoginData] = useState({
+    telefono: "",
+    password: "",
+  });
+  const [clienteRegistroData, setClienteRegistroData] = useState({
+    nombre: "",
+    telefono: "",
+    password: "",
+    direccion: "",
+    referencia: "",
+    aliasDireccion: "Casa",
+    pagoPreferido: "Llave",
+  });
+  const [direccionesCliente, setDireccionesCliente] = useState([]);
+  const [direccionSeleccionadaId, setDireccionSeleccionadaId] = useState("");
+  const [usarOtraDireccion, setUsarOtraDireccion] = useState(false);
+  const [cargandoClienteAuth, setCargandoClienteAuth] = useState(false);
+  const [guardandoDireccionCliente, setGuardandoDireccionCliente] = useState(false);
+
+
   const [pedidos, setPedidos] = useState([]);
   const [pedidosRepartidor, setPedidosRepartidor] = useState([]);
 
@@ -337,7 +366,7 @@ function App() {
   const audioRef = useRef(null);
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
-  const [upsellPapasAbierto, setUpsellPapasAbierto] = useState(false);
+
   const [drawerCarritoAbierto, setDrawerCarritoAbierto] = useState(false);
 
   const [salsaSeleccionAnimando, setSalsaSeleccionAnimando] = useState("");
@@ -356,7 +385,6 @@ function App() {
     function handleResize() {
       setAncho(window.innerWidth);
     }
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -408,6 +436,30 @@ function App() {
     }, 2200);
   }
 
+    const anchoToast = Math.min(420, window.innerWidth - 32);
+    const mitad = anchoToast / 2;
+
+    if (x < mitad + 16) x = mitad + 16;
+    if (x > window.innerWidth - mitad - 16) {
+      x = window.innerWidth - mitad - 16;
+    }
+
+    setToast({
+      visible: true,
+      texto,
+      x,
+      y,
+    });
+
+    toastTimerRef.current = setTimeout(() => {
+      setToast((prev) => ({
+        ...prev,
+        visible: false,
+        texto: "",
+      }));
+    }, 2200);
+  }
+
   function limpiarCliente() {
     setCliente({
       nombre: "",
@@ -418,20 +470,249 @@ function App() {
     });
   }
 
-  function getCartKey(producto) {
-    if (producto.esCombo) {
-      return `${producto.id}-combo`;
+  function guardarSesionCliente(clienteData) {
+    setClienteSesion(clienteData);
+    localStorage.setItem("dr_cliente_sesion", JSON.stringify(clienteData));
+  }
+
+  function limpiarSesionCliente() {
+    setClienteSesion(null);
+    setDireccionesCliente([]);
+    setDireccionSeleccionadaId("");
+    setUsarOtraDireccion(false);
+    localStorage.removeItem("dr_cliente_sesion");
+  }
+
+  function obtenerDireccionPrincipalLocal(clienteData) {
+    const direcciones = Array.isArray(clienteData?.direcciones)
+      ? clienteData.direcciones
+      : [];
+    return direcciones.find((item) => item.principal) || direcciones[0] || null;
+  }
+
+  function aplicarClienteAlFormulario(clienteData, opciones = {}) {
+    const { mantenerDireccionManual = false } = opciones;
+    const direccionPrincipal = obtenerDireccionPrincipalLocal(clienteData);
+
+    setDireccionesCliente(Array.isArray(clienteData?.direcciones) ? clienteData.direcciones : []);
+    setDireccionSeleccionadaId(direccionPrincipal?.id || "");
+
+    setCliente((prev) => ({
+      ...prev,
+      nombre: clienteData?.nombre || prev.nombre,
+      telefono: clienteData?.telefono || prev.telefono,
+      direccion:
+        mantenerDireccionManual || usarOtraDireccion
+          ? prev.direccion
+          : direccionPrincipal?.direccion || prev.direccion,
+      referencia:
+        mantenerDireccionManual || usarOtraDireccion
+          ? prev.referencia
+          : direccionPrincipal?.referencia || prev.referencia,
+      pago: clienteData?.pagoPreferido || prev.pago || "Llave",
+    }));
+  }
+
+  async function cargarPerfilCliente(clienteId, opciones = {}) {
+    try {
+      const response = await fetch(`${API_URL}/clientes/${clienteId}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo cargar el perfil del cliente");
+      }
+
+      guardarSesionCliente(data.cliente);
+      aplicarClienteAlFormulario(data.cliente, opciones);
+      return data.cliente;
+    } catch (error) {
+      mostrarMensaje("error", error.message);
+      return null;
     }
+  }
+
+  async function iniciarSesionCliente() {
+    if (!clienteLoginData.telefono.trim() || !clienteLoginData.password.trim()) {
+      mostrarMensaje("error", "Completa teléfono y contraseña.");
+      return;
+    }
+
+    try {
+      setCargandoClienteAuth(true);
+
+      const response = await fetch(`${API_URL}/clientes/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(clienteLoginData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo iniciar sesión");
+      }
+
+      guardarSesionCliente(data.cliente);
+      aplicarClienteAlFormulario(data.cliente);
+      setClienteAuthModo("perfil");
+      mostrarMensaje("ok", `Bienvenido de nuevo, ${data.cliente.nombre}`);
+    } catch (error) {
+      mostrarMensaje("error", error.message);
+    } finally {
+      setCargandoClienteAuth(false);
+    }
+  }
+
+  async function registrarCliente() {
+    const payload = {
+      nombre: clienteRegistroData.nombre.trim() || cliente.nombre.trim(),
+      telefono: clienteRegistroData.telefono.trim() || cliente.telefono.trim(),
+      password: clienteRegistroData.password.trim(),
+      direccion: clienteRegistroData.direccion.trim() || cliente.direccion.trim(),
+      referencia:
+        clienteRegistroData.referencia.trim() || cliente.referencia.trim(),
+      aliasDireccion: clienteRegistroData.aliasDireccion.trim() || "Casa",
+      pagoPreferido: clienteRegistroData.pagoPreferido || cliente.pago || "Llave",
+    };
+
+    if (!payload.nombre || !payload.telefono || !payload.password) {
+      mostrarMensaje("error", "Completa nombre, teléfono y contraseña.");
+      return;
+    }
+
+    try {
+      setCargandoClienteAuth(true);
+
+      const response = await fetch(`${API_URL}/clientes/registro`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo registrar el cliente");
+      }
+
+      guardarSesionCliente(data.cliente);
+      aplicarClienteAlFormulario(data.cliente);
+      setClienteAuthModo("perfil");
+      setClienteLoginData({
+        telefono: payload.telefono,
+        password: payload.password,
+      });
+
+      mostrarMensaje("ok", "Perfil creado correctamente. Tus datos quedaron guardados.");
+    } catch (error) {
+      mostrarMensaje("error", error.message);
+    } finally {
+      setCargandoClienteAuth(false);
+    }
+  }
+
+  async function guardarDireccionActualCliente() {
+    if (!clienteSesion?.id) {
+      mostrarMensaje("error", "Primero inicia sesión como cliente.");
+      return;
+    }
+
+    if (!cliente.direccion.trim()) {
+      mostrarMensaje("error", "Escribe la dirección actual antes de guardarla.");
+      return;
+    }
+
+    try {
+      setGuardandoDireccionCliente(true);
+
+      const response = await fetch(
+        `${API_URL}/clientes/${clienteSesion.id}/direcciones`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            alias:
+              clienteRegistroData.aliasDireccion.trim() ||
+              `Dirección ${direccionesCliente.length + 1}`,
+            direccion: cliente.direccion.trim(),
+            referencia: cliente.referencia.trim(),
+            principal: direccionesCliente.length === 0,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo guardar la dirección");
+      }
+
+      const perfilActualizado = await cargarPerfilCliente(clienteSesion.id, {
+        mantenerDireccionManual: false,
+      });
+
+      if (perfilActualizado) {
+        mostrarMensaje("ok", "Dirección guardada en tu perfil.");
+        setUsarOtraDireccion(false);
+      }
+    } catch (error) {
+      mostrarMensaje("error", error.message);
+    } finally {
+      setGuardandoDireccionCliente(false);
+    }
+  }
+
+  function usarDireccionGuardada(direccionId) {
+    setDireccionSeleccionadaId(direccionId);
+    const direccion = direccionesCliente.find((item) => item.id === direccionId);
+    if (!direccion) return;
+
+    setUsarOtraDireccion(false);
+    setCliente((prev) => ({
+      ...prev,
+      direccion: direccion.direccion || "",
+      referencia: direccion.referencia || "",
+    }));
+  }
+
+  function cerrarSesionCliente() {
+    limpiarSesionCliente();
+    limpiarCliente();
+    setClienteLoginData({ telefono: "", password: "" });
+    setClienteRegistroData({
+      nombre: "",
+      telefono: "",
+      password: "",
+      direccion: "",
+      referencia: "",
+      aliasDireccion: "Casa",
+      pagoPreferido: "Llave",
+    });
+    setClienteAuthModo("login");
+    mostrarMensaje("ok", "Sesión de cliente cerrada.");
+  }
+
+
+  function getCartKey(producto) {
+  if (producto.esCombo) {
+    return `${producto.id}-combo`;
+  }
 
     return `${producto.id}-${producto.salsa || "sin-salsa"}`;
   }
 
   function formatearDetalleCombo(detalleCombo = []) {
-    return detalleCombo.map((item) => {
-      const salsa = item.salsa ? ` • ${item.salsa}` : "";
-      return `${item.nombre} x${item.cantidad}${salsa}`;
-    });
-  }
+  return detalleCombo.map((item) => {
+    const salsa = item.salsa ? ` • ${item.salsa}` : "";
+    return `${item.nombre} x${item.cantidad}${salsa}`;
+  });
+}
 
   function agregarProducto(producto, target) {
     const key = getCartKey(producto);
@@ -495,80 +776,90 @@ function App() {
     }
   }
 
-  function agregarPapasAdicional(target = null) {
-    agregarProducto(
+  function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
+      const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+      const cartKey = `${combo.id}-combo-${salsaFinal}`;
+
+      setCarrito((prev) => {
+        const existente = prev.find((item) => item.cartKey === cartKey);
+
+        if (existente) {
+          return prev.map((item) =>
+            item.cartKey === cartKey
+              ? { ...item, cantidad: item.cantidad + 1 }
+              : item
+          );
+        }
+
+        return [
+          ...prev,
+          {
+            id: combo.id,
+            nombre: combo.nombre,
+            descripcion: combo.descripcion,
+            precio: combo.precio,
+            cantidad: 1,
+            cartKey,
+            esCombo: true,
+            badge: combo.badge,
+            emoji: combo.emoji,
+            salsa: salsaFinal,
+            experimento: "Combos del Lab",
+            categoriaExperimento: "Combos del Lab",
+            detalleCombo: combo.itemsInternos.map((item) => {
+              if (item.nombre.toLowerCase().includes("alitas")) {
+                return {
+                  ...item,
+                  salsa: salsaFinal,
+                };
+              }
+
+              return { ...item };
+            }),
+          },
+        ];
+      });
+
+      setCarritoAnimando(true);
+      setTimeout(() => setCarritoAnimando(false), 650);
+
+      mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
+    }
+
+    return [
+      ...prev,
       {
-        id: "papas-adicional",
-        nombre: "Papas fritas",
-        descripcion: "Adicional del laboratorio",
-        precio: 5000,
-        emoji: "🍟",
-        categoria: "adicionales",
+        id: combo.id,
+        nombre: combo.nombre,
+        descripcion: combo.descripcion,
+        precio: combo.precio,
+        cantidad: 1,
+        cartKey,
+        esCombo: true,
+        badge: combo.badge,
+        emoji: combo.emoji,
+        salsa: salsaFinal,
+        experimento: "Combos del Lab",
+        categoriaExperimento: "Combos del Lab",
+        detalleCombo: combo.itemsInternos.map((item) => {
+          if (item.nombre.toLowerCase().includes("alitas")) {
+            return {
+              ...item,
+              salsa: salsaFinal,
+            };
+          }
+
+          return { ...item };
+        }),
       },
-      target
-    );
+    ];
+  ;
 
-    setUpsellPapasAbierto(false);
-  }
-
-  function agregarCombo(
-    combo,
-    target = null,
-    salsaSeleccionada = "BBQ Reactor"
-  ) {
-    const salsaFinal = salsaSeleccionada || "BBQ Reactor";
-    const cartKey = `${combo.id}-combo-${salsaFinal}`;
-
-    setCarrito((prev) => {
-      const existente = prev.find((item) => item.cartKey === cartKey);
-
-      if (existente) {
-        return prev.map((item) =>
-          item.cartKey === cartKey
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        );
-      }
-
-      return [
-        ...prev,
-        {
-          id: combo.id,
-          nombre: combo.nombre,
-          descripcion: combo.descripcion,
-          precio: combo.precio,
-          cantidad: 1,
-          cartKey,
-          esCombo: true,
-          badge: combo.badge,
-          emoji: combo.emoji,
-          salsa: salsaFinal,
-          experimento: "Combos del Lab",
-          categoriaExperimento: "Combos del Lab",
-          detalleCombo: combo.itemsInternos.map((item) => {
-            if (item.nombre.toLowerCase().includes("alitas")) {
-              return {
-                ...item,
-                salsa: salsaFinal,
-              };
-            }
-
-            return { ...item };
-          }),
-        },
-      ];
-    });
-
-    setCarritoAnimando(true);
-    setTimeout(() => setCarritoAnimando(false), 650);
-
-    mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-    setUpsellPapasAbierto(true);
-  }
-
-  function prepararCombo(combo, target = null) {
-    setComboPendiente({ combo, target });
-  }
+function prepararCombo(combo, target = null) {
+  setComboPendiente({ combo, target });
+}
+  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
+    
 
   function seleccionarSalsa(producto, salsa, target) {
     if (salsa.nombre === "Fuego Atómico") {
@@ -814,7 +1105,13 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          cliente: clienteLimpio,
+          cliente: {
+            ...clienteLimpio,
+            id: clienteSesion?.id || "",
+            aliasDireccion:
+              direccionesCliente.find((item) => item.id === direccionSeleccionadaId)?.alias ||
+              "",
+          },
           items: carrito,
           subtotal,
           domicilio,
@@ -853,7 +1150,11 @@ function App() {
       mostrarToast("🎉 Tu pedido fue confirmado correctamente");
 
       setCarrito([]);
-      limpiarCliente();
+      if (clienteSesion?.id) {
+        await cargarPerfilCliente(clienteSesion.id);
+      } else {
+        limpiarCliente();
+      }
 
       setVista("seguimiento");
 
@@ -1219,6 +1520,14 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (clienteSesion?.id) {
+      cargarPerfilCliente(clienteSesion.id);
+      setClienteAuthModo("perfil");
+    }
+  }, []);
+
+
+  useEffect(() => {
     const aplicarVistaSegunHash = () => {
       const hash = window.location.hash.toLowerCase();
 
@@ -1329,15 +1638,7 @@ function App() {
         >
           <div style={styles.comboTopRow}>
             <div style={styles.comboEmoji}>{combo.emoji}</div>
-            <div
-              style={{
-                ...styles.comboBadge,
-                ...(combo.badge === "MÁS PEDIDO" ? styles.comboBadgeFeatured : {}),
-              }}
-            >
-              {combo.badge === "MÁS PEDIDO" ? "🔥 MÁS PEDIDO" : combo.badge}
-            </div>          
-
+            <div style={styles.comboBadge}>{combo.badge}</div>
           </div>
 
           <h3 style={styles.comboTitle}>{combo.nombre}</h3>
@@ -1354,12 +1655,7 @@ function App() {
           <div style={styles.comboFooter}>
             <div>
               <div style={styles.comboMiniLabel}>Domicilio incluido</div>
-              <div
-                  style={{
-                    ...styles.comboPrice,
-                    ...(combo.badge === "MÁS PEDIDO" ? styles.comboPriceFeatured : {}),
-                  }}
-                >
+              <div style={styles.comboPrice}>
                 ${combo.precio.toLocaleString("es-CO")}
               </div>
             </div>
@@ -1367,10 +1663,7 @@ function App() {
 
           <button
             type="button"
-            style={{
-              ...styles.comboBtn,
-              ...(combo.badge === "MÁS PEDIDO" ? styles.comboBtnFeatured : {}),
-            }}
+            style={styles.comboBtn}
             onClick={() => setComboPendiente({ combo, target: null })}
           >
             Elegir salsa y pedir
@@ -1406,8 +1699,8 @@ function App() {
 
           <div style={styles.heroUrgencyWrap}>
             <div style={styles.heroUrgencyPill}>🚚 Domicilio incluido</div>
-            <div style={styles.heroUrgencyPill}>🍗 Alitas crispy premium</div>
             <div style={styles.heroUrgencyPill}>🔥 Combos más pedidos</div>
+            <div style={styles.heroUrgencyPill}>⚡ Pide en minutos</div>
           </div>
 
           <div style={styles.heroActionRow}>
@@ -1490,7 +1783,8 @@ function App() {
           <div style={styles.menuInteractiveBadge}>🧬 CATÁLOGO DEL LAB</div>
           <h2 style={styles.catalogTitle}>ELIGE TU EXPERIMENTO</h2>
           <p style={styles.catalogText}>
-            Elige lo que quieres pedir hoy. El Experimento 1 está activo y listo para despacho.
+            El Experimento 1 ya está activo. Los siguientes se están preparando
+            en el laboratorio.
           </p>
         </div>
 
@@ -1807,6 +2101,218 @@ function App() {
           <div style={styles.panel}>
             <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
 
+            <div
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 18,
+                padding: 16,
+                marginBottom: 18,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                <div>
+                  <div style={styles.menuInteractiveBadge}>👤 PERFIL DE CLIENTE</div>
+                  <div style={{ color: "#d8d8d8", marginTop: 6 }}>
+                    Guarda tus datos para pedir más rápido y reutilizar direcciones.
+                  </div>
+                </div>
+
+                {clienteSesion?.id ? (
+                  <button style={styles.secondaryBtn} onClick={cerrarSesionCliente}>
+                    Cerrar sesión
+                  </button>
+                ) : (
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      style={{
+                        ...styles.secondaryBtn,
+                        ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
+                      }}
+                      onClick={() => setClienteAuthModo("login")}
+                    >
+                      Ingresar
+                    </button>
+                    <button
+                      style={{
+                        ...styles.secondaryBtn,
+                        ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
+                      }}
+                      onClick={() => setClienteAuthModo("registro")}
+                    >
+                      Crear perfil
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {clienteSesion?.id ? (
+                <div style={{ marginTop: 14 }}>
+                  <div style={{ color: "#fff", fontWeight: "bold", marginBottom: 8 }}>
+                    Sesión activa: {clienteSesion.nombre}
+                  </div>
+                  <div style={{ color: "#cfcfcf", marginBottom: 12 }}>
+                    Teléfono: {clienteSesion.telefono}
+                  </div>
+
+                  {direccionesCliente.length > 0 && (
+                    <div style={{ marginBottom: 14 }}>
+                      <label style={styles.label}>Dirección guardada</label>
+                      <select
+                        style={styles.input}
+                        value={direccionSeleccionadaId}
+                        onChange={(e) => usarDireccionGuardada(e.target.value)}
+                        disabled={usarOtraDireccion}
+                      >
+                        {direccionesCliente.map((direccion) => (
+                          <option key={direccion.id} value={direccion.id}>
+                            {direccion.alias} — {direccion.direccion}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <button
+                      style={styles.secondaryBtn}
+                      onClick={() => setUsarOtraDireccion((prev) => !prev)}
+                    >
+                      {usarOtraDireccion ? "Usar dirección guardada" : "Pedir a otra dirección hoy"}
+                    </button>
+
+                    <button
+                      style={{
+                        ...styles.secondaryBtn,
+                        ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
+                      }}
+                      onClick={guardarDireccionActualCliente}
+                      disabled={guardandoDireccionCliente}
+                    >
+                      {guardandoDireccionCliente ? "Guardando..." : "Guardar dirección actual"}
+                    </button>
+                  </div>
+                </div>
+              ) : clienteAuthModo === "login" ? (
+                <div style={{ marginTop: 14 }}>
+                  <Input
+                    label="Teléfono registrado"
+                    value={clienteLoginData.telefono}
+                    onChange={(e) =>
+                      setClienteLoginData((prev) => ({
+                        ...prev,
+                        telefono: e.target.value,
+                      }))
+                    }
+                  />
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={styles.label}>Contraseña</label>
+                    <input
+                      type="password"
+                      style={styles.input}
+                      value={clienteLoginData.password}
+                      onChange={(e) =>
+                        setClienteLoginData((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <button
+                    style={{
+                      ...styles.confirmBtn,
+                      marginTop: 0,
+                      ...(cargandoClienteAuth ? styles.disabledBtn : {}),
+                    }}
+                    onClick={iniciarSesionCliente}
+                    disabled={cargandoClienteAuth}
+                  >
+                    {cargandoClienteAuth ? "Ingresando..." : "Ingresar con mi perfil"}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ marginTop: 14 }}>
+                  <Input
+                    label="Nombre"
+                    value={clienteRegistroData.nombre}
+                    onChange={(e) =>
+                      setClienteRegistroData((prev) => ({
+                        ...prev,
+                        nombre: e.target.value,
+                      }))
+                    }
+                  />
+                  <Input
+                    label="Teléfono"
+                    value={clienteRegistroData.telefono}
+                    onChange={(e) =>
+                      setClienteRegistroData((prev) => ({
+                        ...prev,
+                        telefono: e.target.value,
+                      }))
+                    }
+                  />
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={styles.label}>Contraseña</label>
+                    <input
+                      type="password"
+                      style={styles.input}
+                      value={clienteRegistroData.password}
+                      onChange={(e) =>
+                        setClienteRegistroData((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <Input
+                    label="Dirección principal"
+                    value={clienteRegistroData.direccion}
+                    onChange={(e) =>
+                      setClienteRegistroData((prev) => ({
+                        ...prev,
+                        direccion: e.target.value,
+                      }))
+                    }
+                  />
+                  <Input
+                    label="Referencia"
+                    value={clienteRegistroData.referencia}
+                    onChange={(e) =>
+                      setClienteRegistroData((prev) => ({
+                        ...prev,
+                        referencia: e.target.value,
+                      }))
+                    }
+                  />
+                  <Input
+                    label="Alias de dirección"
+                    value={clienteRegistroData.aliasDireccion}
+                    onChange={(e) =>
+                      setClienteRegistroData((prev) => ({
+                        ...prev,
+                        aliasDireccion: e.target.value,
+                      }))
+                    }
+                  />
+
+                  <button
+                    style={{
+                      ...styles.confirmBtn,
+                      marginTop: 0,
+                      ...(cargandoClienteAuth ? styles.disabledBtn : {}),
+                    }}
+                    onClick={registrarCliente}
+                    disabled={cargandoClienteAuth}
+                  >
+                    {cargandoClienteAuth ? "Creando perfil..." : "Crear perfil y guardar datos"}
+                  </button>
+                </div>
+              )}
+            </div>
+
             <Input
               label="Nombre"
               value={cliente.nombre}
@@ -1821,11 +2327,13 @@ function App() {
               label="Dirección"
               value={cliente.direccion}
               onChange={(e) => actualizarCliente("direccion", e.target.value)}
+              disabled={Boolean(clienteSesion?.id && direccionesCliente.length > 0 && !usarOtraDireccion)}
             />
             <Input
               label="Referencia"
               value={cliente.referencia}
               onChange={(e) => actualizarCliente("referencia", e.target.value)}
+              disabled={Boolean(clienteSesion?.id && direccionesCliente.length > 0 && !usarOtraDireccion)}
             />
 
             <div style={{ marginBottom: 14 }}>
@@ -1948,36 +2456,34 @@ function App() {
               ))
             )}
 
-             {carrito.some((item) => item.categoria === "formulas" || item.esCombo) && (
-              <div style={styles.upsellBox}>
-                <div style={styles.upsellTextWrap}>
-                  <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
-                  <div style={styles.upsellText}>
-                    Súmale una porción por solo $4.000 más
-                  </div>
+                        <div style={styles.upsellBox}>
+              <div style={styles.upsellTextWrap}>
+                <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+                <div style={styles.upsellText}>
+                  Súmale una porción por solo $4.000 más
                 </div>
-
-                <button
-                  type="button"
-                  style={styles.upsellBtn}
-                  onClick={(e) =>
-                    agregarProducto(
-                      {
-                        id: "upsell-papas-4000",
-                        nombre: "Papas fritas promo",
-                        descripcion: "Upsell del laboratorio",
-                        precio: 4000,
-                        emoji: "🍟",
-                        categoria: "adicionales",
-                      },
-                      e.currentTarget
-                    )
-                  }
-                >
-                  Agregar
-                </button>
               </div>
-            )}
+
+              <button
+                type="button"
+                style={styles.upsellBtn}
+                onClick={(e) =>
+                  agregarProducto(
+                    {
+                      id: "upsell-papas-4000",
+                      nombre: "Papas fritas promo",
+                      descripcion: "Upsell del laboratorio",
+                      precio: 4000,
+                      emoji: "🍟",
+                      categoria: "adicionales",
+                    },
+                    e.currentTarget
+                  )
+                }
+              >
+                Agregar
+              </button>
+            </div>
 
             <div style={styles.summaryBox}>
               <div style={styles.summaryRow}>
@@ -2185,60 +2691,7 @@ function App() {
           </div>
         </div>
       )}
-      {upsellPapasAbierto && (
-  <div
-    style={styles.modalBackdrop}
-    onClick={() => setUpsellPapasAbierto(false)}
-  >
-    <div style={styles.upsellModalCard} onClick={(e) => e.stopPropagation()}>
-      <div style={styles.modalTop}>
-        <div>
-          <div style={styles.menuInteractiveBadge}>🍟 MEJORA TU PEDIDO</div>
-          <h2 style={styles.modalTitle}>Agrégale papas</h2>
-          <p style={styles.modalSubtitle}>
-            Suma una porción adicional de papas fritas por solo $5.000.
-          </p>
-        </div>
 
-        <button
-          style={styles.modalCloseBtn}
-          onClick={() => setUpsellPapasAbierto(false)}
-        >
-          ✕
-        </button>
-      </div>
-
-      <div style={styles.upsellModalBox}>
-        <div style={styles.upsellModalEmoji}>🍟</div>
-
-        <div style={{ flex: 1 }}>
-          <div style={styles.upsellModalTitle}>Papas fritas adicional</div>
-          <div style={styles.upsellModalText}>
-            Más contundente, más antojo y mejor ticket promedio.
-          </div>
-        </div>
-
-        <div style={styles.upsellModalPrice}>$5.000</div>
-      </div>
-
-      <div style={styles.upsellModalActions}>
-        <button
-          style={styles.heroPrimaryBtn}
-          onClick={(e) => agregarPapasAdicional(e.currentTarget)}
-        >
-          Sí, agregar papas
-        </button>
-
-        <button
-          style={styles.heroSecondaryBtn}
-          onClick={() => setUpsellPapasAbierto(false)}
-        >
-          No gracias
-        </button>
-      </div>
-    </div>
-  </div>
-)}
       {formulaSeleccionada && (
         <div
           style={styles.modalBackdrop}
@@ -2620,7 +3073,6 @@ function App() {
                   ))}
                 </div>
 
-                {carrito.some((item) => item.categoria === "formulas" || item.esCombo) && (
                 <div style={styles.upsellBox}>
                   <div style={styles.upsellTextWrap}>
                     <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
@@ -2649,7 +3101,6 @@ function App() {
                     Agregar
                   </button>
                 </div>
-              )}
 
                 <div style={styles.summaryBox}>
                   <div style={styles.summaryRow}>
@@ -3482,16 +3933,30 @@ function App() {
             )}
           </section>
         )}
-           </div>
+      </div>
     </div>
   );
-}
 
-function Input({ label, value, onChange }) {
+
+function Input({ label, value, onChange, disabled = false }) {
   return (
     <div style={{ marginBottom: 14 }}>
       <label style={styles.label}>{label}</label>
-      <input style={styles.input} value={value} onChange={onChange} />
+      <input
+        style={{
+          ...styles.input,
+          ...(disabled
+            ? {
+                opacity: 0.72,
+                cursor: "not-allowed",
+                background: "#121212",
+              }
+            : {}),
+        }}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+      />
     </div>
   );
 }
@@ -3505,25 +3970,6 @@ const styles = {
     fontFamily: '"Inter", sans-serif',
     position: "relative",
   },
-
-    comboBtn: {
-    width: "100%",
-    background: "linear-gradient(135deg, #ff1200, #c30000)",
-    color: "#fff",
-    border: "none",
-    padding: "15px 16px",
-    borderRadius: 14,
-    cursor: "pointer",
-    fontWeight: "bold",
-    fontSize: 15,
-    boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
-  },
-  comboBtnFeatured: {
-    background: "linear-gradient(135deg, #ffcf33, #ff9f0a)",
-    color: "#111",
-    boxShadow: "0 14px 28px rgba(255, 180, 0, 0.22)",
-  },
-
   overlay: {
     position: "fixed",
     inset: 0,
@@ -3533,66 +3979,12 @@ const styles = {
       "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
     backgroundSize: "30px 30px",
   },
-    container: {
-    minHeight: "100vh",
-    background: "#0b0b0b",
-    color: "#fff",
-    padding: "20px 16px 100px",
-  },
-    upsellModalCard: {
-    width: "100%",
-    maxWidth: 560,
-    background:
-      "radial-gradient(circle at top right, rgba(255,209,102,0.10), transparent 26%), linear-gradient(180deg, rgba(20,20,20,0.98), rgba(8,8,8,0.99))",
-    border: "1px solid rgba(255,209,102,0.18)",
-    borderRadius: 24,
-    padding: 22,
-    boxShadow: "0 30px 90px rgba(0,0,0,0.56)",
-    animation: "modalPopIn 0.24s ease",
-  },
-  upsellModalBox: {
-    display: "flex",
-    alignItems: "center",
-    gap: 16,
-    background:
-      "radial-gradient(circle at top right, rgba(255,209,102,0.08), transparent 24%), rgba(255,255,255,0.03)",
-    border: "1px solid rgba(255,209,102,0.16)",
-    borderRadius: 18,
-    padding: 18,
-    marginTop: 8,
-  },
-  upsellModalEmoji: {
-    fontSize: 42,
-    flexShrink: 0,
-  },
-  upsellModalTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    fontFamily: '"Bebas Neue", sans-serif',
-    letterSpacing: 1,
-    lineHeight: 1,
-    textTransform: "uppercase",
-  },
-  upsellModalText: {
-    color: "#d3d3d3",
-    fontSize: 14,
-    lineHeight: 1.5,
-    marginTop: 6,
-  },
-  upsellModalPrice: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#ffd166",
-    textShadow: "0 0 16px rgba(255,209,102,0.18)",
-    flexShrink: 0,
-  },
-  upsellModalActions: {
-    display: "flex",
-    gap: 12,
-    justifyContent: "flex-end",
-    flexWrap: "wrap",
-    marginTop: 20,
+  container: {
+    maxWidth: 1360,
+    margin: "0 auto",
+    padding: 24,
+    position: "relative",
+    zIndex: 2,
   },
   header: {
     display: "flex",
@@ -3667,14 +4059,17 @@ const styles = {
     border: "1px solid #ff0000",
   },
   labHero: {
-  display: "grid",
-  gap: 28,
-  marginBottom: 24,
-  background: "#121212",
-  border: "1px solid rgba(255,255,255,0.04)",
-  borderRadius: 26,
-  padding: 36,
-},
+    display: "grid",
+    gap: 32,
+    marginBottom: 24,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 28%), linear-gradient(180deg, rgba(17,17,17,0.96), rgba(10,10,10,0.98))",
+    border: "1px solid rgba(255,255,255,0.05)",
+    borderRadius: 24,
+    padding: 36,
+    boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
+    overflow: "hidden",
+  },
   labHeroContent: {
     display: "flex",
     flexDirection: "column",
@@ -3688,22 +4083,22 @@ const styles = {
     fontSize: 15,
   },
   labHeroTitle: {
-  margin: 0,
-  fontSize: 86,
-  lineHeight: 0.9,
-  color: "#fff",
-  textTransform: "uppercase",
-  fontFamily: '"Bebas Neue", sans-serif',
-  letterSpacing: 1.2,
-  textShadow: "0 8px 24px rgba(0,0,0,0.35)",
-  maxWidth: 760,
-},
+    margin: 0,
+    fontSize: 74,
+    lineHeight: 0.9,
+    color: "#fff",
+    textTransform: "uppercase",
+    fontFamily: '"Bebas Neue", sans-serif',
+    letterSpacing: 1.2,
+    textShadow: "0 8px 24px rgba(0,0,0,0.35)",
+    maxWidth: 760,
+  },
   labHeroText: {
-  color: "#d8d8d8",
-  lineHeight: 1.8,
-  maxWidth: 560,
-  fontSize: 18,
-  marginTop: 18,
+    color: "#d2d2d2",
+    lineHeight: 1.85,
+    maxWidth: 620,
+    fontSize: 17,
+    marginTop: 18,
   },
   heroUrgencyWrap: {
     display: "flex",
@@ -3727,22 +4122,22 @@ const styles = {
     marginTop: 26,
   },
   heroPrimaryBtn: {
-  background: "linear-gradient(135deg, #ff0000, #b30000)",
-  color: "#fff",
-  border: "none",
-  padding: "16px 22px",
-  borderRadius: 14,
-  cursor: "pointer",
-  fontWeight: "bold",
-  fontSize: 15,
-  boxShadow: "0 14px 26px rgba(255,0,0,0.18)",
-},
+    background: "linear-gradient(135deg, #ff0000, #b30000)",
+    color: "#fff",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: 12,
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: 15,
+    boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
+  },
   heroSecondaryBtn: {
     background: "#151515",
     color: "#fff",
     border: "1px solid #2f2f2f",
-    padding: "16px 22px",
-    borderRadius: 14,
+    padding: "15px 22px",
+    borderRadius: 12,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
@@ -3769,13 +4164,6 @@ const styles = {
     position: "relative",
     overflow: "hidden",
   },
-
-    comboPriceFeatured: {
-    color: "#ffcf33",
-    fontSize: 44,
-    textShadow: "0 0 18px rgba(255, 200, 0, 0.25)",
-  },
-
   reactorGlow: {
     position: "absolute",
     width: 240,
@@ -4868,21 +5256,22 @@ const styles = {
     gap: 18,
   },
   comboCard: {
-  position: "relative",
-  background: "#151515",
-  border: "1px solid rgba(255,255,255,0.05)",
-  borderRadius: 22,
-  padding: 20,
-  boxShadow: "0 12px 24px rgba(0,0,0,0.25)",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-},
+    position: "relative",
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 28%), linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 20,
+    padding: 18,
+    boxShadow: "0 16px 30px rgba(0,0,0,0.20)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
   comboCardFeatured: {
-  border: "1px solid rgba(255,180,0,0.34)",
-  boxShadow: "0 24px 48px rgba(255,140,0,0.18)",
-  transform: "translateY(-6px) scale(1.01)",
-},
+    border: "1px solid rgba(255,0,0,0.34)",
+    boxShadow: "0 20px 40px rgba(255,0,0,0.18)",
+    transform: "translateY(-4px)",
+  },
   comboTopRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -4902,17 +5291,9 @@ const styles = {
     fontSize: 11,
     letterSpacing: 1,
   },
-
-    comboBadgeFeatured: {
-    background: "linear-gradient(135deg, #ffcf33, #ff8c00)",
-    color: "#111",
-    boxShadow: "0 10px 20px rgba(255, 180, 0, 0.25)",
-    transform: "scale(1.05)",
-  },
-
   comboTitle: {
     margin: "0 0 8px 0",
-    fontSize: 42,
+    fontSize: 36,
     color: "#fff",
     textTransform: "uppercase",
     fontFamily: '"Bebas Neue", sans-serif',
@@ -4920,16 +5301,15 @@ const styles = {
     lineHeight: 0.92,
   },
   comboDesc: {
-  margin: 0,
-  color: "#d8d8d8",
-  lineHeight: 1.55,
-  fontSize: 15,
-  minHeight: 48,
-},
+    margin: 0,
+    color: "#d2d2d2",
+    lineHeight: 1.5,
+    fontSize: 15,
+  },
   comboPrice: {
-    marginTop: 10,
-    marginBottom: 8,
-    fontSize: 40,
+    marginTop: 16,
+    marginBottom: 16,
+    fontSize: 34,
     fontWeight: "bold",
     color: "#ff3535",
     textShadow: "0 0 16px rgba(255,0,0,0.20)",
@@ -4939,8 +5319,8 @@ const styles = {
     background: "linear-gradient(135deg, #ff1200, #c30000)",
     color: "#fff",
     border: "none",
-    padding: "16px 18px",
-    borderRadius: 16,
+    padding: "15px 16px",
+    borderRadius: 14,
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: 15,
