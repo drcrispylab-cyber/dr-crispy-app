@@ -1957,6 +1957,7 @@ function renderCategoriasVisuales() {
         {categorias.map((cat) => (
           <button
             key={cat.id}
+            type="button"
             style={styles.categoriaVisualCard}
             onClick={() => irACategoriaVisual(cat.id)}
           >
@@ -2144,6 +2145,111 @@ function renderCategoriasVisuales() {
       </section>
     );
   }
+
+  function renderCombosScreen() {
+  return (
+    <section style={styles.panel}>
+      <div style={styles.experimentoHeaderRow}>
+        <div>
+          <div style={styles.menuInteractiveBadge}>🔥 COMBOS ACTIVADOS</div>
+          <h2 style={styles.experimentScreenTitle}>COMBOS DEL LAB</h2>
+          <p style={styles.experimentScreenText}>
+            Los más pedidos del laboratorio. Más rápidos de elegir, más fáciles de vender.
+          </p>
+        </div>
+
+        <button
+          style={styles.backCatalogBtn}
+          onClick={() => irASeccionCliente("inicio")}
+        >
+          ← Volver al inicio
+        </button>
+      </div>
+
+      <div
+        style={{
+          ...styles.comboGrid,
+          gridTemplateColumns: esMovil
+            ? "1fr"
+            : "repeat(3, minmax(0, 1fr))",
+          marginTop: 22,
+        }}
+      >
+        {COMBOS.map(renderComboCard)}
+      </div>
+    </section>
+  );
+}
+
+function renderAdicionalesScreen() {
+  return (
+    <section style={styles.panel}>
+      <div style={styles.experimentoHeaderRow}>
+        <div>
+          <div style={styles.menuInteractiveBadge}>🍟 ADICIONALES DEL LAB</div>
+          <h2 style={styles.experimentScreenTitle}>ADICIONALES</h2>
+          <p style={styles.experimentScreenText}>
+            Completa tu experimento con papas y extras del laboratorio.
+          </p>
+        </div>
+
+        <button
+          style={styles.backCatalogBtn}
+          onClick={() => irASeccionCliente("inicio")}
+        >
+          ← Volver al inicio
+        </button>
+      </div>
+
+      <div
+        style={{
+          ...styles.simpleGrid,
+          gridTemplateColumns: esMovil
+            ? "1fr"
+            : "repeat(2, minmax(0, 1fr))",
+          marginTop: 22,
+        }}
+      >
+        {ADICIONALES.map(renderSimpleCard)}
+      </div>
+    </section>
+  );
+}
+
+function renderBebidasScreen() {
+  return (
+    <section style={styles.panel}>
+      <div style={styles.experimentoHeaderRow}>
+        <div>
+          <div style={styles.menuInteractiveBadge}>🥤 BEBIDAS ACTIVADAS</div>
+          <h2 style={styles.experimentScreenTitle}>BEBIDAS</h2>
+          <p style={styles.experimentScreenText}>
+            Agrégale bebida fría a tu pedido y completa la fórmula del lab.
+          </p>
+        </div>
+
+        <button
+          style={styles.backCatalogBtn}
+          onClick={() => irASeccionCliente("inicio")}
+        >
+          ← Volver al inicio
+        </button>
+      </div>
+
+      <div
+        style={{
+          ...styles.simpleGrid,
+          gridTemplateColumns: esMovil
+            ? "1fr"
+            : "repeat(2, minmax(0, 1fr))",
+          marginTop: 22,
+        }}
+      >
+        {BEBIDAS.map(renderSimpleCard)}
+      </div>
+    </section>
+  );
+}
 
   function renderExperimento1() {
   return (
@@ -2622,43 +2728,67 @@ function renderCategoriasVisuales() {
   function renderCliente() {
   return (
     <>
-      <section style={styles.clientNavWrap}>
-        <button
-          style={{
-            ...styles.clientNavBtn,
-            ...(seccionCliente === "inicio"
-              ? styles.clientNavBtnActive
-              : {}),
-          }}
-          onClick={() => irASeccionCliente("inicio")}
-        >
-          Inicio
-        </button>
+     <section style={styles.clientNavWrap}>
+  <button
+    style={{
+      ...styles.clientNavBtn,
+      ...(seccionCliente === "inicio"
+        ? styles.clientNavBtnActive
+        : {}),
+    }}
+    onClick={() => irASeccionCliente("inicio")}
+  >
+    Inicio
+  </button>
 
-        <button
-          style={{
-            ...styles.clientNavBtn,
-            ...(seccionCliente === "catalogo"
-              ? styles.clientNavBtnActive
-              : {}),
-          }}
-          onClick={() => irASeccionCliente("catalogo")}
-        >
-          Experimentos
-        </button>
+  <button
+    style={{
+      ...styles.clientNavBtn,
+      ...(seccionCliente === "catalogo"
+        ? styles.clientNavBtnActive
+        : {}),
+    }}
+    onClick={() => irASeccionCliente("catalogo")}
+  >
+    Experimentos
+  </button>
 
-        <button
-          style={{
-            ...styles.clientNavBtn,
-            ...(seccionCliente === "experimento1"
-              ? styles.clientNavBtnActive
-              : {}),
-          }}
-          onClick={entrarExperimento1}
-        >
-          Experimento 1
-        </button>
-      </section>
+  <button
+    style={{
+      ...styles.clientNavBtn,
+      ...(seccionCliente === "combos"
+        ? styles.clientNavBtnActive
+        : {}),
+    }}
+    onClick={() => setSeccionCliente("combos")}
+  >
+    Combos
+  </button>
+
+  <button
+    style={{
+      ...styles.clientNavBtn,
+      ...(seccionCliente === "adicionales"
+        ? styles.clientNavBtnActive
+        : {}),
+    }}
+    onClick={() => setSeccionCliente("adicionales")}
+  >
+    Adicionales
+  </button>
+
+  <button
+    style={{
+      ...styles.clientNavBtn,
+      ...(seccionCliente === "bebidas"
+        ? styles.clientNavBtnActive
+        : {}),
+    }}
+    onClick={() => setSeccionCliente("bebidas")}
+  >
+    Bebidas
+  </button>
+</section>
 
       {seccionCliente === "inicio" && (
         <>
@@ -2936,13 +3066,9 @@ function renderCategoriasVisuales() {
       )}
 
       {seccionCliente === "catalogo" && renderCatalogoExperimentos()}
-
-      {seccionCliente === "combos" && renderExperimento1()}
-
-      {seccionCliente === "adicionales" && renderExperimento1()}
-
-      {seccionCliente === "bebidas" && renderExperimento1()}
-
+      {seccionCliente === "combos" && renderCombosScreen()}
+      {seccionCliente === "adicionales" && renderAdicionalesScreen()}
+      {seccionCliente === "bebidas" && renderBebidasScreen()}
       {seccionCliente === "experimento1" && renderExperimento1()}
     </>
   );
