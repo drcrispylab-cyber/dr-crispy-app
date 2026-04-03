@@ -3434,20 +3434,33 @@ function renderCategoriasVisuales() {
     alignItems: esMovil ? "flex-start" : "center",
   }}
 >
-  <div>
-    <div style={styles.badge}>🧪 DR. CRISPY LAB ACTIVO</div>
+  <div style={styles.headerBrandBlock}>
+    <div style={styles.headerTopLine}>
+      <div style={styles.badge}>🧪 DR. CRISPY LAB</div>
+
+      <div
+        style={{
+          ...styles.headerStatusPill,
+          ...(socketConectado
+            ? styles.headerStatusOnline
+            : styles.headerStatusOffline),
+        }}
+      >
+        {socketConectado ? "🟢 LAB ACTIVO" : "🔴 LAB EN SINCRONIZACIÓN"}
+      </div>
+    </div>
+
     <h1 style={styles.title}>Dr. Crispy Lab</h1>
-    <p style={styles.subtitle}>Sistema real conectado con backend</p>
-    <p
-      style={{
-        marginTop: 8,
-        color: socketConectado ? "#9ef0b8" : "#ffc1c1",
-      }}
-    >
-      {socketConectado
-        ? "🟢 Tiempo real conectado"
-        : "🔴 Tiempo real desconectado"}
+
+    <p style={styles.headerTagline}>
+      No es pollo. Es un experimento.
     </p>
+
+    <div style={styles.headerMiniInfoRow}>
+      <div style={styles.headerMiniInfo}>🚚 Domicilio incluido</div>
+      <div style={styles.headerMiniInfo}>🔥 Combos activados</div>
+      <div style={styles.headerMiniInfo}>⚡ Express disponible</div>
+    </div>
   </div>
 
   <div style={styles.navButtons}>
@@ -3456,9 +3469,12 @@ function renderCategoriasVisuales() {
         ...styles.navBtn,
         ...(vista === "cliente" ? styles.navBtnActive : {}),
       }}
-      onClick={() => setVista("cliente")}
+      onClick={() => {
+        setVista("cliente");
+        setSeccionCliente("inicio");
+      }}
     >
-      Cliente
+      Inicio
     </button>
 
     {!clienteSesion?.id ? (
@@ -4339,34 +4355,40 @@ const styles = {
     zIndex: 2,
   },
   header: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 20,
-    alignItems: "center",
-    flexWrap: "wrap",
-    marginBottom: 24,
-  },
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 24,
+  alignItems: "center",
+  flexWrap: "wrap",
+  marginBottom: 24,
+  padding: 22,
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.08), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.98), rgba(10,10,10,0.98))",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 24,
+  boxShadow: "0 14px 30px rgba(0,0,0,0.18)",
+},
   badge: {
-    display: "inline-block",
-    background: "rgba(255,0,0,0.14)",
-    border: "1px solid rgba(255,0,0,0.28)",
-    color: "#ff9c9c",
-    padding: "8px 12px",
-    borderRadius: 999,
-    fontSize: 12,
-    fontWeight: "bold",
-    letterSpacing: 1.1,
-    marginBottom: 10,
-  },
+  display: "inline-block",
+  background: "rgba(255,0,0,0.14)",
+  border: "1px solid rgba(255,0,0,0.28)",
+  color: "#ff9c9c",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: "bold",
+  letterSpacing: 1.1,
+  marginBottom: 0,
+},
   title: {
-    margin: 0,
-    fontSize: 52,
-    color: "#ff2727",
-    textShadow: "0 0 20px rgba(255,0,0,0.25)",
-    fontFamily: '"Bebas Neue", sans-serif',
-    letterSpacing: 1.4,
-    lineHeight: 1,
-  },
+  margin: 0,
+  fontSize: 56,
+  color: "#ff2727",
+  textShadow: "0 0 20px rgba(255,0,0,0.25)",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1.4,
+  lineHeight: 0.95,
+},
   subtitle: {
     color: "#cfcfcf",
     marginTop: 8,
@@ -4374,23 +4396,27 @@ const styles = {
     fontSize: 15,
   },
   navButtons: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-  },
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  alignItems: "center",
+  justifyContent: "flex-end",
+},
   navBtn: {
-    background: "#151515",
-    border: "1px solid #2d2d2d",
-    color: "#fff",
-    padding: "12px 16px",
-    borderRadius: 12,
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#fff",
+  padding: "12px 16px",
+  borderRadius: 14,
+  cursor: "pointer",
+  fontWeight: "bold",
+  transition: "all 0.2s ease",
+},
   navBtnActive: {
-    background: "#ff0000",
-    border: "1px solid #ff0000",
-  },
+  background: "linear-gradient(135deg, #ff0000, #b30000)",
+  border: "1px solid #ff0000",
+  boxShadow: "0 10px 22px rgba(255,0,0,0.18)",
+},
 
   userMiniPill: {
   background: "rgba(255,255,255,0.06)",
@@ -6278,6 +6304,67 @@ heroPosterBadge: {
   marginTop: 12,
   position: "relative",
   zIndex: 3,
+},
+
+headerBrandBlock: {
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+  maxWidth: 680,
+},
+
+headerTopLine: {
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  flexWrap: "wrap",
+},
+
+headerStatusPill: {
+  display: "inline-block",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: "bold",
+  letterSpacing: 0.8,
+},
+
+headerStatusOnline: {
+  background: "rgba(80,220,120,0.10)",
+  border: "1px solid rgba(80,220,120,0.25)",
+  color: "#9ef0b8",
+},
+
+headerStatusOffline: {
+  background: "rgba(255,80,80,0.10)",
+  border: "1px solid rgba(255,80,80,0.22)",
+  color: "#ffc1c1",
+},
+
+headerTagline: {
+  color: "#f5f5f5",
+  marginTop: 0,
+  marginBottom: 0,
+  fontSize: 18,
+  fontWeight: "bold",
+  letterSpacing: 0.2,
+},
+
+headerMiniInfoRow: {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 10,
+  marginTop: 4,
+},
+
+headerMiniInfo: {
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#ffdcdc",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
 },
 
 };
