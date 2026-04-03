@@ -4,13 +4,15 @@
     "nombre": "Maria",
     "telefono": "3043825407",
     "password": "123456",
-    "direcciones": [{
+    "direcciones": [
+      {
         "id": "dir-1",
         "alias": "Casa",
         "direccion": "Barrio Galan, Calle 52 b #24 -95",
         "referencia": "Diagonal a liceo semillitas",
         "principal": true
-      }]
+      }
+    ]
   },
   {
     "id": "2",
@@ -26,5 +28,25 @@
         "principal": true
       }
     ]
+  },
+  {
+    "id": "CLI-84EF3A9A438B",
+    "nombre": "Carlos Mercado",
+    "telefono": "573186754305",
+    "password": "123456",
+    "pagoPreferido": "Llave",
+    "direcciones": [
+      {
+        "id": "DIR-BA8A5B247B",
+        "alias": "Casa",
+        "direccion": "Barrio Galan, Calle 552b #24-95",
+        "referencia": "Diagonal  a LICEO SEMILLITAS",
+        "principal": true,
+        "creadaEn": "02/04/2026, 11:52:16 p. m.",
+        "actualizadaEn": "02/04/2026, 11:52:16 p. m."
+      }
+    ],
+    "creadoEn": "02/04/2026, 11:52:16 p. m.",
+    "actualizadoEn": "02/04/2026, 11:52:16 p. m."
   }
 ]

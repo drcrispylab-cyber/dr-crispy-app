@@ -602,6 +602,10 @@ function App() {
 }
 
   async function registrarCliente() {
+  console.log("🚀 ENTRÓ A registrarCliente");
+  console.log("📦 clienteRegistroData:", clienteRegistroData);
+  alert("Entró a registrarCliente");
+
   try {
     if (
       !clienteRegistroData.nombre.trim() ||
