@@ -291,7 +291,9 @@ function sincronizarClienteDesdePedido(clienteBody = {}, metodoPago = "Llave") {
     const telefono = String(clienteBody.telefono || "").trim();
     const direccion = String(clienteBody.direccion || "").trim();
     const referencia = String(clienteBody.referencia || "").trim();
-    const pago = normalizarMetodoPago(metodoPago || clienteBody?.pago || "Llave");
+    const pago = normalizarMetodoPago(
+      metodoPago || clienteBody?.pago || "Llave"
+    );
 
     if (!nombre || !telefono) return;
 
@@ -303,33 +305,8 @@ function sincronizarClienteDesdePedido(clienteBody = {}, metodoPago = "Llave") {
     );
 
     if (!cliente) {
-      const direccionPrincipal = direccion
-        ? [
-            {
-              id: generarIdDireccion(),
-              alias: "Dirección principal",
-              direccion,
-              referencia,
-              principal: true,
-              creadaEn: fechaBonita(),
-              actualizadaEn: fechaBonita(),
-            },
-          ]
-        : [];
-
-      cliente = {
-        id: generarIdCliente(),
-        nombre,
-        telefono: telefonoLimpio || telefono,
-        password: "",
-        pagoPreferido: pago,
-        direcciones: direccionPrincipal,
-        creadoEn: fechaBonita(),
-        actualizadoEn: fechaBonita(),
-      };
-
-      clientes.push(cliente);
-      guardarClientes(clientes);
+      // Si no está registrado, no lo creamos como cliente del sistema.
+      // El pedido sí se procesa normal como invitado.
       return;
     }
 
