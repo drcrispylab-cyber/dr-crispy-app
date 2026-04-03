@@ -1608,6 +1608,45 @@ function usarDireccionGuardada(direccionId) {
     setSeccionCliente("experimento1");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+  function irACategoriaVisual(tipo) {
+  if (tipo === "experimentos") {
+    setVista("cliente");
+    setSeccionCliente("catalogo");
+    return;
+  }
+
+  if (tipo === "combos") {
+    setVista("cliente");
+    setSeccionCliente("combos");
+    return;
+  }
+
+  if (tipo === "adicionales") {
+    setVista("cliente");
+    setSeccionCliente("adicionales");
+    return;
+  }
+
+  if (tipo === "bebidas") {
+    setVista("cliente");
+    setSeccionCliente("bebidas");
+    return;
+  }
+
+  if (tipo === "express") {
+    setVista("cliente");
+    setSeccionCliente("inicio");
+
+    setTimeout(() => {
+      expressSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 120);
+
+    return;
+  }
+}
 
   function notificarProximamente(experimento) {
     const texto = `Hola Dr. Crispy Lab, quiero que me avisen cuando esté disponible ${experimento.titulo} - ${experimento.subtitulo}.`;
@@ -1871,22 +1910,27 @@ function usarDireccionGuardada(direccionId) {
 function renderCategoriasVisuales() {
   const categorias = [
     {
+      id: "experimentos",
       nombre: "🧪 Experimentos",
       imagen: "/images/categoria-experimentos.png",
     },
     {
+      id: "combos",
       nombre: "🔥 Combos",
       imagen: "/images/categoria-combos.png",
     },
     {
-      nombre: "🍟 Complementos",
+      id: "adicionales",
+      nombre: "🍟 Adicionales",
       imagen: "/images/categoria-complementos.png",
     },
     {
+      id: "bebidas",
       nombre: "🥤 Bebidas",
       imagen: "/images/categoria-bebidas.png",
     },
     {
+      id: "express",
       nombre: "⚡ Express",
       imagen: "/images/categoria-express.png",
     },
@@ -1898,7 +1942,7 @@ function renderCategoriasVisuales() {
         <div style={styles.menuInteractiveBadge}>🍗 EXPLORA RÁPIDO</div>
         <h2 style={styles.catalogTitle}>ELIGE TU RUTA EN EL LAB</h2>
         <p style={styles.catalogText}>
-          Menos texto, más visual. Entra directo a lo que se te antoje.
+          Toca y entra directo a lo que quieres pedir.
         </p>
       </div>
 
@@ -1911,7 +1955,11 @@ function renderCategoriasVisuales() {
         }}
       >
         {categorias.map((cat) => (
-          <div key={cat.nombre} style={styles.categoriaVisualCard}>
+          <button
+            key={cat.id}
+            style={styles.categoriaVisualCard}
+            onClick={() => irACategoriaVisual(cat.id)}
+          >
             <div style={styles.categoriaVisualImageWrap}>
               <img
                 src={cat.imagen}
@@ -1921,7 +1969,7 @@ function renderCategoriasVisuales() {
             </div>
 
             <div style={styles.categoriaVisualTitle}>{cat.nombre}</div>
-          </div>
+          </button>
         ))}
       </div>
     </section>
@@ -2888,6 +2936,13 @@ function renderCategoriasVisuales() {
       )}
 
       {seccionCliente === "catalogo" && renderCatalogoExperimentos()}
+
+      {seccionCliente === "combos" && renderExperimento1()}
+
+      {seccionCliente === "adicionales" && renderExperimento1()}
+
+      {seccionCliente === "bebidas" && renderExperimento1()}
+
       {seccionCliente === "experimento1" && renderExperimento1()}
     </>
   );
