@@ -2041,65 +2041,6 @@ function renderCategoriasVisuales() {
   );
 }
 
-function renderCategoriasVisuales() {
-  const categorias = [
-    {
-      nombre: "🧪 Experimentos",
-      imagen: "/images/categoria-experimentos.png",
-    },
-    {
-      nombre: "🔥 Combos",
-      imagen: "/images/categoria-combos.png",
-    },
-    {
-      nombre: "🍟 Complementos",
-      imagen: "/images/categoria-complementos.png",
-    },
-    {
-      nombre: "🥤 Bebidas",
-      imagen: "/images/categoria-bebidas.png",
-    },
-    {
-      nombre: "⚡ Express",
-      imagen: "/images/categoria-express.png",
-    },
-  ];
-
-  return (
-    <section style={styles.panel}>
-      <div style={styles.catalogHeader}>
-        <div style={styles.menuInteractiveBadge}>🍗 EXPLORA RÁPIDO</div>
-        <h2 style={styles.catalogTitle}>ELIGE TU RUTA EN EL LAB</h2>
-        <p style={styles.catalogText}>
-          Menos texto, más visual. Entra directo a lo que se te antoje.
-        </p>
-      </div>
-
-      <div
-        style={{
-          ...styles.categoriasVisualesGrid,
-          gridTemplateColumns: esMovil
-            ? "1fr 1fr"
-            : "repeat(5, minmax(0, 1fr))",
-        }}
-      >
-        {categorias.map((cat) => (
-          <div key={cat.nombre} style={styles.categoriaVisualCard}>
-            <div style={styles.categoriaVisualImageWrap}>
-              <img
-                src={cat.imagen}
-                alt={cat.nombre}
-                style={styles.categoriaVisualImage}
-              />
-            </div>
-
-            <div style={styles.categoriaVisualTitle}>{cat.nombre}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
   function renderCatalogoExperimentos() {
     return (
@@ -2212,105 +2153,132 @@ function renderCategoriasVisuales() {
 
   function renderCombosScreen() {
   return (
-    <section style={styles.panel}>
-      <div style={styles.experimentoHeaderRow}>
-        <div>
-          <div style={styles.menuInteractiveBadge}>🔥 COMBOS ACTIVADOS</div>
-          <h2 style={styles.experimentScreenTitle}>COMBOS DEL LAB</h2>
-          <p style={styles.experimentScreenText}>
-            Los más pedidos del laboratorio. Más rápidos de elegir, más fáciles de vender.
-          </p>
+    <section
+      style={{
+        ...styles.mainGrid,
+        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+      }}
+    >
+      <div style={styles.panel}>
+        <div style={styles.experimentoHeaderRow}>
+          <div>
+            <div style={styles.menuInteractiveBadge}>🔥 COMBOS ACTIVADOS</div>
+            <h2 style={styles.experimentScreenTitle}>COMBOS DEL LAB</h2>
+            <p style={styles.experimentScreenText}>
+              Los más pedidos del laboratorio. Más rápidos de elegir, más fáciles de vender.
+            </p>
+          </div>
+
+          <button
+            style={styles.backCatalogBtn}
+            onClick={() => irASeccionCliente("inicio")}
+          >
+            ← Volver al inicio
+          </button>
         </div>
 
-        <button
-          style={styles.backCatalogBtn}
-          onClick={() => irASeccionCliente("inicio")}
+        <div
+          style={{
+            ...styles.comboGrid,
+            gridTemplateColumns: esMovil
+              ? "1fr"
+              : "repeat(2, minmax(0, 1fr))",
+            marginTop: 22,
+          }}
         >
-          ← Volver al inicio
-        </button>
+          {COMBOS.map(renderComboCard)}
+        </div>
       </div>
 
-      <div
-        style={{
-          ...styles.comboGrid,
-          gridTemplateColumns: esMovil
-            ? "1fr"
-            : "repeat(3, minmax(0, 1fr))",
-          marginTop: 22,
-        }}
-      >
-        {COMBOS.map(renderComboCard)}
-      </div>
+      {renderCarritoDesktop()}
     </section>
   );
 }
 
-function renderAdicionalesScreen() {
+function renderCombosScreen() {
   return (
-    <section style={styles.panel}>
-      <div style={styles.experimentoHeaderRow}>
-        <div>
-          <div style={styles.menuInteractiveBadge}>🍟 ADICIONALES DEL LAB</div>
-          <h2 style={styles.experimentScreenTitle}>ADICIONALES</h2>
-          <p style={styles.experimentScreenText}>
-            Completa tu experimento con papas y extras del laboratorio.
-          </p>
+    <section
+      style={{
+        ...styles.mainGrid,
+        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+      }}
+    >
+      <div style={styles.panel}>
+        <div style={styles.experimentoHeaderRow}>
+          <div>
+            <div style={styles.menuInteractiveBadge}>🔥 COMBOS ACTIVADOS</div>
+            <h2 style={styles.experimentScreenTitle}>COMBOS DEL LAB</h2>
+            <p style={styles.experimentScreenText}>
+              Los más pedidos del laboratorio. Más rápidos de elegir, más fáciles de vender.
+            </p>
+          </div>
+
+          <button
+            style={styles.backCatalogBtn}
+            onClick={() => irASeccionCliente("inicio")}
+          >
+            ← Volver al inicio
+          </button>
         </div>
 
-        <button
-          style={styles.backCatalogBtn}
-          onClick={() => irASeccionCliente("inicio")}
+        <div
+          style={{
+            ...styles.comboGrid,
+            gridTemplateColumns: esMovil
+              ? "1fr"
+              : "repeat(2, minmax(0, 1fr))",
+            marginTop: 22,
+          }}
         >
-          ← Volver al inicio
-        </button>
+          {COMBOS.map(renderComboCard)}
+        </div>
       </div>
 
-      <div
-        style={{
-          ...styles.simpleGrid,
-          gridTemplateColumns: esMovil
-            ? "1fr"
-            : "repeat(2, minmax(0, 1fr))",
-          marginTop: 22,
-        }}
-      >
-        {ADICIONALES.map(renderSimpleCard)}
-      </div>
+      {renderCarritoDesktop()}
     </section>
   );
 }
 
 function renderBebidasScreen() {
   return (
-    <section style={styles.panel}>
-      <div style={styles.experimentoHeaderRow}>
-        <div>
-          <div style={styles.menuInteractiveBadge}>🥤 BEBIDAS ACTIVADAS</div>
-          <h2 style={styles.experimentScreenTitle}>BEBIDAS</h2>
-          <p style={styles.experimentScreenText}>
-            Agrégale bebida fría a tu pedido y completa la fórmula del lab.
-          </p>
+    <section
+      style={{
+        ...styles.mainGrid,
+        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+      }}
+    >
+      <div style={styles.panel}>
+        <div style={styles.experimentoHeaderRow}>
+          <div>
+            <div style={styles.menuInteractiveBadge}>🥤 BEBIDAS ACTIVADAS</div>
+            <h2 style={styles.experimentScreenTitle}>BEBIDAS</h2>
+            <p style={styles.experimentScreenText}>
+              Agrégale bebida fría a tu pedido y completa la fórmula del lab.
+            </p>
+          </div>
+
+          <button
+            style={styles.backCatalogBtn}
+            onClick={() => irASeccionCliente("inicio")}
+          >
+            ← Volver al inicio
+          </button>
         </div>
 
-        <button
-          style={styles.backCatalogBtn}
-          onClick={() => irASeccionCliente("inicio")}
+        <div
+          style={{
+            ...styles.simpleGrid,
+            gridTemplateColumns: esMovil
+              ? "1fr"
+              : "repeat(2, minmax(0, 1fr))",
+            marginTop: 22,
+          }}
         >
-          ← Volver al inicio
-        </button>
+          {BEBIDAS.map(renderSimpleCard)}
+        </div>
       </div>
 
-      <div
-        style={{
-          ...styles.simpleGrid,
-          gridTemplateColumns: esMovil
-            ? "1fr"
-            : "repeat(2, minmax(0, 1fr))",
-          marginTop: 22,
-        }}
-      >
-        {BEBIDAS.map(renderSimpleCard)}
-      </div>
+      {renderCarritoDesktop()}
     </section>
   );
 }
@@ -2612,180 +2580,234 @@ function renderBebidasScreen() {
       </div>
 
       <div>
+  {renderCarritoDesktop()}
+</div>
+    </section>
+  );
+}
+
+function renderAdicionalesScreen() {
+  return (
+    <section
+      style={{
+        ...styles.mainGrid,
+        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+      }}
+    >
+      <div style={styles.panel}>
+        <div style={styles.experimentoHeaderRow}>
+          <div>
+            <div style={styles.menuInteractiveBadge}>🍟 ADICIONALES DEL LAB</div>
+            <h2 style={styles.experimentScreenTitle}>ADICIONALES</h2>
+            <p style={styles.experimentScreenText}>
+              Completa tu experimento con papas y extras del laboratorio.
+            </p>
+          </div>
+
+          <button
+            style={styles.backCatalogBtn}
+            onClick={() => irASeccionCliente("inicio")}
+          >
+            ← Volver al inicio
+          </button>
+        </div>
+
         <div
           style={{
-            ...styles.panelSticky,
-            ...(carritoAnimando ? styles.panelStickyPulse : {}),
-            position: esMovil ? "static" : "sticky",
-            display: esMovil ? "none" : "block",
+            ...styles.simpleGrid,
+            gridTemplateColumns: esMovil
+              ? "1fr"
+              : "repeat(2, minmax(0, 1fr))",
+            marginTop: 22,
           }}
         >
-          <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
+          {ADICIONALES.map(renderSimpleCard)}
+        </div>
+      </div>
 
-          {carrito.length === 0 ? (
-            <div style={styles.emptyBox}>
-              No has agregado productos todavía.
-            </div>
-          ) : (
-            carrito.map((item) => (
-              <div key={item.cartKey} style={styles.cartItem}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <strong style={{ display: "block", marginBottom: 4 }}>
-                    {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
-                  </strong>
+      {renderCarritoDesktop()}
+    </section>
+  );
+}
 
-                  <div style={styles.cartSub}>
-                    {item.experimento || "Experimento 1"}
-                  </div>
+function renderCarritoDesktop() {
+  if (esMovil) return null;
 
-                  {item.salsa && (
-                    <div
-                      style={{
-                        ...styles.cartSub,
-                        color: "#ffd166",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Sabor: {item.salsa}
-                    </div>
-                  )}
+  return (
+    <div>
+      <div
+        style={{
+          ...styles.panelSticky,
+          ...(carritoAnimando ? styles.panelStickyPulse : {}),
+          position: "sticky",
+          display: "block",
+        }}
+      >
+        <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
 
-                  {item.esCombo && Array.isArray(item.detalleCombo) && (
-                    <div style={{ marginTop: 8 }}>
-                      {formatearDetalleCombo(item.detalleCombo).map(
-                        (detalle, idx) => (
-                          <div key={idx} style={styles.cartSub}>
-                            • {detalle}
-                          </div>
-                        )
-                      )}
-                    </div>
-                  )}
+        {carrito.length === 0 ? (
+          <div style={styles.emptyBox}>
+            No has agregado productos todavía.
+          </div>
+        ) : (
+          carrito.map((item) => (
+            <div key={item.cartKey} style={styles.cartItem}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <strong style={{ display: "block", marginBottom: 4 }}>
+                  {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                </strong>
 
+                <div style={styles.cartSub}>
+                  {item.experimento || "Experimento 1"}
+                </div>
+
+                {item.salsa && (
                   <div
                     style={{
                       ...styles.cartSub,
-                      marginTop: 8,
+                      color: "#ffd166",
                       fontWeight: "bold",
-                      color: "#fff",
                     }}
                   >
-                    ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                    Sabor: {item.salsa}
                   </div>
-                </div>
+                )}
 
-                <div style={styles.qtyBox}>
-                  <button
-                    style={styles.qtyBtn}
-                    onClick={() => cambiarCantidad(item.cartKey, -1)}
-                  >
-                    -
-                  </button>
-                  <span>{item.cantidad}</span>
-                  <button
-                    style={styles.qtyBtn}
-                    onClick={() => cambiarCantidad(item.cartKey, 1)}
-                  >
-                    +
-                  </button>
+                {item.esCombo && Array.isArray(item.detalleCombo) && (
+                  <div style={{ marginTop: 8 }}>
+                    {formatearDetalleCombo(item.detalleCombo).map(
+                      (detalle, idx) => (
+                        <div key={idx} style={styles.cartSub}>
+                          • {detalle}
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+
+                <div
+                  style={{
+                    ...styles.cartSub,
+                    marginTop: 8,
+                    fontWeight: "bold",
+                    color: "#fff",
+                  }}
+                >
+                  ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
                 </div>
               </div>
-            ))
-          )}
 
-          <div style={styles.upsellBox}>
-            <div style={styles.upsellTextWrap}>
-              <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
-              <div style={styles.upsellText}>
-                Súmale una porción por solo $4.000 más
+              <div style={styles.qtyBox}>
+                <button
+                  style={styles.qtyBtn}
+                  onClick={() => cambiarCantidad(item.cartKey, -1)}
+                >
+                  -
+                </button>
+                <span>{item.cantidad}</span>
+                <button
+                  style={styles.qtyBtn}
+                  onClick={() => cambiarCantidad(item.cartKey, 1)}
+                >
+                  +
+                </button>
               </div>
             </div>
+          ))
+        )}
 
-            <button
-              type="button"
-              style={styles.upsellBtn}
-              onClick={(e) =>
-                agregarProducto(
-                  {
-                    id: "upsell-papas-4000",
-                    nombre: "Papas fritas promo",
-                    descripcion: "Upsell del laboratorio",
-                    precio: 4000,
-                    emoji: "🍟",
-                    categoria: "adicionales",
-                  },
-                  e.currentTarget
-                )
-              }
-            >
-              Agregar
-            </button>
-          </div>
-
-          <div style={styles.summaryBox}>
-            <div style={styles.summaryRow}>
-              <span>Subtotal</span>
-              <span>${subtotal.toLocaleString("es-CO")}</span>
-            </div>
-            <div style={styles.summaryRow}>
-              <span>Domicilio</span>
-              <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                Incluido
-              </span>
-            </div>
-            <div style={styles.summaryTotal}>
-              <span>Total</span>
-              <span>${total.toLocaleString("es-CO")}</span>
+        <div style={styles.upsellBox}>
+          <div style={styles.upsellTextWrap}>
+            <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+            <div style={styles.upsellText}>
+              Súmale una porción por solo $4.000 más
             </div>
           </div>
 
           <button
-            style={{
-              ...styles.confirmBtn,
-              ...(cargandoPedido ? styles.disabledBtn : {}),
-            }}
-            onClick={confirmarPedido}
-            disabled={cargandoPedido}
+            type="button"
+            style={styles.upsellBtn}
+            onClick={(e) =>
+              agregarProducto(
+                {
+                  id: "upsell-papas-4000",
+                  nombre: "Papas fritas promo",
+                  descripcion: "Upsell del laboratorio",
+                  precio: 4000,
+                  emoji: "🍟",
+                  categoria: "adicionales",
+                },
+                e.currentTarget
+              )
+            }
           >
-            {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+            Agregar
           </button>
-
-          <div style={styles.cartTrustText}>
-            ⚡ Recíbelo caliente. Domicilio incluido.
-          </div>
-
-          <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
-            Enviar pedido por WhatsApp
-          </button>
-
-          <div style={styles.drCrispyFullWrap}>
-            <img
-              src={drCrispyFull}
-              alt="Dr. Crispy completo"
-              style={styles.drCrispyFullImage}
-            />
-          </div>
-
-          {pedidoCreadoId && (
-            <div style={styles.lastOrderBox}>
-              <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
-                Último pedido creado:
-              </p>
-              <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
-              <button
-                style={styles.secondaryBtn}
-                onClick={() => {
-                  setVista("seguimiento");
-                  consultarMiSeguimiento();
-                }}
-              >
-                Ver mi seguimiento
-              </button>
-            </div>
-          )}
         </div>
+
+        <div style={styles.summaryBox}>
+          <div style={styles.summaryRow}>
+            <span>Subtotal</span>
+            <span>${subtotal.toLocaleString("es-CO")}</span>
+          </div>
+          <div style={styles.summaryRow}>
+            <span>Domicilio</span>
+            <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+              Incluido
+            </span>
+          </div>
+          <div style={styles.summaryTotal}>
+            <span>Total</span>
+            <span>${total.toLocaleString("es-CO")}</span>
+          </div>
+        </div>
+
+        <button
+          style={{
+            ...styles.confirmBtn,
+            ...(cargandoPedido ? styles.disabledBtn : {}),
+          }}
+          onClick={confirmarPedido}
+          disabled={cargandoPedido}
+        >
+          {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+        </button>
+
+        <div style={styles.cartTrustText}>
+          ⚡ Recíbelo caliente. Domicilio incluido.
+        </div>
+
+        <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+          Enviar pedido por WhatsApp
+        </button>
+
+        <div style={styles.drCrispyFullWrap}>
+          <img
+            src={drCrispyFull}
+            alt="Dr. Crispy completo"
+            style={styles.drCrispyFullImage}
+          />
+        </div>
+
+        {pedidoCreadoId && (
+          <div style={styles.lastOrderBox}>
+            <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
+              Último pedido creado:
+            </p>
+            <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
+            <button
+              style={styles.secondaryBtn}
+              onClick={() => {
+                setVista("seguimiento");
+                consultarMiSeguimiento();
+              }}
+            >
+              Ver mi seguimiento
+            </button>
+          </div>
+        )}
       </div>
-    </section>
+    </div>
   );
 }
 
