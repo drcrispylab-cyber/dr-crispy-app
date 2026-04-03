@@ -48,5 +48,25 @@
     ],
     "creadoEn": "02/04/2026, 11:52:16 p. m.",
     "actualizadoEn": "02/04/2026, 11:52:16 p. m."
+  },
+  {
+    "id": "CLI-03D6037CAAA3",
+    "nombre": "Regina",
+    "telefono": "573214977988",
+    "password": "123456",
+    "pagoPreferido": "Llave",
+    "direcciones": [
+      {
+        "id": "DIR-2F98F0774F",
+        "alias": "Casa",
+        "direccion": "Barrio Coviba, Calle 79 #22 -04",
+        "referencia": "daiagonal a la iglesia catolica",
+        "principal": true,
+        "creadaEn": "03/04/2026, 12:03:33 a. m.",
+        "actualizadaEn": "03/04/2026, 12:03:33 a. m."
+      }
+    ],
+    "creadoEn": "03/04/2026, 12:03:33 a. m.",
+    "actualizadoEn": "03/04/2026, 12:03:33 a. m."
   }
 ]
