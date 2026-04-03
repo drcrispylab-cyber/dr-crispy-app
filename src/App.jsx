@@ -1915,786 +1915,792 @@ function usarDireccionGuardada(direccionId) {
   }
 
   function renderExperimento1() {
-    return (
-      <section
-        style={{
-          ...styles.mainGrid,
-          gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
-        }}
-      >
-        <div>
-          <div style={styles.panel}>
-            <div style={styles.experimentoHeaderRow}>
-              <div>
-                <div style={styles.menuInteractiveBadge}>
-                  🔥 EXPERIMENTO 1 ACTIVO
-                </div>
-                <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
-                <p style={styles.experimentScreenText}>
-                  Fuego Atómico, Honey Mutante y BBQ Reactor.
-                </p>
+  return (
+    <section
+      style={{
+        ...styles.mainGrid,
+        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+      }}
+    >
+      <div>
+        <div style={styles.panel}>
+          <div style={styles.experimentoHeaderRow}>
+            <div>
+              <div style={styles.menuInteractiveBadge}>
+                🔥 EXPERIMENTO 1 ACTIVO
               </div>
-
-              <button
-                style={styles.backCatalogBtn}
-                onClick={() => irASeccionCliente("catalogo")}
-              >
-                ← Volver a experimentos
-              </button>
+              <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
+              <p style={styles.experimentScreenText}>
+                Fuego Atómico, Honey Mutante y BBQ Reactor.
+              </p>
             </div>
-          </div>
 
-          <div style={styles.posterMenuWrap}>
-            <div
-              style={{
-                ...styles.posterHero,
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0,0,0,0.82)), url(${alitasBg})`,
-                filter: "brightness(1.08) contrast(1.12)",
-              }}
+            <button
+              style={styles.backCatalogBtn}
+              onClick={() => irASeccionCliente("catalogo")}
             >
-              <div style={styles.posterHeroGlow}></div>
-              <span
-                style={{
-                  ...styles.posterSauceDot,
-                  ...styles.posterSauceDot1,
-                }}
-              ></span>
-              <span
-                style={{
-                  ...styles.posterSauceDot,
-                  ...styles.posterSauceDot2,
-                }}
-              ></span>
-              <span
-                style={{
-                  ...styles.posterSauceDot,
-                  ...styles.posterSauceDot3,
-                }}
-              ></span>
-
-              <div style={styles.posterOverlayContent}>
-                <div style={styles.posterBrand}>DR. CRISPY LAB</div>
-                <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
-                <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                ...styles.posterSections,
-                gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
-              }}
-            >
-              <div style={styles.posterLeftCol}>
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
-
-                  <div style={styles.posterInfoList}>
-                    <div style={styles.posterInfoItem}>
-                      <strong>BBQ REACTOR</strong> <span>(SALSA BBQ AHUMADA)</span>
-                    </div>
-                    <div style={styles.posterInfoItem}>
-                      <strong>HONEY MUTANTE</strong>{" "}
-                      <span>(MIEL MOSTAZA)</span>
-                    </div>
-                    <div style={styles.posterInfoItem}>
-                      <strong>FUEGO ATÓMICO</strong>{" "}
-                      <span>(ACEITE PICANTE NASHVILLE)</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
-                  <div style={styles.reactionScale}>
-                    <div style={styles.reactionItem}>
-                      Fuego Atómico permite nivel bajo, medio o alto.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.posterRightCol}>
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
-                  <div style={styles.posterPriceList}>
-                    {FORMULAS.map((item) => (
-                      <div key={item.id} style={styles.posterPriceRow}>
-                        <span>{item.nombre.toUpperCase()}</span>
-                        <span>${item.precio.toLocaleString("es-CO")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
-                  <div style={styles.posterPriceList}>
-                    {BEBIDAS.map((item) => (
-                      <div key={item.id} style={styles.posterPriceRow}>
-                        <span>{item.nombre.toUpperCase()}</span>
-                        <span>${item.precio.toLocaleString("es-CO")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={styles.posterBlock}>
-                  <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
-                  <div style={styles.posterPriceList}>
-                    {ADICIONALES.map((item) => (
-                      <div key={item.id} style={styles.posterPriceRow}>
-                        <span>{item.nombre.toUpperCase()}</span>
-                        <span>${item.precio.toLocaleString("es-CO")}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={styles.comboSection}>
-              <div style={styles.menuInteractiveHeader}>
-                <div style={styles.menuInteractiveBadge}>💥 COMBOS DEL LAB</div>
-                <h2 style={styles.menuInteractiveTitle}>LOS MÁS PEDIDOS</h2>
-                <p style={styles.catalogText}>
-                  Más valor, más antojo y más fácil para pedir.
-                </p>
-              </div>
-
-              <div
-                style={{
-                  ...styles.comboGrid,
-                  gridTemplateColumns: esMovil
-                    ? "1fr"
-                    : "repeat(3, minmax(0, 1fr))",
-                }}
-              >
-                {COMBOS.map(renderComboCard)}
-              </div>
-            </div>
-
-            <div style={styles.menuInteractiveSection}>
-              <div style={styles.menuInteractiveHeader}>
-                <div style={styles.menuInteractiveBadge}>
-                  🍗 MENÚ INTERACTIVO
-                </div>
-                <h2 style={styles.menuInteractiveTitle}>
-                  SELECCIONA TU EXPERIMENTO
-                </h2>
-              </div>
-
-              <div
-                style={{
-                  ...styles.posterFormulaGrid,
-                  gridTemplateColumns: esMovil
-                    ? "1fr"
-                    : "repeat(2, minmax(0, 1fr))",
-                }}
-              >
-                {FORMULAS.map(renderFormulaCard)}
-              </div>
-
-              <div style={styles.subSectionTitleWrap}>
-                <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
-              </div>
-
-              <div
-                style={{
-                  ...styles.simpleGrid,
-                  gridTemplateColumns: esMovil
-                    ? "1fr"
-                    : "repeat(2, minmax(0, 1fr))",
-                }}
-              >
-                {BEBIDAS.map(renderSimpleCard)}
-              </div>
-
-              <div style={styles.subSectionTitleWrap}>
-                <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
-              </div>
-
-              <div
-                style={{
-                  ...styles.simpleGrid,
-                  gridTemplateColumns: esMovil
-                    ? "1fr"
-                    : "repeat(2, minmax(0, 1fr))",
-                }}
-              >
-                {ADICIONALES.map(renderSimpleCard)}
-              </div>
-            </div>
-          </div>
-
-          <div style={styles.panel}>
-            <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
-
-            <div
-  
-  style={{
-    marginBottom: 20,
-    padding: 18,
-    borderRadius: 16,
-    background: "rgba(255,255,255,0.03)",
-    border: "1px solid rgba(255,255,255,0.08)",
-  }}
->
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      gap: 12,
-      flexWrap: "wrap",
-      alignItems: "center",
-    }}
-  >
-    <div>
-      <div style={styles.menuInteractiveBadge}>👤 PERFIL DE CLIENTE</div>
-      <div style={{ color: "#d8d8d8", marginTop: 6 }}>
-        Guarda tus datos para pedir más rápido y reutilizar direcciones.
-      </div>
-    </div>
-
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-  {clienteSesion?.id ? (
-    <>
-      <span style={{ color: "#fff", fontSize: 14 }}>
-        👤 {clienteSesion.nombre || "Cliente"}
-      </span>
-
-      <button
-        type="button"
-        style={styles.secondaryBtn}
-        onClick={() => setClienteAuthModo("perfil")}
-      >
-        Mi perfil
-      </button>
-
-      <button
-        type="button"
-        style={styles.secondaryBtn}
-        onClick={cerrarSesionCliente}
-      >
-        Cerrar sesión
-      </button>
-    </>
-  ) : (
-    <>
-      <button
-        type="button"
-        style={{
-          ...styles.secondaryBtn,
-          ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
-        }}
-        onClick={() => setClienteAuthModo("login")}
-      >
-        Ingresar
-      </button>
-
-      <button
-        type="button"
-        style={{
-          ...styles.secondaryBtn,
-          ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
-        }}
-        onClick={() => setClienteAuthModo("registro")}
-      >
-        Crear perfil
-      </button>
-    </>
-  )}
-</div>
-  </div>
-
-  {clienteSesion?.id ? (
-    <div style={{ marginTop: 14 }}>
-      <div style={{ color: "#fff", fontWeight: "bold", marginBottom: 8 }}>
-        Sesión activa: {clienteSesion.nombre}
-      </div>
-
-      <div style={{ color: "#cfcfcf", marginBottom: 12 }}>
-        Teléfono: {clienteSesion.telefono}
-      </div>
-
-      {direccionesCliente.length > 0 && (
-        <div style={{ marginBottom: 14 }}>
-          <label style={styles.label}>Dirección guardada</label>
-          <select
-            style={styles.input}
-            value={direccionSeleccionadaId}
-            onChange={(e) => usarDireccionGuardada(e.target.value)}
-            disabled={usarOtraDireccion}
-          >
-            {direccionesCliente.map((direccion) => (
-              <option key={direccion.id} value={direccion.id}>
-                {direccion.alias} — {direccion.direccion}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <button
-          type="button"
-          style={styles.secondaryBtn}
-          onClick={() => setUsarOtraDireccion((prev) => !prev)}
-        >
-          {usarOtraDireccion
-            ? "Usar dirección guardada"
-            : "Pedir a otra dirección hoy"}
-        </button>
-
-        <button
-          type="button"
-          style={{
-            ...styles.secondaryBtn,
-            ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
-          }}
-          onClick={guardarDireccionActualCliente}
-          disabled={guardandoDireccionCliente}
-        >
-          {guardandoDireccionCliente
-            ? "Guardando..."
-            : "Guardar dirección actual"}
-        </button>
-      </div>
-    </div>
-  ) : clienteAuthModo === "login" ? (
-    <div style={{ marginTop: 14 }}>
-      <Input
-        label="Teléfono registrado"
-        value={clienteLoginData.telefono}
-        onChange={(e) =>
-          setClienteLoginData((prev) => ({
-            ...prev,
-            telefono: e.target.value,
-          }))
-        }
-      />
-
-      <div style={{ marginBottom: 14 }}>
-        <label style={styles.label}>Contraseña</label>
-        <input
-          type="password"
-          style={styles.input}
-          value={clienteLoginData.password}
-          onChange={(e) =>
-            setClienteLoginData((prev) => ({
-              ...prev,
-              password: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-      <button
-        type="button"
-        style={{
-          ...styles.confirmBtn,
-          marginTop: 0,
-          ...(cargandoClienteAuth ? styles.disabledBtn : {}),
-        }}
-        onClick={iniciarSesionCliente}
-        disabled={cargandoClienteAuth}
-      >
-        {cargandoClienteAuth ? "Ingresando..." : "Ingresar con mi perfil"}
-      </button>
-    </div>
-  ) : (
-    <div style={{ marginTop: 14 }}>
-      <Input
-        label="Nombre"
-        value={clienteRegistroData.nombre}
-        onChange={(e) =>
-          setClienteRegistroData((prev) => ({
-            ...prev,
-            nombre: e.target.value,
-          }))
-        }
-      />
-
-      <Input
-        label="Teléfono"
-        value={clienteRegistroData.telefono}
-        onChange={(e) =>
-          setClienteRegistroData((prev) => ({
-            ...prev,
-            telefono: e.target.value,
-          }))
-        }
-      />
-
-      <div style={{ marginBottom: 14 }}>
-        <label style={styles.label}>Contraseña</label>
-        <input
-          type="password"
-          style={styles.input}
-          value={clienteRegistroData.password}
-          onChange={(e) =>
-            setClienteRegistroData((prev) => ({
-              ...prev,
-              password: e.target.value,
-            }))
-          }
-        />
-      </div>
-
-      <Input
-        label="Dirección principal"
-        value={clienteRegistroData.direccion}
-        onChange={(e) =>
-          setClienteRegistroData((prev) => ({
-            ...prev,
-            direccion: e.target.value,
-          }))
-        }
-      />
-
-      <Input
-        label="Referencia"
-        value={clienteRegistroData.referencia}
-        onChange={(e) =>
-          setClienteRegistroData((prev) => ({
-            ...prev,
-            referencia: e.target.value,
-          }))
-        }
-      />
-
-      <Input
-        label="Alias de dirección"
-        value={clienteRegistroData.aliasDireccion}
-        onChange={(e) =>
-          setClienteRegistroData((prev) => ({
-            ...prev,
-            aliasDireccion: e.target.value,
-          }))
-        }
-      />
-
-      <button
-        type="button"
-        style={{
-          ...styles.confirmBtn,
-          marginTop: 0,
-          ...(cargandoClienteAuth ? styles.disabledBtn : {}),
-        }}
-        onClick={registrarCliente}
-        disabled={cargandoClienteAuth}
-      >
-        {cargandoClienteAuth
-          ? "Creando perfil..."
-          : "Crear perfil y guardar datos"}
-      </button>
-    </div>
-  )}
-</div>
-
-<Input
-  label="Nombre"
-  value={cliente.nombre}
-  onChange={(e) => actualizarCliente("nombre", e.target.value)}
-/>
-
-<Input
-  label="Teléfono"
-  value={cliente.telefono}
-  onChange={(e) => actualizarCliente("telefono", e.target.value)}
-/>
-
-<Input
-  label="Dirección"
-  value={cliente.direccion}
-  onChange={(e) => actualizarCliente("direccion", e.target.value)}
-  disabled={Boolean(
-    clienteSesion?.id &&
-      direccionesCliente.length > 0 &&
-      !usarOtraDireccion
-  )}
-/>
-
-<Input
-  label="Referencia"
-  value={cliente.referencia}
-  onChange={(e) => actualizarCliente("referencia", e.target.value)}
-  disabled={Boolean(
-    clienteSesion?.id &&
-      direccionesCliente.length > 0 &&
-      !usarOtraDireccion
-  )}
-/>
-
-<div style={{ marginBottom: 14 }}>
-  <label style={styles.label}>Método de pago</label>
-  <select
-    style={styles.input}
-    value={cliente.pago}
-    onChange={(e) => actualizarCliente("pago", e.target.value)}
-  >
-    <option value="Llave">Llave</option>
-    <option value="QR Nequi">QR Nequi</option>
-  </select>
-</div>
-
-{cliente.pago === "Llave" && (
-  <div style={styles.paymentInfoBox}>
-    <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
-    <div style={styles.paymentInfoText}>Llave: 3152487938</div>
-    <div style={styles.paymentInfoText}>
-      El pedido quedará pendiente de verificación.
-    </div>
-  </div>
-)}
-
-{cliente.pago === "QR Nequi" && (
-  <div style={styles.paymentInfoBox}>
-    <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
-    <div style={styles.paymentInfoText}>
-      Escanea este QR para realizar el pago.
-    </div>
-
-    <div style={styles.qrWrap}>
-      <img
-        src="/qr-nequi.png"
-        alt="QR Nequi Dr. Crispy Lab"
-        style={styles.qrImage}
-      />
-    </div>
-
-    <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-    <div style={styles.paymentInfoText}>
-      El pedido quedará pendiente de verificación.
-    </div>
-  </div>
-)}
+              ← Volver a experimentos
+            </button>
           </div>
         </div>
 
-        <div>
+        <div style={styles.posterMenuWrap}>
           <div
             style={{
-              ...styles.panelSticky,
-              ...(carritoAnimando ? styles.panelStickyPulse : {}),
-              position: esMovil ? "static" : "sticky",
-              display: esMovil ? "none" : "block",
+              ...styles.posterHero,
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.58), rgba(0,0,0,0.82)), url(${alitasBg})`,
+              filter: "brightness(1.08) contrast(1.12)",
             }}
           >
-            <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
+            <div style={styles.posterHeroGlow}></div>
+            <span
+              style={{
+                ...styles.posterSauceDot,
+                ...styles.posterSauceDot1,
+              }}
+            ></span>
+            <span
+              style={{
+                ...styles.posterSauceDot,
+                ...styles.posterSauceDot2,
+              }}
+            ></span>
+            <span
+              style={{
+                ...styles.posterSauceDot,
+                ...styles.posterSauceDot3,
+              }}
+            ></span>
 
-            {carrito.length === 0 ? (
-              <div style={styles.emptyBox}>
-                No has agregado productos todavía.
+            <div style={styles.posterOverlayContent}>
+              <div style={styles.posterBrand}>DR. CRISPY LAB</div>
+              <h2 style={styles.posterMainTitle}>CRISPY ALITAS DEL LAB</h2>
+              <div style={styles.posterExperiment}>EXPERIMENTO 01</div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              ...styles.posterSections,
+              gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
+            }}
+          >
+            <div style={styles.posterLeftCol}>
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
+
+                <div style={styles.posterInfoList}>
+                  <div style={styles.posterInfoItem}>
+                    <strong>BBQ REACTOR</strong> <span>(SALSA BBQ AHUMADA)</span>
+                  </div>
+                  <div style={styles.posterInfoItem}>
+                    <strong>HONEY MUTANTE</strong>{" "}
+                    <span>(MIEL MOSTAZA)</span>
+                  </div>
+                  <div style={styles.posterInfoItem}>
+                    <strong>FUEGO ATÓMICO</strong>{" "}
+                    <span>(ACEITE PICANTE NASHVILLE)</span>
+                  </div>
+                </div>
               </div>
-            ) : (
-              carrito.map((item) => (
-                <div key={item.cartKey} style={styles.cartItem}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <strong style={{ display: "block", marginBottom: 4 }}>
-                      {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
-                    </strong>
 
-                    <div style={styles.cartSub}>
-                      {item.experimento || "Experimento 1"}
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
+                <div style={styles.reactionScale}>
+                  <div style={styles.reactionItem}>
+                    Fuego Atómico permite nivel bajo, medio o alto.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.posterRightCol}>
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
+                <div style={styles.posterPriceList}>
+                  {FORMULAS.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
                     </div>
+                  ))}
+                </div>
+              </div>
 
-                    {item.salsa && (
-                      <div style={{ ...styles.cartSub, color: "#ffd166", fontWeight: "bold" }}>
-                        Sabor: {item.salsa}
-                      </div>
-                    )}
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
+                <div style={styles.posterPriceList}>
+                  {BEBIDAS.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                    {item.esCombo && Array.isArray(item.detalleCombo) && (
-                      <div style={{ marginTop: 8 }}>
-                        {formatearDetalleCombo(item.detalleCombo).map((detalle, idx) => (
-                          <div key={idx} style={styles.cartSub}>
-                            • {detalle}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
+                <div style={styles.posterPriceList}>
+                  {ADICIONALES.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
 
+          <div style={styles.comboSection}>
+            <div style={styles.menuInteractiveHeader}>
+              <div style={styles.menuInteractiveBadge}>💥 COMBOS DEL LAB</div>
+              <h2 style={styles.menuInteractiveTitle}>LOS MÁS PEDIDOS</h2>
+              <p style={styles.catalogText}>
+                Más valor, más antojo y más fácil para pedir.
+              </p>
+            </div>
+
+            <div
+              style={{
+                ...styles.comboGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(3, minmax(0, 1fr))",
+              }}
+            >
+              {COMBOS.map(renderComboCard)}
+            </div>
+          </div>
+
+          <div style={styles.menuInteractiveSection}>
+            <div style={styles.menuInteractiveHeader}>
+              <div style={styles.menuInteractiveBadge}>
+                🍗 MENÚ INTERACTIVO
+              </div>
+              <h2 style={styles.menuInteractiveTitle}>
+                SELECCIONA TU EXPERIMENTO
+              </h2>
+            </div>
+
+            <div
+              style={{
+                ...styles.posterFormulaGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(2, minmax(0, 1fr))",
+              }}
+            >
+              {FORMULAS.map(renderFormulaCard)}
+            </div>
+
+            <div style={styles.subSectionTitleWrap}>
+              <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
+            </div>
+
+            <div
+              style={{
+                ...styles.simpleGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(2, minmax(0, 1fr))",
+              }}
+            >
+              {BEBIDAS.map(renderSimpleCard)}
+            </div>
+
+            <div style={styles.subSectionTitleWrap}>
+              <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
+            </div>
+
+            <div
+              style={{
+                ...styles.simpleGrid,
+                gridTemplateColumns: esMovil
+                  ? "1fr"
+                  : "repeat(2, minmax(0, 1fr))",
+              }}
+            >
+              {ADICIONALES.map(renderSimpleCard)}
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.panel}>
+          <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
+
+          <Input
+            label="Nombre"
+            value={cliente.nombre}
+            onChange={(e) => actualizarCliente("nombre", e.target.value)}
+          />
+
+          <Input
+            label="Teléfono"
+            value={cliente.telefono}
+            onChange={(e) => actualizarCliente("telefono", e.target.value)}
+          />
+
+          <Input
+            label="Dirección"
+            value={cliente.direccion}
+            onChange={(e) => actualizarCliente("direccion", e.target.value)}
+            disabled={Boolean(
+              clienteSesion?.id &&
+                direccionesCliente.length > 0 &&
+                !usarOtraDireccion
+            )}
+          />
+
+          <Input
+            label="Referencia"
+            value={cliente.referencia}
+            onChange={(e) => actualizarCliente("referencia", e.target.value)}
+            disabled={Boolean(
+              clienteSesion?.id &&
+                direccionesCliente.length > 0 &&
+                !usarOtraDireccion
+            )}
+          />
+
+          <div style={{ marginBottom: 14 }}>
+            <label style={styles.label}>Método de pago</label>
+            <select
+              style={styles.input}
+              value={cliente.pago}
+              onChange={(e) => actualizarCliente("pago", e.target.value)}
+            >
+              <option value="Llave">Llave</option>
+              <option value="QR Nequi">QR Nequi</option>
+            </select>
+          </div>
+
+          {cliente.pago === "Llave" && (
+            <div style={styles.paymentInfoBox}>
+              <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
+              <div style={styles.paymentInfoText}>Llave: 3152487938</div>
+              <div style={styles.paymentInfoText}>
+                El pedido quedará pendiente de verificación.
+              </div>
+            </div>
+          )}
+
+          {cliente.pago === "QR Nequi" && (
+            <div style={styles.paymentInfoBox}>
+              <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
+              <div style={styles.paymentInfoText}>
+                Escanea este QR para realizar el pago.
+              </div>
+
+              <div style={styles.qrWrap}>
+                <img
+                  src="/qr-nequi.png"
+                  alt="QR Nequi Dr. Crispy Lab"
+                  style={styles.qrImage}
+                />
+              </div>
+
+              <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+              <div style={styles.paymentInfoText}>
+                El pedido quedará pendiente de verificación.
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <div
+          style={{
+            ...styles.panelSticky,
+            ...(carritoAnimando ? styles.panelStickyPulse : {}),
+            position: esMovil ? "static" : "sticky",
+            display: esMovil ? "none" : "block",
+          }}
+        >
+          <h2 style={styles.panelTitle}>🛒 TU PEDIDO</h2>
+
+          {carrito.length === 0 ? (
+            <div style={styles.emptyBox}>
+              No has agregado productos todavía.
+            </div>
+          ) : (
+            carrito.map((item) => (
+              <div key={item.cartKey} style={styles.cartItem}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <strong style={{ display: "block", marginBottom: 4 }}>
+                    {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                  </strong>
+
+                  <div style={styles.cartSub}>
+                    {item.experimento || "Experimento 1"}
+                  </div>
+
+                  {item.salsa && (
                     <div
                       style={{
                         ...styles.cartSub,
-                        marginTop: 8,
+                        color: "#ffd166",
                         fontWeight: "bold",
-                        color: "#fff",
                       }}
                     >
-                      ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                      Sabor: {item.salsa}
                     </div>
-                  </div>
+                  )}
 
-                  <div style={styles.qtyBox}>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => cambiarCantidad(item.cartKey, -1)}
-                    >
-                      -
-                    </button>
-                    <span>{item.cantidad}</span>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => cambiarCantidad(item.cartKey, 1)}
-                    >
-                      +
-                    </button>
+                  {item.esCombo && Array.isArray(item.detalleCombo) && (
+                    <div style={{ marginTop: 8 }}>
+                      {formatearDetalleCombo(item.detalleCombo).map(
+                        (detalle, idx) => (
+                          <div key={idx} style={styles.cartSub}>
+                            • {detalle}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+
+                  <div
+                    style={{
+                      ...styles.cartSub,
+                      marginTop: 8,
+                      fontWeight: "bold",
+                      color: "#fff",
+                    }}
+                  >
+                    ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
                   </div>
                 </div>
-              ))
-            )}
 
-                        <div style={styles.upsellBox}>
-              <div style={styles.upsellTextWrap}>
-                <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
-                <div style={styles.upsellText}>
-                  Súmale una porción por solo $4.000 más
+                <div style={styles.qtyBox}>
+                  <button
+                    style={styles.qtyBtn}
+                    onClick={() => cambiarCantidad(item.cartKey, -1)}
+                  >
+                    -
+                  </button>
+                  <span>{item.cantidad}</span>
+                  <button
+                    style={styles.qtyBtn}
+                    onClick={() => cambiarCantidad(item.cartKey, 1)}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
+            ))
+          )}
 
-              <button
-                type="button"
-                style={styles.upsellBtn}
-                onClick={(e) =>
-                  agregarProducto(
-                    {
-                      id: "upsell-papas-4000",
-                      nombre: "Papas fritas promo",
-                      descripcion: "Upsell del laboratorio",
-                      precio: 4000,
-                      emoji: "🍟",
-                      categoria: "adicionales",
-                    },
-                    e.currentTarget
-                  )
-                }
-              >
-                Agregar
-              </button>
-            </div>
-
-            <div style={styles.summaryBox}>
-              <div style={styles.summaryRow}>
-                <span>Subtotal</span>
-                <span>${subtotal.toLocaleString("es-CO")}</span>
-              </div>
-              <div style={styles.summaryRow}>
-                <span>Domicilio</span>
-                <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                  Incluido
-                </span>
-              </div>
-              <div style={styles.summaryTotal}>
-                <span>Total</span>
-                <span>${total.toLocaleString("es-CO")}</span>
+          <div style={styles.upsellBox}>
+            <div style={styles.upsellTextWrap}>
+              <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+              <div style={styles.upsellText}>
+                Súmale una porción por solo $4.000 más
               </div>
             </div>
 
             <button
-              style={{
-                ...styles.confirmBtn,
-                ...(cargandoPedido ? styles.disabledBtn : {}),
-              }}
-              onClick={confirmarPedido}
-              disabled={cargandoPedido}
+              type="button"
+              style={styles.upsellBtn}
+              onClick={(e) =>
+                agregarProducto(
+                  {
+                    id: "upsell-papas-4000",
+                    nombre: "Papas fritas promo",
+                    descripcion: "Upsell del laboratorio",
+                    precio: 4000,
+                    emoji: "🍟",
+                    categoria: "adicionales",
+                  },
+                  e.currentTarget
+                )
+              }
             >
-              {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+              Agregar
             </button>
-
-            <div style={styles.cartTrustText}>
-              ⚡ Recíbelo caliente. Domicilio incluido.
-            </div>
-
-            <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
-              Enviar pedido por WhatsApp
-            </button>
-
-            <div style={styles.drCrispyFullWrap}>
-              <img
-                src={drCrispyFull}
-                alt="Dr. Crispy completo"
-                style={styles.drCrispyFullImage}
-              />
-            </div>
-
-            {pedidoCreadoId && (
-              <div style={styles.lastOrderBox}>
-                <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
-                  Último pedido creado:
-                </p>
-                <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
-                <button
-                  style={styles.secondaryBtn}
-                  onClick={() => {
-                    setVista("seguimiento");
-                    consultarMiSeguimiento();
-                  }}
-                >
-                  Ver mi seguimiento
-                </button>
-              </div>
-            )}
           </div>
+
+          <div style={styles.summaryBox}>
+            <div style={styles.summaryRow}>
+              <span>Subtotal</span>
+              <span>${subtotal.toLocaleString("es-CO")}</span>
+            </div>
+            <div style={styles.summaryRow}>
+              <span>Domicilio</span>
+              <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                Incluido
+              </span>
+            </div>
+            <div style={styles.summaryTotal}>
+              <span>Total</span>
+              <span>${total.toLocaleString("es-CO")}</span>
+            </div>
+          </div>
+
+          <button
+            style={{
+              ...styles.confirmBtn,
+              ...(cargandoPedido ? styles.disabledBtn : {}),
+            }}
+            onClick={confirmarPedido}
+            disabled={cargandoPedido}
+          >
+            {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+          </button>
+
+          <div style={styles.cartTrustText}>
+            ⚡ Recíbelo caliente. Domicilio incluido.
+          </div>
+
+          <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+            Enviar pedido por WhatsApp
+          </button>
+
+          <div style={styles.drCrispyFullWrap}>
+            <img
+              src={drCrispyFull}
+              alt="Dr. Crispy completo"
+              style={styles.drCrispyFullImage}
+            />
+          </div>
+
+          {pedidoCreadoId && (
+            <div style={styles.lastOrderBox}>
+              <p style={{ margin: "12px 0 6px 0", color: "#ffd2d2" }}>
+                Último pedido creado:
+              </p>
+              <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
+              <button
+                style={styles.secondaryBtn}
+                onClick={() => {
+                  setVista("seguimiento");
+                  consultarMiSeguimiento();
+                }}
+              >
+                Ver mi seguimiento
+              </button>
+            </div>
+          )}
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
+}
 
   function renderCliente() {
-    return (
-      <>
-        <section style={styles.clientNavWrap}>
-          <button
-            style={{
-              ...styles.clientNavBtn,
-              ...(seccionCliente === "inicio"
-                ? styles.clientNavBtnActive
-                : {}),
-            }}
-            onClick={() => irASeccionCliente("inicio")}
-          >
-            Inicio
-          </button>
+  return (
+    <>
+      <section style={styles.clientNavWrap}>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "inicio"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={() => irASeccionCliente("inicio")}
+        >
+          Inicio
+        </button>
 
-          <button
-            style={{
-              ...styles.clientNavBtn,
-              ...(seccionCliente === "catalogo"
-                ? styles.clientNavBtnActive
-                : {}),
-            }}
-            onClick={() => irASeccionCliente("catalogo")}
-          >
-            Experimentos
-          </button>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "catalogo"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={() => irASeccionCliente("catalogo")}
+        >
+          Experimentos
+        </button>
 
-          <button
-            style={{
-              ...styles.clientNavBtn,
-              ...(seccionCliente === "experimento1"
-                ? styles.clientNavBtnActive
-                : {}),
-            }}
-            onClick={entrarExperimento1}
-          >
-            Experimento 1
-          </button>
-        </section>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "experimento1"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={entrarExperimento1}
+        >
+          Experimento 1
+        </button>
+      </section>
 
-        {seccionCliente === "inicio" && (
-          <>
-            {renderHeroInicio()}
-            {renderCatalogoExperimentos()}
-          </>
-        )}
+      {seccionCliente === "inicio" && (
+        <>
+          {(clienteAuthModo === "login" ||
+            clienteAuthModo === "registro" ||
+            clienteAuthModo === "perfil") && (
+            <section style={styles.panel}>
+              <div
+                style={{
+                  maxWidth: 760,
+                  margin: "0 auto",
+                }}
+              >
+                <div style={styles.menuInteractiveBadge}>👤 PERFIL DE CLIENTE</div>
 
-        {seccionCliente === "catalogo" && renderCatalogoExperimentos()}
-        {seccionCliente === "experimento1" && renderExperimento1()}
-      </>
-    );
-  }
+                <h2 style={styles.panelTitle}>
+                  {clienteSesion?.id
+                    ? "MI PERFIL DEL LAB"
+                    : clienteAuthModo === "registro"
+                    ? "CREAR PERFIL"
+                    : "INGRESAR"}
+                </h2>
+
+                {!clienteSesion?.id ? (
+                  <>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        flexWrap: "wrap",
+                        marginBottom: 18,
+                      }}
+                    >
+                      <button
+                        type="button"
+                        style={{
+                          ...styles.secondaryBtn,
+                          ...(clienteAuthModo === "login"
+                            ? styles.navBtnActive
+                            : {}),
+                        }}
+                        onClick={() => setClienteAuthModo("login")}
+                      >
+                        Ingresar
+                      </button>
+
+                      <button
+                        type="button"
+                        style={{
+                          ...styles.secondaryBtn,
+                          ...(clienteAuthModo === "registro"
+                            ? styles.navBtnActive
+                            : {}),
+                        }}
+                        onClick={() => setClienteAuthModo("registro")}
+                      >
+                        Crear perfil
+                      </button>
+                    </div>
+
+                    {clienteAuthModo === "login" ? (
+                      <>
+                        <Input
+                          label="Teléfono registrado"
+                          value={clienteLoginData.telefono}
+                          onChange={(e) =>
+                            setClienteLoginData((prev) => ({
+                              ...prev,
+                              telefono: e.target.value,
+                            }))
+                          }
+                        />
+
+                        <div style={{ marginBottom: 14 }}>
+                          <label style={styles.label}>Contraseña</label>
+                          <input
+                            type="password"
+                            style={styles.input}
+                            value={clienteLoginData.password}
+                            onChange={(e) =>
+                              setClienteLoginData((prev) => ({
+                                ...prev,
+                                password: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          style={{
+                            ...styles.confirmBtn,
+                            marginTop: 0,
+                            ...(cargandoClienteAuth
+                              ? styles.disabledBtn
+                              : {}),
+                          }}
+                          onClick={iniciarSesionCliente}
+                          disabled={cargandoClienteAuth}
+                        >
+                          {cargandoClienteAuth
+                            ? "Ingresando..."
+                            : "Ingresar con mi perfil"}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Input
+                          label="Nombre"
+                          value={clienteRegistroData.nombre}
+                          onChange={(e) =>
+                            setClienteRegistroData((prev) => ({
+                              ...prev,
+                              nombre: e.target.value,
+                            }))
+                          }
+                        />
+
+                        <Input
+                          label="Teléfono"
+                          value={clienteRegistroData.telefono}
+                          onChange={(e) =>
+                            setClienteRegistroData((prev) => ({
+                              ...prev,
+                              telefono: e.target.value,
+                            }))
+                          }
+                        />
+
+                        <div style={{ marginBottom: 14 }}>
+                          <label style={styles.label}>Contraseña</label>
+                          <input
+                            type="password"
+                            style={styles.input}
+                            value={clienteRegistroData.password}
+                            onChange={(e) =>
+                              setClienteRegistroData((prev) => ({
+                                ...prev,
+                                password: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+
+                        <Input
+                          label="Dirección principal"
+                          value={clienteRegistroData.direccion}
+                          onChange={(e) =>
+                            setClienteRegistroData((prev) => ({
+                              ...prev,
+                              direccion: e.target.value,
+                            }))
+                          }
+                        />
+
+                        <Input
+                          label="Referencia"
+                          value={clienteRegistroData.referencia}
+                          onChange={(e) =>
+                            setClienteRegistroData((prev) => ({
+                              ...prev,
+                              referencia: e.target.value,
+                            }))
+                          }
+                        />
+
+                        <Input
+                          label="Alias de dirección"
+                          value={clienteRegistroData.aliasDireccion}
+                          onChange={(e) =>
+                            setClienteRegistroData((prev) => ({
+                              ...prev,
+                              aliasDireccion: e.target.value,
+                            }))
+                          }
+                        />
+
+                        <button
+                          type="button"
+                          style={{
+                            ...styles.confirmBtn,
+                            marginTop: 0,
+                            ...(cargandoClienteAuth
+                              ? styles.disabledBtn
+                              : {}),
+                          }}
+                          onClick={registrarCliente}
+                          disabled={cargandoClienteAuth}
+                        >
+                          {cargandoClienteAuth
+                            ? "Creando perfil..."
+                            : "Crear perfil y guardar datos"}
+                        </button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        color: "#fff",
+                        fontWeight: "bold",
+                        marginBottom: 8,
+                      }}
+                    >
+                      Sesión activa: {clienteSesion.nombre}
+                    </div>
+
+                    <div style={{ color: "#cfcfcf", marginBottom: 14 }}>
+                      Teléfono: {clienteSesion.telefono}
+                    </div>
+
+                    {direccionesCliente.length > 0 && (
+                      <div style={{ marginBottom: 14 }}>
+                        <label style={styles.label}>Dirección guardada</label>
+                        <select
+                          style={styles.input}
+                          value={direccionSeleccionadaId}
+                          onChange={(e) => usarDireccionGuardada(e.target.value)}
+                          disabled={usarOtraDireccion}
+                        >
+                          {direccionesCliente.map((direccion) => (
+                            <option key={direccion.id} value={direccion.id}>
+                              {direccion.alias} — {direccion.direccion}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                      <button
+                        type="button"
+                        style={styles.secondaryBtn}
+                        onClick={() => setUsarOtraDireccion((prev) => !prev)}
+                      >
+                        {usarOtraDireccion
+                          ? "Usar dirección guardada"
+                          : "Pedir a otra dirección hoy"}
+                      </button>
+
+                      <button
+                        type="button"
+                        style={{
+                          ...styles.secondaryBtn,
+                          ...(guardandoDireccionCliente
+                            ? styles.disabledBtn
+                            : {}),
+                        }}
+                        onClick={guardarDireccionActualCliente}
+                        disabled={guardandoDireccionCliente}
+                      >
+                        {guardandoDireccionCliente
+                          ? "Guardando..."
+                          : "Guardar dirección actual"}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
+          )}
+
+          {renderHeroInicio()}
+          {renderCatalogoExperimentos()}
+        </>
+      )}
+
+      {seccionCliente === "catalogo" && renderCatalogoExperimentos()}
+      {seccionCliente === "experimento1" && renderExperimento1()}
+    </>
+  );
+}
 
   return (
     <div style={styles.page}>
@@ -3231,74 +3237,140 @@ function usarDireccionGuardada(direccionId) {
 
       <div style={styles.container}>
         <header
+  style={{
+    ...styles.header,
+    flexDirection: esMovil ? "column" : "row",
+    alignItems: esMovil ? "flex-start" : "center",
+  }}
+>
+  <div>
+    <div style={styles.badge}>🧪 DR. CRISPY LAB ACTIVO</div>
+    <h1 style={styles.title}>Dr. Crispy Lab</h1>
+    <p style={styles.subtitle}>Sistema real conectado con backend</p>
+    <p
+      style={{
+        marginTop: 8,
+        color: socketConectado ? "#9ef0b8" : "#ffc1c1",
+      }}
+    >
+      {socketConectado
+        ? "🟢 Tiempo real conectado"
+        : "🔴 Tiempo real desconectado"}
+    </p>
+  </div>
+
+  <div style={styles.navButtons}>
+    <button
+      style={{
+        ...styles.navBtn,
+        ...(vista === "cliente" ? styles.navBtnActive : {}),
+      }}
+      onClick={() => setVista("cliente")}
+    >
+      Cliente
+    </button>
+
+    {!clienteSesion?.id ? (
+      <>
+        <button
+          type="button"
           style={{
-            ...styles.header,
-            flexDirection: esMovil ? "column" : "row",
-            alignItems: esMovil ? "flex-start" : "center",
+            ...styles.navBtn,
+            ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
+          }}
+          onClick={() => {
+            setVista("cliente");
+            setSeccionCliente("inicio");
+            setClienteAuthModo("login");
+            window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         >
-          <div>
-            <div style={styles.badge}>🧪 DR. CRISPY LAB ACTIVO</div>
-            <h1 style={styles.title}>Dr. Crispy Lab</h1>
-            <p style={styles.subtitle}>Sistema real conectado con backend</p>
-            <p
-              style={{
-                marginTop: 8,
-                color: socketConectado ? "#9ef0b8" : "#ffc1c1",
-              }}
-            >
-              {socketConectado
-                ? "🟢 Tiempo real conectado"
-                : "🔴 Tiempo real desconectado"}
-            </p>
-          </div>
+          Ingresar
+        </button>
 
-          <div style={styles.navButtons}>
-            <button
-              style={{
-                ...styles.navBtn,
-                ...(vista === "cliente" ? styles.navBtnActive : {}),
-              }}
-              onClick={() => setVista("cliente")}
-            >
-              Cliente
-            </button>
+        <button
+          type="button"
+          style={{
+            ...styles.navBtn,
+            ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
+          }}
+          onClick={() => {
+            setVista("cliente");
+            setSeccionCliente("inicio");
+            setClienteAuthModo("registro");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
+          Crear perfil
+        </button>
+      </>
+    ) : (
+      <>
+        <div style={styles.userMiniPill}>
+          👤 {clienteSesion.nombre || "Cliente"}
+        </div>
 
-            <button
-              style={{
-                ...styles.navBtn,
-                ...(vista === "seguimiento" ? styles.navBtnActive : {}),
-              }}
-              onClick={() => setVista("seguimiento")}
-            >
-              Seguimiento
-            </button>
+        <button
+          type="button"
+          style={{
+            ...styles.navBtn,
+            ...(clienteAuthModo === "perfil" ? styles.navBtnActive : {}),
+          }}
+          onClick={() => {
+            setVista("cliente");
+            setSeccionCliente("inicio");
+            setClienteAuthModo("perfil");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
+          Mi perfil
+        </button>
 
-            {puedeVerAdmin && (
-              <button
-                style={{
-                  ...styles.navBtn,
-                  ...(vista === "admin" ? styles.navBtnActive : {}),
-                }}
-                onClick={() => setVista("admin")}
-              >
-                Admin
-              </button>
-            )}
+        <button
+          type="button"
+          style={styles.navBtn}
+          onClick={cerrarSesionCliente}
+        >
+          Cerrar sesión
+        </button>
+      </>
+    )}
 
-            {puedeVerRepartidor && (
-              <button
-                style={{
-                  ...styles.navBtn,
-                  ...(vista === "repartidor" ? styles.navBtnActive : {}),
-                }}
-                onClick={() => setVista("repartidor")}
-              >
-                Repartidor
-              </button>
-            )}
-          </div>
-        </header>
+    <button
+      style={{
+        ...styles.navBtn,
+        ...(vista === "seguimiento" ? styles.navBtnActive : {}),
+      }}
+      onClick={() => setVista("seguimiento")}
+    >
+      Seguimiento
+    </button>
+
+    {puedeVerAdmin && (
+      <button
+        style={{
+          ...styles.navBtn,
+          ...(vista === "admin" ? styles.navBtnActive : {}),
+        }}
+        onClick={() => setVista("admin")}
+      >
+        Admin
+      </button>
+    )}
+
+    {puedeVerRepartidor && (
+      <button
+        style={{
+          ...styles.navBtn,
+          ...(vista === "repartidor" ? styles.navBtnActive : {}),
+        }}
+        onClick={() => setVista("repartidor")}
+      >
+        Repartidor
+      </button>
+    )}
+  </div>
+</header>
 
         {mensaje.texto && (
           <div
@@ -4128,6 +4200,17 @@ const styles = {
     background: "#ff0000",
     border: "1px solid #ff0000",
   },
+
+  userMiniPill: {
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  color: "#fff",
+  padding: "12px 14px",
+  borderRadius: 12,
+  fontWeight: "bold",
+  fontSize: 14,
+},
+
   clientNavWrap: {
     display: "flex",
     gap: 10,
