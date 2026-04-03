@@ -2444,12 +2444,18 @@ function usarDireccionGuardada(direccionId) {
                 <div style={styles.menuInteractiveBadge}>👤 PERFIL DE CLIENTE</div>
 
                 <h2 style={styles.panelTitle}>
-                  {clienteSesion?.id
-                    ? "MI PERFIL DEL LAB"
-                    : clienteAuthModo === "registro"
-                    ? "CREAR PERFIL"
-                    : "INGRESAR"}
-                </h2>
+  {clienteSesion?.id
+    ? "MI PERFIL DEL LAB"
+    : clienteAuthModo === "registro"
+    ? "CREAR PERFIL"
+    : "INGRESAR"}
+</h2>
+
+<p style={styles.loginHint}>
+  {clienteAuthModo === "registro"
+    ? "💾 Guarda tu dirección y pide más rápido en tus próximos pedidos."
+    : "🧪 Guarda tus datos en el laboratorio y evita escribirlos en cada pedido."}
+</p>
 
                 {!clienteSesion?.id ? (
                   <>
@@ -4595,6 +4601,14 @@ const styles = {
     fontSize: 18,
     cursor: "pointer",
   },
+  
+  loginHint: {
+  color: "#cfcfcf",
+  fontSize: 14,
+  marginBottom: 16,
+  lineHeight: 1.4,
+  maxWidth: 500,
+},
 
   drawerItemsWrap: {
     display: "grid",
