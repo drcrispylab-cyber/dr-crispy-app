@@ -4,6 +4,27 @@
     "nombre": "Maria",
     "telefono": "3043825407",
     "password": "123456",
-    "direcciones": []
+    "direcciones": [{
+        "id": "dir-1",
+        "alias": "Casa",
+        "direccion": "Barrio Galan, Calle 52 b #24 -95",
+        "referencia": "Diagonal a liceo semillitas",
+        "principal": true
+      }]
+  },
+  {
+    "id": "2",
+    "nombre": "Luis",
+    "telefono": "573118927742",
+    "password": "123456",
+    "direcciones": [
+      {
+        "id": "dir-1",
+        "alias": "Casa",
+        "direccion": "Barrio Galan, Calle 52 b #24 -95",
+        "referencia": "Diagonal a liceo semillitas",
+        "principal": true
+      }
+    ]
   }
 ]
