@@ -1681,68 +1681,132 @@ function usarDireccionGuardada(direccionId) {
   }
 
   function renderSimpleCard(producto) {
-    return (
-      <div key={producto.id} style={styles.simpleMenuCard}>
-        <div style={styles.simpleEmoji}>{producto.emoji}</div>
-        <h3 style={styles.simpleTitle}>{producto.nombre}</h3>
-        <p style={styles.simpleDesc}>{producto.descripcion}</p>
-        <div style={styles.simplePrice}>
-          ${producto.precio.toLocaleString("es-CO")}
+  const esBebida = producto.categoria === "bebidas";
+  const esAdicional = producto.categoria === "adicionales";
+
+  return (
+    <div key={producto.id} style={styles.simpleCardPro}>
+      <div style={styles.simpleCardTop}>
+        <div style={styles.simpleEmojiPro}>{producto.emoji}</div>
+
+        <div style={styles.simpleTypeBadge}>
+          {esBebida ? "BEBIDA" : esAdicional ? "ADICIONAL" : "PRODUCTO"}
         </div>
-        <button
-          style={styles.addBtnPro}
-          onClick={(e) => agregarProducto(producto, e.currentTarget)}
-        >
-          Agregar al experimento
-        </button>
       </div>
-    );
-  }
+
+      <div style={styles.simpleVisualWrap}>
+        <img
+          src={
+            producto.imagen ||
+            (esBebida
+              ? "/images/bebida-placeholder.png"
+              : "/images/adicional-placeholder.png")
+          }
+          alt={producto.nombre}
+          style={styles.simpleVisualImage}
+        />
+        <div style={styles.simpleVisualOverlay}></div>
+      </div>
+
+      <div style={styles.simpleCardBody}>
+        <h3 style={styles.simpleTitlePro}>{producto.nombre}</h3>
+
+        <p style={styles.simpleDescPro}>{producto.descripcion}</p>
+
+        <div style={styles.simpleBenefitRow}>
+          <div style={styles.simpleBenefitPill}>
+            {esBebida ? "🥤 Fría y lista" : "🍟 Súmalo a tu pedido"}
+          </div>
+
+          <div style={styles.simpleBenefitPill}>
+            {esBebida ? "⚡ Combina perfecto" : "🔥 Más completo"}
+          </div>
+        </div>
+
+        <div style={styles.simpleBottomRow}>
+          <div>
+            <div style={styles.simplePriceLabel}>Precio</div>
+            <div style={styles.simplePricePro}>
+              ${producto.precio.toLocaleString("es-CO")}
+            </div>
+          </div>
+
+          <button
+            style={styles.addBtnPro}
+            onClick={(e) => agregarProducto(producto, e.currentTarget)}
+          >
+            Agregar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
   function renderComboCard(combo) {
-      return (
-        <div
-          key={combo.id}
-          style={{
-            ...styles.comboCard,
-            ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeatured : {}),
-          }}
-        >
-          <div style={styles.comboTopRow}>
-            <div style={styles.comboEmoji}>{combo.emoji}</div>
-            <div style={styles.comboBadge}>{combo.badge}</div>
-          </div>
+  return (
+    <div
+      key={combo.id}
+      style={{
+        ...styles.comboCardPro,
+        ...(combo.badge === "MÁS PEDIDO"
+          ? styles.comboCardProFeatured
+          : {}),
+      }}
+    >
+      <div style={styles.comboImageWrap}>
+        <img
+          src={combo.imagen || "/images/combo-placeholder.png"}
+          alt={combo.nombre}
+          style={styles.comboImage}
+        />
 
-          <h3 style={styles.comboTitle}>{combo.nombre}</h3>
-          <p style={styles.comboDesc}>{combo.descripcion}</p>
+        <div style={styles.comboImageOverlay}></div>
 
-          <div style={styles.comboIncludesWrap}>
-            {combo.itemsInternos.map((item) => (
-              <div key={item.id} style={styles.comboIncludeItem}>
-                • {item.nombre} x{item.cantidad}
-              </div>
-            ))}
-          </div>
+        <div style={styles.comboTopBadges}>
+          <div style={styles.comboBadgePro}>{combo.badge}</div>
+          <div style={styles.comboDeliveryBadge}>🚚 Domicilio incluido</div>
+        </div>
+      </div>
 
-          <div style={styles.comboFooter}>
-            <div>
-              <div style={styles.comboMiniLabel}>Domicilio incluido</div>
-              <div style={styles.comboPrice}>
-                ${combo.precio.toLocaleString("es-CO")}
-              </div>
+      <div style={styles.comboBodyPro}>
+        <div style={styles.comboEmojiLine}>
+          <span style={styles.comboEmojiPro}>{combo.emoji}</span>
+          <span style={styles.comboMiniTag}>DR. CRISPY LAB</span>
+        </div>
+
+        <h3 style={styles.comboTitlePro}>{combo.nombre}</h3>
+
+        <p style={styles.comboDescPro}>{combo.descripcion}</p>
+
+        <div style={styles.comboQuickList}>
+          {combo.itemsInternos.map((item) => (
+            <div key={item.id} style={styles.comboQuickItem}>
+              • {item.nombre} x{item.cantidad}
+            </div>
+          ))}
+        </div>
+
+        <div style={styles.comboBottomRow}>
+          <div>
+            <div style={styles.comboPriceLabel}>Precio del experimento</div>
+            <div style={styles.comboPricePro}>
+              ${combo.precio.toLocaleString("es-CO")}
             </div>
           </div>
 
           <button
             type="button"
-            style={styles.comboBtn}
+            style={styles.comboBtnPro}
             onClick={() => setComboPendiente({ combo, target: null })}
           >
-            Elegir salsa y pedir
+            Pedir combo
           </button>
         </div>
-      );
-    }
+      </div>
+    </div>
+  );
+}
 
   function renderHeroInicio() {
   return (
@@ -3221,75 +3285,141 @@ function renderBebidasScreen() {
       )}
 
       {comboPendiente && (
-        <div
-          style={styles.modalBackdrop}
-          onClick={() => setComboPendiente(null)}
-        >
-          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalTop}>
-              <div>
-                <div style={styles.menuInteractiveBadge}>🔥 SALSA DEL COMBO</div>
-                <h2 style={styles.modalTitle}>{comboPendiente.combo.nombre}</h2>
-                <p style={styles.modalSubtitle}>
-                  Elige el sabor de tus alitas para este combo
-                </p>
-              </div>
+  <div
+    style={styles.modalBackdrop}
+    onClick={() => setComboPendiente(null)}
+  >
+    <div
+      style={{
+        ...styles.modalCard,
+        maxWidth: 1040,
+        padding: 0,
+        overflow: "hidden",
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div
+        style={{
+          ...styles.comboModalLayout,
+          gridTemplateColumns: esMovil ? "1fr" : "0.95fr 1.05fr",
+        }}
+      >
+        <div style={styles.comboModalImageSide}>
+          <img
+            src={
+              comboPendiente.combo.imagen || "/images/combo-placeholder.png"
+            }
+            alt={comboPendiente.combo.nombre}
+            style={styles.comboModalImage}
+          />
 
-              <button
-                style={styles.modalCloseBtn}
-                onClick={() => setComboPendiente(null)}
-              >
-                ✕
-              </button>
-            </div>
+          <div style={styles.comboModalImageOverlay}></div>
 
-            <div
-              style={{
-                ...styles.sauceVisualGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(3, minmax(0, 1fr))",
-              }}
-            >
-              {SALSAS.map((salsa) => (
-                <button
-                  key={salsa.nombre}
-                  style={styles.sauceVisualCard}
-                  onClick={() => {
-                    setSalsaSeleccionAnimando(salsa.nombre);
-
-                    setTimeout(() => {
-                      if (salsa.nombre === "Fuego Atómico") {
-                        setComboSalsaPendiente({
-                          combo: comboPendiente.combo,
-                          target: comboPendiente.target,
-                          salsa,
-                        });
-                        setComboPendiente(null);
-                        setNivelAtomico("");
-                        setSalsaSeleccionAnimando("");
-                        return;
-                      }
-
-                      agregarCombo(
-                        comboPendiente.combo,
-                        comboPendiente.target,
-                        salsa.nombre
-                      );
-                      setComboPendiente(null);
-                      setSalsaSeleccionAnimando("");
-                    }, 220);
-                  }}
-                                  >
-                  <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
-                  <div style={styles.sauceVisualName}>{salsa.nombre}</div>
-                  <div style={styles.sauceVisualDesc}>{salsa.descripcion}</div>
-                </button>
-              ))}
+          <div style={styles.comboModalImageContent}>
+            <div style={styles.comboModalBadge}>🔥 SALSA DEL COMBO</div>
+            <h2 style={styles.comboModalImageTitle}>
+              {comboPendiente.combo.nombre}
+            </h2>
+            <div style={styles.comboModalImagePrice}>
+              ${comboPendiente.combo.precio.toLocaleString("es-CO")}
             </div>
           </div>
         </div>
-      )}
+
+        <div style={styles.comboModalContentSide}>
+          <div style={styles.modalTop}>
+            <div>
+              <div style={styles.menuInteractiveBadge}>🧪 PERSONALIZA TU COMBO</div>
+              <h2 style={styles.modalTitle}>{comboPendiente.combo.nombre}</h2>
+              <p style={styles.modalSubtitle}>
+                Elige el sabor de tus alitas para este experimento.
+              </p>
+            </div>
+
+            <button
+              style={styles.modalCloseBtn}
+              onClick={() => setComboPendiente(null)}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div style={styles.comboModalInfoBox}>
+            <div style={styles.comboModalInfoTitle}>Incluye:</div>
+
+            <div style={styles.comboModalInfoList}>
+              {comboPendiente.combo.itemsInternos.map((item) => (
+                <div key={item.id} style={styles.comboModalInfoItem}>
+                  • {item.nombre} x{item.cantidad}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            style={{
+              ...styles.sauceVisualGrid,
+              gridTemplateColumns: esMovil
+                ? "1fr"
+                : "repeat(3, minmax(0, 1fr))",
+            }}
+          >
+            {SALSAS.map((salsa) => (
+              <button
+                key={salsa.nombre}
+                style={{
+                  ...styles.sauceVisualCard,
+                  ...(salsaSeleccionAnimando === salsa.nombre
+                    ? styles.sauceVisualCardSelected
+                    : {}),
+                }}
+                onClick={() => {
+                  setSalsaSeleccionAnimando(salsa.nombre);
+
+                  setTimeout(() => {
+                    if (salsa.nombre === "Fuego Atómico") {
+                      setComboSalsaPendiente({
+                        combo: comboPendiente.combo,
+                        target: comboPendiente.target,
+                        salsa,
+                      });
+                      setComboPendiente(null);
+                      setNivelAtomico("");
+                      setSalsaSeleccionAnimando("");
+                      return;
+                    }
+
+                    agregarCombo(
+                      comboPendiente.combo,
+                      comboPendiente.target,
+                      salsa.nombre
+                    );
+                    setComboPendiente(null);
+                    setSalsaSeleccionAnimando("");
+                  }, 220);
+                }}
+              >
+                <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
+                <div style={styles.sauceVisualName}>{salsa.nombre}</div>
+                <div style={styles.sauceVisualDesc}>{salsa.descripcion}</div>
+              </button>
+            ))}
+          </div>
+
+          <div style={styles.comboModalFooter}>
+            <div style={styles.comboModalFooterText}>
+              Selecciona una salsa para agregar este combo al pedido.
+            </div>
+
+            <div style={styles.comboModalFooterPrice}>
+              ${comboPendiente.combo.precio.toLocaleString("es-CO")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
 
       {comboSalsaPendiente && (
@@ -6546,6 +6676,423 @@ headerMiniInfo: {
   borderRadius: 999,
   fontWeight: "bold",
   fontSize: 12,
+},
+comboCardPro: {
+  background:
+    "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 24,
+  overflow: "hidden",
+  boxShadow: "0 16px 34px rgba(0,0,0,0.22)",
+  display: "flex",
+  flexDirection: "column",
+  transition: "transform 0.22s ease, box-shadow 0.22s ease, border 0.22s ease",
+},
+
+comboCardProFeatured: {
+  border: "1px solid rgba(255,0,0,0.30)",
+  boxShadow: "0 22px 42px rgba(255,0,0,0.16)",
+  transform: "translateY(-4px)",
+},
+
+comboImageWrap: {
+  position: "relative",
+  width: "100%",
+  height: 210,
+  overflow: "hidden",
+  background: "#111",
+},
+
+comboImage: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+comboImageOverlay: {
+  position: "absolute",
+  inset: 0,
+  background:
+    "linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.10) 45%, rgba(0,0,0,0.18))",
+},
+
+comboTopBadges: {
+  position: "absolute",
+  top: 12,
+  left: 12,
+  right: 12,
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 8,
+  flexWrap: "wrap",
+},
+
+comboBadgePro: {
+  background: "linear-gradient(135deg, #ff0000, #b30000)",
+  color: "#fff",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 11,
+  letterSpacing: 0.9,
+  boxShadow: "0 8px 18px rgba(255,0,0,0.18)",
+},
+
+comboDeliveryBadge: {
+  background: "rgba(255,196,0,0.14)",
+  border: "1px solid rgba(255,196,0,0.22)",
+  color: "#ffd166",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 11,
+},
+
+comboBodyPro: {
+  padding: 18,
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+  flex: 1,
+},
+
+comboEmojiLine: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+},
+
+comboEmojiPro: {
+  fontSize: 30,
+},
+
+comboMiniTag: {
+  display: "inline-block",
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#ffdcdc",
+  padding: "7px 10px",
+  borderRadius: 999,
+  fontSize: 11,
+  fontWeight: "bold",
+  letterSpacing: 0.6,
+},
+
+comboTitlePro: {
+  margin: 0,
+  fontSize: 40,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+  lineHeight: 0.95,
+},
+
+comboDescPro: {
+  margin: 0,
+  color: "#d2d2d2",
+  lineHeight: 1.5,
+  fontSize: 15,
+},
+
+comboQuickList: {
+  display: "grid",
+  gap: 8,
+},
+
+comboQuickItem: {
+  fontSize: 13,
+  color: "#d8d8d8",
+  padding: "9px 11px",
+  borderRadius: 12,
+  background: "rgba(255,255,255,0.045)",
+  border: "1px solid rgba(255,255,255,0.06)",
+  lineHeight: 1.35,
+},
+
+comboBottomRow: {
+  marginTop: "auto",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  gap: 14,
+  flexWrap: "wrap",
+},
+
+comboPriceLabel: {
+  color: "#bdbdbd",
+  fontSize: 12,
+  marginBottom: 4,
+},
+
+comboPricePro: {
+  fontSize: 34,
+  fontWeight: "bold",
+  color: "#ff3535",
+  textShadow: "0 0 16px rgba(255,0,0,0.20)",
+  lineHeight: 1,
+},
+
+comboBtnPro: {
+  background: "linear-gradient(135deg, #ff1200, #c30000)",
+  color: "#fff",
+  border: "none",
+  padding: "14px 18px",
+  borderRadius: 14,
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: 15,
+  boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
+},
+
+simpleCardPro: {
+  background:
+    "linear-gradient(180deg, rgba(25,25,25,0.98), rgba(10,10,10,1))",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 22,
+  overflow: "hidden",
+  boxShadow: "0 14px 28px rgba(0,0,0,0.20)",
+  display: "flex",
+  flexDirection: "column",
+},
+
+simpleCardTop: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 10,
+  padding: "16px 16px 0 16px",
+},
+
+simpleEmojiPro: {
+  fontSize: 30,
+},
+
+simpleTypeBadge: {
+  background: "rgba(255,0,0,0.12)",
+  border: "1px solid rgba(255,0,0,0.22)",
+  color: "#ffb0b0",
+  padding: "7px 10px",
+  borderRadius: 999,
+  fontSize: 11,
+  fontWeight: "bold",
+  letterSpacing: 0.7,
+},
+
+simpleVisualWrap: {
+  position: "relative",
+  width: "100%",
+  height: 170,
+  overflow: "hidden",
+  marginTop: 14,
+  background: "#111",
+},
+
+simpleVisualImage: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+simpleVisualOverlay: {
+  position: "absolute",
+  inset: 0,
+  background:
+    "linear-gradient(to top, rgba(0,0,0,0.62), rgba(0,0,0,0.08) 45%, rgba(0,0,0,0.16))",
+},
+
+simpleCardBody: {
+  padding: 16,
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+  flex: 1,
+},
+
+simpleTitlePro: {
+  margin: 0,
+  fontSize: 38,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+  lineHeight: 0.95,
+},
+
+simpleDescPro: {
+  color: "#d2d2d2",
+  margin: 0,
+  lineHeight: 1.5,
+  fontSize: 14,
+},
+
+simpleBenefitRow: {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+},
+
+simpleBenefitPill: {
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#ffdcdc",
+  padding: "8px 10px",
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: "bold",
+},
+
+simpleBottomRow: {
+  marginTop: "auto",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  gap: 12,
+  flexWrap: "wrap",
+},
+
+simplePriceLabel: {
+  color: "#bdbdbd",
+  fontSize: 12,
+  marginBottom: 4,
+},
+
+simplePricePro: {
+  fontSize: 30,
+  fontWeight: "bold",
+  color: "#ff2c2c",
+  textShadow: "0 0 16px rgba(255,0,0,0.20)",
+  lineHeight: 1,
+},
+
+comboModalLayout: {
+  display: "grid",
+  minHeight: 560,
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.08), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.98), rgba(8,8,8,1))",
+},
+
+comboModalImageSide: {
+  position: "relative",
+  minHeight: 320,
+  background: "#111",
+  overflow: "hidden",
+},
+
+comboModalImage: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+comboModalImageOverlay: {
+  position: "absolute",
+  inset: 0,
+  background:
+    "linear-gradient(to top, rgba(0,0,0,0.82), rgba(0,0,0,0.18) 45%, rgba(0,0,0,0.22))",
+},
+
+comboModalImageContent: {
+  position: "absolute",
+  left: 22,
+  right: 22,
+  bottom: 22,
+  zIndex: 2,
+},
+
+comboModalBadge: {
+  display: "inline-block",
+  background: "linear-gradient(135deg, #ff0000, #b30000)",
+  color: "#fff",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+  letterSpacing: 0.8,
+  marginBottom: 12,
+},
+
+comboModalImageTitle: {
+  margin: 0,
+  fontSize: 52,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  lineHeight: 0.95,
+  letterSpacing: 1,
+},
+
+comboModalImagePrice: {
+  marginTop: 10,
+  fontSize: 34,
+  fontWeight: "bold",
+  color: "#ff3a3a",
+  textShadow: "0 0 16px rgba(255,0,0,0.20)",
+},
+
+comboModalContentSide: {
+  padding: 24,
+  display: "flex",
+  flexDirection: "column",
+  gap: 18,
+},
+
+comboModalInfoBox: {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 18,
+  padding: 16,
+},
+
+comboModalInfoTitle: {
+  fontWeight: "bold",
+  color: "#ffd166",
+  marginBottom: 10,
+  fontSize: 14,
+},
+
+comboModalInfoList: {
+  display: "grid",
+  gap: 8,
+},
+
+comboModalInfoItem: {
+  color: "#e4e4e4",
+  fontSize: 14,
+  lineHeight: 1.4,
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.05)",
+  borderRadius: 12,
+  padding: "10px 12px",
+},
+
+comboModalFooter: {
+  marginTop: "auto",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 14,
+  flexWrap: "wrap",
+  paddingTop: 14,
+  borderTop: "1px solid rgba(255,255,255,0.08)",
+},
+
+comboModalFooterText: {
+  color: "#cfcfcf",
+  fontSize: 14,
+  lineHeight: 1.4,
+  maxWidth: 420,
+},
+
+comboModalFooterPrice: {
+  fontSize: 28,
+  fontWeight: "bold",
+  color: "#ff3535",
+  textShadow: "0 0 16px rgba(255,0,0,0.20)",
 },
 
 };
