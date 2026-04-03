@@ -595,6 +595,7 @@ app.post("/login", (req, res) => {
 
 // Registro cliente
 app.post("/clientes/registro", (req, res) => {
+  console.log("🚀 ENTRO A REGISTRO");
   try {
     const {
       nombre,
