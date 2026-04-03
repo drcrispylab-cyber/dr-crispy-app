@@ -367,6 +367,8 @@ function App() {
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
 
+  const [botonAnimando, setBotonAnimando] = useState(null);
+
   const [drawerCarritoAbierto, setDrawerCarritoAbierto] = useState(false);
 
   const [salsaSeleccionAnimando, setSalsaSeleccionAnimando] = useState("");
@@ -779,35 +781,46 @@ function usarDireccionGuardada(direccionId) {
 }
 
   function agregarProducto(producto, target) {
-    const key = getCartKey(producto);
-    const existente = carrito.find((item) => item.cartKey === key);
+  const key = getCartKey(producto);
+  const existente = carrito.find((item) => item.cartKey === key);
 
-    if (existente) {
-      setCarrito((prev) =>
-        prev.map((item) =>
-          item.cartKey === key
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        )
-      );
+  setBotonAnimando(key);
+  setCarritoAnimando(true);
 
-      mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
-      return;
-    }
+  setTimeout(() => {
+    setBotonAnimando(null);
+  }, 220);
 
-    setCarrito((prev) => [
-      ...prev,
-      {
-        ...producto,
-        cantidad: 1,
-        cartKey: key,
-        experimento: "Experimento 1",
-        categoriaExperimento: "Alitas Crispy",
-      },
-    ]);
+  setTimeout(() => {
+    setCarritoAnimando(false);
+  }, 420);
+
+  if (existente) {
+    setCarrito((prev) =>
+      prev.map((item) =>
+        item.cartKey === key
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      )
+    );
 
     mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
+    return;
   }
+
+  setCarrito((prev) => [
+    ...prev,
+    {
+      ...producto,
+      cantidad: 1,
+      cartKey: key,
+      experimento: "Experimento 1",
+      categoriaExperimento: "Alitas Crispy",
+    },
+  ]);
+
+  mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
+}
 
   function agregarProductoDirecto(producto, cantidad = 1, target = null) {
     const nuevoProducto = {
@@ -1724,20 +1737,23 @@ function usarDireccionGuardada(direccionId) {
         </div>
 
         <div style={styles.simpleBottomRow}>
-          <div>
-            <div style={styles.simplePriceLabel}>Precio</div>
-            <div style={styles.simplePricePro}>
-              ${producto.precio.toLocaleString("es-CO")}
-            </div>
-          </div>
+  <div>
+    <div style={styles.simplePriceLabel}>Precio</div>
+    <div style={styles.simplePricePro}>
+      ${producto.precio.toLocaleString("es-CO")}
+    </div>
+  </div>
 
-          <button
-            style={styles.addBtnPro}
-            onClick={(e) => agregarProducto(producto, e.currentTarget)}
-          >
-            Agregar
-          </button>
-        </div>
+  <button
+    style={{
+      ...styles.addBtnPro,
+      ...(botonAnimando === getCartKey(producto) ? styles.addBtnPop : {}),
+    }}
+    onClick={(e) => agregarProducto(producto, e.currentTarget)}
+  >
+    Agregar
+  </button>
+</div>
       </div>
     </div>
   );
@@ -1788,21 +1804,32 @@ function usarDireccionGuardada(direccionId) {
         </div>
 
         <div style={styles.comboBottomRow}>
-          <div>
-            <div style={styles.comboPriceLabel}>Precio del experimento</div>
-            <div style={styles.comboPricePro}>
-              ${combo.precio.toLocaleString("es-CO")}
-            </div>
-          </div>
+  <div>
+    <div style={styles.comboPriceLabel}>Precio del experimento</div>
+    <div style={styles.comboPricePro}>
+      ${combo.precio.toLocaleString("es-CO")}
+    </div>
+  </div>
 
-          <button
-            type="button"
-            style={styles.comboBtnPro}
-            onClick={() => setComboPendiente({ combo, target: null })}
-          >
-            Pedir combo
-          </button>
-        </div>
+  <button
+    type="button"
+    style={{
+      ...styles.comboBtnPro,
+      ...(botonAnimando === combo.id ? styles.addBtnPop : {}),
+    }}
+    onClick={() => {
+      setBotonAnimando(combo.id);
+
+      setTimeout(() => {
+        setBotonAnimando("");
+      }, 220);
+
+      setComboPendiente({ combo, target: null });
+    }}
+  >
+    Pedir combo
+  </button>
+</div>
       </div>
     </div>
   );
@@ -3158,6 +3185,17 @@ function renderCarritoDesktop() {
       {seccionCliente === "adicionales" && renderAdicionalesScreen()}
       {seccionCliente === "bebidas" && renderBebidasScreen()}
       {seccionCliente === "experimento1" && renderExperimento1()}
+
+      {esMovil && carrito.length > 0 && (
+  <div style={styles.floatingCartWrap}>
+    <button
+      style={styles.floatingCartBtn}
+      onClick={() => setMostrarCarritoMovil(true)}
+    >
+      🛒 {carrito.length} producto{carrito.length > 1 ? "s" : ""} — ${total.toLocaleString("es-CO")}
+    </button>
+  </div>
+)}
     </>
   );
 }
@@ -5069,24 +5107,29 @@ const styles = {
     transition: "transform 0.28s ease, box-shadow 0.28s ease",
   },
    
+  floatingCartWrap: {
+  position: "fixed",
+  bottom: 16,
+  left: 16,
+  right: 16,
+  zIndex: 999,
+  animation: "slideUp 0.25s ease",
+},
+
   floatingCartBtn: {
-    position: "fixed",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    zIndex: 80,
-    border: "none",
-    borderRadius: 18,
-    background: "linear-gradient(135deg, #ff1200, #b30000)",
-    color: "#fff",
-    padding: "15px 18px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    fontWeight: "bold",
-    fontSize: 15,
-    boxShadow: "0 18px 36px rgba(255,0,0,0.28)",
-  },
+  width: "100%",
+  border: "none",
+  borderRadius: 18,
+  background: "linear-gradient(135deg, #ff1200, #b30000)",
+  color: "#fff",
+  padding: "15px 18px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  fontWeight: "bold",
+  fontSize: 15,
+  boxShadow: "0 18px 36px rgba(255,0,0,0.28)",
+},
 
   drawerBackdrop: {
     position: "fixed",
@@ -6128,6 +6171,13 @@ const styles = {
     padding: "8px 10px",
     borderRadius: 999,
   },
+
+  addBtnPop: {
+  transform: "scale(1.07)",
+  boxShadow: "0 0 0 2px rgba(255,255,255,0.08), 0 0 22px rgba(255,0,0,0.38)",
+  transition: "all 0.18s ease",
+},
+
   posterProductTitle: {
     margin: "6px 0 8px 0",
     fontSize: 48,
