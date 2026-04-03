@@ -12,6 +12,14 @@ const {
   ensureSheetExists,
 } = require("./googleSheets");
 
+const {
+  ensureClientesSheetExists,
+  buscarClientePorTelefonoSheet,
+  buscarClientePorIdSheet,
+  crearClienteSheet,
+  actualizarClienteSheet,
+} = require("./clientesSheets");
+
 const app = express();
 const server = http.createServer(app);
 
@@ -285,28 +293,21 @@ function crearDireccionDesdePedido(clienteBody = {}) {
   };
 }
 
-function sincronizarClienteDesdePedido(clienteBody = {}, metodoPago = "Llave") {
+async function sincronizarClienteDesdePedido(clienteBody = {}, metodoPago = "Llave") {
   try {
     const nombre = String(clienteBody.nombre || "").trim();
     const telefono = String(clienteBody.telefono || "").trim();
     const direccion = String(clienteBody.direccion || "").trim();
     const referencia = String(clienteBody.referencia || "").trim();
-    const pago = normalizarMetodoPago(
-      metodoPago || clienteBody?.pago || "Llave"
-    );
+    const pago = normalizarMetodoPago(metodoPago || clienteBody?.pago || "Llave");
 
     if (!nombre || !telefono) return;
 
-    const clientes = leerClientes();
     const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
-
-    let cliente = clientes.find(
-      (c) => limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio
-    );
+    const cliente = await buscarClientePorTelefonoSheet(telefonoLimpio);
 
     if (!cliente) {
-      // Si no está registrado, no lo creamos como cliente del sistema.
-      // El pedido sí se procesa normal como invitado.
+      // Invitado: no crear perfil automático
       return;
     }
 
@@ -339,7 +340,7 @@ function sincronizarClienteDesdePedido(clienteBody = {}, metodoPago = "Llave") {
       }
     }
 
-    guardarClientes(clientes);
+    await actualizarClienteSheet(cliente);
   } catch (error) {
     console.error("❌ Error sincronizando cliente desde pedido:", error.message);
   }
@@ -594,8 +595,7 @@ app.post("/login", (req, res) => {
 // ===============================
 
 // Registro cliente
-app.post("/clientes/registro", (req, res) => {
-  console.log("🚀 ENTRO A REGISTRO");
+app.post("/clientes/registro", async (req, res) => {
   try {
     const {
       nombre,
@@ -621,11 +621,7 @@ app.post("/clientes/registro", (req, res) => {
       });
     }
 
-    const clientes = leerClientes();
-
-    const yaExiste = clientes.find(
-      (c) => limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio
-    );
+    const yaExiste = await buscarClientePorTelefonoSheet(telefonoLimpio);
 
     if (yaExiste) {
       return res.status(409).json({
@@ -657,15 +653,7 @@ app.post("/clientes/registro", (req, res) => {
       actualizadoEn: fechaBonita(),
     };
 
-    clientes.push(cliente);
-
-    console.log("📁 CLIENTES_FILE:", CLIENTES_FILE);
-    console.log("🆕 CLIENTE A GUARDAR:", cliente);
-    console.log("📦 TOTAL CLIENTES ANTES DE GUARDAR:", clientes.length);
-
-    guardarClientes(clientes);
-
-    console.log("✅ CLIENTE GUARDADO CORRECTAMENTE");
+    await crearClienteSheet(cliente);
 
     return res.status(201).json({
       ok: true,
@@ -680,7 +668,7 @@ app.post("/clientes/registro", (req, res) => {
 });
 
 // Login cliente
-app.post("/clientes/login", (req, res) => {
+app.post("/clientes/login", async (req, res) => {
   try {
     const { telefono, password } = req.body || {};
 
@@ -691,15 +679,15 @@ app.post("/clientes/login", (req, res) => {
     }
 
     const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
-    const clientes = leerClientes();
-
-    const cliente = clientes.find(
-      (c) =>
-        limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio &&
-        String(c.password || "") === String(password).trim()
-    );
+    const cliente = await buscarClientePorTelefonoSheet(telefonoLimpio);
 
     if (!cliente) {
+      return res.status(401).json({
+        error: "Credenciales incorrectas",
+      });
+    }
+
+    if (String(cliente.password || "").trim() !== String(password || "").trim()) {
       return res.status(401).json({
         error: "Credenciales incorrectas",
       });
@@ -718,12 +706,10 @@ app.post("/clientes/login", (req, res) => {
 });
 
 // Obtener cliente por ID
-app.get("/clientes/:id", (req, res) => {
+app.get("/clientes/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const clientes = leerClientes();
-
-    const cliente = clientes.find((c) => String(c.id) === String(id));
+    const cliente = await buscarClientePorIdSheet(id);
 
     if (!cliente) {
       return res.status(404).json({
@@ -768,15 +754,14 @@ app.get("/clientes/telefono/:telefono", (req, res) => {
 });
 
 // Actualizar perfil cliente
-app.patch("/clientes/:id", (req, res) => {
+app.patch("/clientes/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, telefono, pagoPreferido, password } = req.body || {};
-    const clientes = leerClientes();
 
-    const index = clientes.findIndex((c) => String(c.id) === String(id));
+    const cliente = await buscarClientePorIdSheet(id);
 
-    if (index === -1) {
+    if (!cliente) {
       return res.status(404).json({
         error: "Cliente no encontrado",
       });
@@ -791,40 +776,36 @@ app.patch("/clientes/:id", (req, res) => {
         });
       }
 
-      const existeTelefonoEnOtro = clientes.find(
-        (c, i) =>
-          i !== index &&
-          limpiarNumeroWhatsApp(c.telefono || "") === telefonoLimpio
-      );
+      const existeTelefonoEnOtro = await buscarClientePorTelefonoSheet(telefonoLimpio);
 
-      if (existeTelefonoEnOtro) {
+      if (existeTelefonoEnOtro && String(existeTelefonoEnOtro.id) !== String(id)) {
         return res.status(409).json({
           error: "Ya existe otro cliente con ese teléfono",
         });
       }
 
-      clientes[index].telefono = telefonoLimpio;
+      cliente.telefono = telefonoLimpio;
     }
 
     if (nombre !== undefined) {
-      clientes[index].nombre = String(nombre || "").trim();
+      cliente.nombre = String(nombre || "").trim();
     }
 
     if (pagoPreferido !== undefined) {
-      clientes[index].pagoPreferido = normalizarMetodoPago(pagoPreferido);
+      cliente.pagoPreferido = normalizarMetodoPago(pagoPreferido);
     }
 
     if (password !== undefined && String(password).trim()) {
-      clientes[index].password = String(password).trim();
+      cliente.password = String(password).trim();
     }
 
-    clientes[index].actualizadoEn = fechaBonita();
+    cliente.actualizadoEn = fechaBonita();
 
-    guardarClientes(clientes);
+    await actualizarClienteSheet(cliente);
 
     return res.json({
       ok: true,
-      cliente: sanitizarClienteParaRespuesta(clientes[index]),
+      cliente: sanitizarClienteParaRespuesta(cliente),
     });
   } catch (error) {
     console.error("❌ Error actualizando cliente:", error.message);
@@ -839,12 +820,10 @@ app.patch("/clientes/:id", (req, res) => {
 // ===============================
 
 // Listar direcciones
-app.get("/clientes/:id/direcciones", (req, res) => {
+app.get("/clientes/:id/direcciones", async (req, res) => {
   try {
     const { id } = req.params;
-    const clientes = leerClientes();
-
-    const cliente = clientes.find((c) => String(c.id) === String(id));
+    const cliente = await buscarClientePorIdSheet(id);
 
     if (!cliente) {
       return res.status(404).json({
@@ -865,7 +844,7 @@ app.get("/clientes/:id/direcciones", (req, res) => {
 });
 
 // Crear dirección
-app.post("/clientes/:id/direcciones", (req, res) => {
+app.post("/clientes/:id/direcciones", async (req, res) => {
   try {
     const { id } = req.params;
     const { alias, direccion, referencia, principal } = req.body || {};
@@ -876,21 +855,20 @@ app.post("/clientes/:id/direcciones", (req, res) => {
       });
     }
 
-    const clientes = leerClientes();
-    const index = clientes.findIndex((c) => String(c.id) === String(id));
+    const cliente = await buscarClientePorIdSheet(id);
 
-    if (index === -1) {
+    if (!cliente) {
       return res.status(404).json({
         error: "Cliente no encontrado",
       });
     }
 
-    if (!Array.isArray(clientes[index].direcciones)) {
-      clientes[index].direcciones = [];
+    if (!Array.isArray(cliente.direcciones)) {
+      cliente.direcciones = [];
     }
 
     if (principal) {
-      clientes[index].direcciones = clientes[index].direcciones.map((d) => ({
+      cliente.direcciones = cliente.direcciones.map((d) => ({
         ...d,
         principal: false,
       }));
@@ -898,23 +876,22 @@ app.post("/clientes/:id/direcciones", (req, res) => {
 
     const nuevaDireccion = {
       id: generarIdDireccion(),
-      alias: String(alias || `Dirección ${clientes[index].direcciones.length + 1}`).trim(),
+      alias: String(alias || `Dirección ${cliente.direcciones.length + 1}`).trim(),
       direccion: String(direccion).trim(),
       referencia: String(referencia || "").trim(),
-      principal:
-        Boolean(principal) || clientes[index].direcciones.length === 0,
+      principal: Boolean(principal) || cliente.direcciones.length === 0,
       creadaEn: fechaBonita(),
       actualizadaEn: fechaBonita(),
     };
 
-    clientes[index].direcciones.push(nuevaDireccion);
-    clientes[index].actualizadoEn = fechaBonita();
+    cliente.direcciones.push(nuevaDireccion);
+    cliente.actualizadoEn = fechaBonita();
 
-    guardarClientes(clientes);
+    await actualizarClienteSheet(cliente);
 
     return res.status(201).json({
       ok: true,
-      direcciones: clientes[index].direcciones,
+      direcciones: cliente.direcciones,
       direccion: nuevaDireccion,
     });
   } catch (error) {
@@ -926,25 +903,24 @@ app.post("/clientes/:id/direcciones", (req, res) => {
 });
 
 // Actualizar dirección
-app.patch("/clientes/:id/direcciones/:direccionId", (req, res) => {
+app.patch("/clientes/:id/direcciones/:direccionId", async (req, res) => {
   try {
     const { id, direccionId } = req.params;
     const { alias, direccion, referencia, principal } = req.body || {};
 
-    const clientes = leerClientes();
-    const indexCliente = clientes.findIndex((c) => String(c.id) === String(id));
+    const cliente = await buscarClientePorIdSheet(id);
 
-    if (indexCliente === -1) {
+    if (!cliente) {
       return res.status(404).json({
         error: "Cliente no encontrado",
       });
     }
 
-    if (!Array.isArray(clientes[indexCliente].direcciones)) {
-      clientes[indexCliente].direcciones = [];
+    if (!Array.isArray(cliente.direcciones)) {
+      cliente.direcciones = [];
     }
 
-    const indexDireccion = clientes[indexCliente].direcciones.findIndex(
+    const indexDireccion = cliente.direcciones.findIndex(
       (d) => String(d.id) === String(direccionId)
     );
 
@@ -955,44 +931,41 @@ app.patch("/clientes/:id/direcciones/:direccionId", (req, res) => {
     }
 
     if (principal === true) {
-      clientes[indexCliente].direcciones =
-        clientes[indexCliente].direcciones.map((d) => ({
-          ...d,
-          principal: false,
-        }));
+      cliente.direcciones = cliente.direcciones.map((d) => ({
+        ...d,
+        principal: false,
+      }));
     }
 
     if (alias !== undefined) {
-      clientes[indexCliente].direcciones[indexDireccion].alias = String(alias || "").trim();
+      cliente.direcciones[indexDireccion].alias = String(alias || "").trim();
     }
 
     if (direccion !== undefined) {
-      clientes[indexCliente].direcciones[indexDireccion].direccion = String(
+      cliente.direcciones[indexDireccion].direccion = String(
         direccion || ""
       ).trim();
     }
 
     if (referencia !== undefined) {
-      clientes[indexCliente].direcciones[indexDireccion].referencia = String(
+      cliente.direcciones[indexDireccion].referencia = String(
         referencia || ""
       ).trim();
     }
 
     if (principal !== undefined) {
-      clientes[indexCliente].direcciones[indexDireccion].principal =
-        Boolean(principal);
+      cliente.direcciones[indexDireccion].principal = Boolean(principal);
     }
 
-    clientes[indexCliente].direcciones[indexDireccion].actualizadaEn =
-      fechaBonita();
-    clientes[indexCliente].actualizadoEn = fechaBonita();
+    cliente.direcciones[indexDireccion].actualizadaEn = fechaBonita();
+    cliente.actualizadoEn = fechaBonita();
 
-    guardarClientes(clientes);
+    await actualizarClienteSheet(cliente);
 
     return res.json({
       ok: true,
-      direcciones: clientes[indexCliente].direcciones,
-      direccion: clientes[indexCliente].direcciones[indexDireccion],
+      direcciones: cliente.direcciones,
+      direccion: cliente.direcciones[indexDireccion],
     });
   } catch (error) {
     console.error("❌ Error actualizando dirección:", error.message);
@@ -1003,24 +976,23 @@ app.patch("/clientes/:id/direcciones/:direccionId", (req, res) => {
 });
 
 // Eliminar dirección
-app.delete("/clientes/:id/direcciones/:direccionId", (req, res) => {
+app.delete("/clientes/:id/direcciones/:direccionId", async (req, res) => {
   try {
     const { id, direccionId } = req.params;
 
-    const clientes = leerClientes();
-    const indexCliente = clientes.findIndex((c) => String(c.id) === String(id));
+    const cliente = await buscarClientePorIdSheet(id);
 
-    if (indexCliente === -1) {
+    if (!cliente) {
       return res.status(404).json({
         error: "Cliente no encontrado",
       });
     }
 
-    if (!Array.isArray(clientes[indexCliente].direcciones)) {
-      clientes[indexCliente].direcciones = [];
+    if (!Array.isArray(cliente.direcciones)) {
+      cliente.direcciones = [];
     }
 
-    const indexDireccion = clientes[indexCliente].direcciones.findIndex(
+    const indexDireccion = cliente.direcciones.findIndex(
       (d) => String(d.id) === String(direccionId)
     );
 
@@ -1030,24 +1002,21 @@ app.delete("/clientes/:id/direcciones/:direccionId", (req, res) => {
       });
     }
 
-    const direccionEliminada = clientes[indexCliente].direcciones[indexDireccion];
-    clientes[indexCliente].direcciones.splice(indexDireccion, 1);
+    const direccionEliminada = cliente.direcciones[indexDireccion];
+    cliente.direcciones.splice(indexDireccion, 1);
 
-    if (
-      direccionEliminada.principal &&
-      clientes[indexCliente].direcciones.length > 0
-    ) {
-      clientes[indexCliente].direcciones[0].principal = true;
-      clientes[indexCliente].direcciones[0].actualizadaEn = fechaBonita();
+    if (direccionEliminada.principal && cliente.direcciones.length > 0) {
+      cliente.direcciones[0].principal = true;
+      cliente.direcciones[0].actualizadaEn = fechaBonita();
     }
 
-    clientes[indexCliente].actualizadoEn = fechaBonita();
+    cliente.actualizadoEn = fechaBonita();
 
-    guardarClientes(clientes);
+    await actualizarClienteSheet(cliente);
 
     return res.json({
       ok: true,
-      direcciones: clientes[indexCliente].direcciones,
+      direcciones: cliente.direcciones,
       direccionEliminada,
     });
   } catch (error) {
@@ -1497,11 +1466,13 @@ server.listen(PORT, async () => {
   asegurarArchivoClientes();
 
   try {
-    await ensureSheetExists();
-    console.log('✅ Hoja "pedidos web app" verificada/creada correctamente');
-  } catch (error) {
-    console.error("❌ Error inicializando Google Sheets:", error.message);
-  }
+  await ensureSheetExists();
+  await ensureClientesSheetExists();
+  console.log('✅ Hoja "pedidos web app" verificada/creada correctamente');
+  console.log('✅ Hoja "clientes web app" verificada/creada correctamente');
+} catch (error) {
+  console.error("❌ Error inicializando Google Sheets:", error.message);
+}
 
   console.log(`🚀 Servidor Dr. Crispy Lab corriendo en http://localhost:${PORT}`);
 });
