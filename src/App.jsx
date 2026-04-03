@@ -1722,12 +1722,12 @@ function usarDireccionGuardada(direccionId) {
               fontSize: esMovil ? 48 : 82,
             }}
           >
-            BIENVENIDO AL LABORATORIO DEL DR. CRISPY
+            NO ES POLLO. ES UN EXPERIMENTO.
           </h2>
 
           <p style={styles.labHeroText}>
-            Alitas crispy, fórmulas activadas y combos listos para pedir. No es
-            pollo. Es un experimento.
+            Crujiente calibrado, combos activados y pedido rápido. 
+            Dr. Crispy Lab no vende pollo común: activa antojos.
           </p>
 
           <div style={styles.heroUrgencyWrap}>
@@ -1741,14 +1741,14 @@ function usarDireccionGuardada(direccionId) {
               style={styles.heroPrimaryBtn}
               onClick={() => irASeccionCliente("catalogo")}
             >
-              Ver experimentos
+              Pedir ahora
             </button>
 
             <button
               style={styles.heroSecondaryBtn}
               onClick={() => setVista("seguimiento")}
             >
-              Ver mi seguimiento
+              Ver combos
             </button>
           </div>
         </div>
@@ -1808,6 +1808,174 @@ function usarDireccionGuardada(direccionId) {
       </section>
     );
   }
+
+  function renderExpressSection() {
+  return (
+    <section style={styles.expressSection}>
+      <div style={styles.expressInner}>
+        <div style={styles.expressBadge}>⚡ DR. CRISPY LAB EXPRESS</div>
+
+        <div
+          style={{
+            ...styles.expressContent,
+            gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
+          }}
+        >
+          <div style={styles.expressTextBlock}>
+            <h2 style={styles.expressTitle}>PIDE Y RECOGE EN EL LAB</h2>
+            <p style={styles.expressText}>
+              Haz tu pedido, pasa por él y recógelo en aproximadamente 40 minutos.
+            </p>
+
+            <div style={styles.expressPills}>
+              <div style={styles.expressPill}>⏱️ Listo en 40 min</div>
+              <div style={styles.expressPill}>📍 Recoge en punto</div>
+              <div style={styles.expressPill}>🔥 Más rápido</div>
+            </div>
+
+            <div style={styles.heroActionRow}>
+              <button style={styles.heroPrimaryBtn}>
+                Pedir para recoger
+              </button>
+
+              <button style={styles.heroSecondaryBtn}>
+                Elegir hora
+              </button>
+            </div>
+          </div>
+
+          <div style={styles.expressVisual}>
+            <img
+              src="/images/categoria-express.png"
+              alt="Dr Crispy Lab Express"
+              style={styles.expressImage}
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function renderCategoriasVisuales() {
+  const categorias = [
+    {
+      nombre: "🧪 Experimentos",
+      imagen: "/images/categoria-experimentos.png",
+    },
+    {
+      nombre: "🔥 Combos",
+      imagen: "/images/categoria-combos.png",
+    },
+    {
+      nombre: "🍟 Complementos",
+      imagen: "/images/categoria-complementos.png",
+    },
+    {
+      nombre: "🥤 Bebidas",
+      imagen: "/images/categoria-bebidas.png",
+    },
+    {
+      nombre: "⚡ Express",
+      imagen: "/images/categoria-express.png",
+    },
+  ];
+
+  return (
+    <section style={styles.panel}>
+      <div style={styles.catalogHeader}>
+        <div style={styles.menuInteractiveBadge}>🍗 EXPLORA RÁPIDO</div>
+        <h2 style={styles.catalogTitle}>ELIGE TU RUTA EN EL LAB</h2>
+        <p style={styles.catalogText}>
+          Menos texto, más visual. Entra directo a lo que se te antoje.
+        </p>
+      </div>
+
+      <div
+        style={{
+          ...styles.categoriasVisualesGrid,
+          gridTemplateColumns: esMovil
+            ? "1fr 1fr"
+            : "repeat(5, minmax(0, 1fr))",
+        }}
+      >
+        {categorias.map((cat) => (
+          <div key={cat.nombre} style={styles.categoriaVisualCard}>
+            <div style={styles.categoriaVisualImageWrap}>
+              <img
+                src={cat.imagen}
+                alt={cat.nombre}
+                style={styles.categoriaVisualImage}
+              />
+            </div>
+
+            <div style={styles.categoriaVisualTitle}>{cat.nombre}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function renderCategoriasVisuales() {
+  const categorias = [
+    {
+      nombre: "🧪 Experimentos",
+      imagen: "/images/categoria-experimentos.png",
+    },
+    {
+      nombre: "🔥 Combos",
+      imagen: "/images/categoria-combos.png",
+    },
+    {
+      nombre: "🍟 Complementos",
+      imagen: "/images/categoria-complementos.png",
+    },
+    {
+      nombre: "🥤 Bebidas",
+      imagen: "/images/categoria-bebidas.png",
+    },
+    {
+      nombre: "⚡ Express",
+      imagen: "/images/categoria-express.png",
+    },
+  ];
+
+  return (
+    <section style={styles.panel}>
+      <div style={styles.catalogHeader}>
+        <div style={styles.menuInteractiveBadge}>🍗 EXPLORA RÁPIDO</div>
+        <h2 style={styles.catalogTitle}>ELIGE TU RUTA EN EL LAB</h2>
+        <p style={styles.catalogText}>
+          Menos texto, más visual. Entra directo a lo que se te antoje.
+        </p>
+      </div>
+
+      <div
+        style={{
+          ...styles.categoriasVisualesGrid,
+          gridTemplateColumns: esMovil
+            ? "1fr 1fr"
+            : "repeat(5, minmax(0, 1fr))",
+        }}
+      >
+        {categorias.map((cat) => (
+          <div key={cat.nombre} style={styles.categoriaVisualCard}>
+            <div style={styles.categoriaVisualImageWrap}>
+              <img
+                src={cat.imagen}
+                alt={cat.nombre}
+                style={styles.categoriaVisualImage}
+              />
+            </div>
+
+            <div style={styles.categoriaVisualTitle}>{cat.nombre}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
   function renderCatalogoExperimentos() {
     return (
@@ -2448,18 +2616,18 @@ function usarDireccionGuardada(direccionId) {
                 <div style={styles.menuInteractiveBadge}>👤 PERFIL DE CLIENTE</div>
 
                 <h2 style={styles.panelTitle}>
-  {clienteSesion?.id
-    ? "MI PERFIL DEL LAB"
-    : clienteAuthModo === "registro"
-    ? "CREAR PERFIL"
-    : "INGRESAR"}
-</h2>
+                  {clienteSesion?.id
+                    ? "MI PERFIL DEL LAB"
+                    : clienteAuthModo === "registro"
+                    ? "CREAR PERFIL"
+                    : "INGRESAR"}
+                </h2>
 
-<p style={styles.loginHint}>
-  {clienteAuthModo === "registro"
-    ? "💾 Guarda tu dirección y pide más rápido en tus próximos pedidos."
-    : "🧪 Guarda tus datos en el laboratorio y evita escribirlos en cada pedido."}
-</p>
+                <p style={styles.loginHint}>
+                  {clienteAuthModo === "registro"
+                    ? "💾 Guarda tu dirección y pide más rápido en tus próximos pedidos."
+                    : "🧪 Guarda tus datos en el laboratorio y evita escribirlos en cada pedido."}
+                </p>
 
                 {!clienteSesion?.id ? (
                   <>
@@ -2702,6 +2870,8 @@ function usarDireccionGuardada(direccionId) {
           )}
 
           {renderHeroInicio()}
+          {renderExpressSection()}
+          {renderCategoriasVisuales()}
           {renderCatalogoExperimentos()}
         </>
       )}
@@ -5929,6 +6099,132 @@ const styles = {
     justifyContent: "center",
     flexWrap: "wrap",
   },
+  expressSection: {
+  marginBottom: 24,
+},
+
+expressInner: {
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.98), rgba(8,8,8,1))",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 24,
+  padding: 26,
+  boxShadow: "0 16px 34px rgba(0,0,0,0.22)",
+},
+
+expressBadge: {
+  display: "inline-block",
+  background: "rgba(255,196,0,0.12)",
+  border: "1px solid rgba(255,196,0,0.24)",
+  color: "#ffd166",
+  padding: "8px 14px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+  letterSpacing: 1,
+  marginBottom: 14,
+},
+
+expressContent: {
+  display: "grid",
+  gridTemplateColumns: "1.1fr 0.9fr",
+  gap: 22,
+  alignItems: "center",
+},
+
+expressTextBlock: {
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+},
+
+expressTitle: {
+  margin: "0 0 10px 0",
+  fontSize: 54,
+  lineHeight: 0.95,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+},
+
+expressText: {
+  color: "#d2d2d2",
+  lineHeight: 1.7,
+  fontSize: 16,
+  maxWidth: 560,
+  marginBottom: 18,
+},
+
+expressPills: {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 10,
+  marginBottom: 18,
+},
+
+expressPill: {
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#ffd8d8",
+  padding: "9px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 13,
+},
+
+expressVisual: {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+expressImage: {
+  width: "100%",
+  maxWidth: 340,
+  height: "auto",
+  objectFit: "cover",
+  borderRadius: 22,
+  border: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "0 18px 38px rgba(255,0,0,0.12)",
+},
+
+categoriasVisualesGrid: {
+  display: "grid",
+  gap: 14,
+},
+
+categoriaVisualCard: {
+  background:
+    "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 18,
+  overflow: "hidden",
+  boxShadow: "0 12px 24px rgba(0,0,0,0.18)",
+  cursor: "pointer",
+},
+
+categoriaVisualImageWrap: {
+  width: "100%",
+  height: 130,
+  overflow: "hidden",
+  background: "#111",
+},
+
+categoriaVisualImage: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+categoriaVisualTitle: {
+  padding: "14px 12px",
+  textAlign: "center",
+  fontWeight: "bold",
+  color: "#fff",
+  fontSize: 14,
+},
 };
 
 export default App;
