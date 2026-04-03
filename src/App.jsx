@@ -2716,34 +2716,36 @@ function renderCarritoDesktop() {
           ))
         )}
 
-        <div style={styles.upsellBox}>
-          <div style={styles.upsellTextWrap}>
-            <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
-            <div style={styles.upsellText}>
-              Súmale una porción por solo $4.000 más
-            </div>
-          </div>
+        {carrito.length > 0 && (
+  <div style={styles.upsellBox}>
+    <div style={styles.upsellTextWrap}>
+      <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+      <div style={styles.upsellText}>
+        Súmale una porción por solo $4.000 más
+      </div>
+    </div>
 
-          <button
-            type="button"
-            style={styles.upsellBtn}
-            onClick={(e) =>
-              agregarProducto(
-                {
-                  id: "upsell-papas-4000",
-                  nombre: "Papas fritas promo",
-                  descripcion: "Upsell del laboratorio",
-                  precio: 4000,
-                  emoji: "🍟",
-                  categoria: "adicionales",
-                },
-                e.currentTarget
-              )
-            }
-          >
-            Agregar
-          </button>
-        </div>
+    <button
+      type="button"
+      style={styles.upsellBtn}
+      onClick={(e) =>
+        agregarProducto(
+          {
+            id: "upsell-papas-4000",
+            nombre: "Papas fritas promo",
+            descripcion: "Upsell del laboratorio",
+            precio: 4000,
+            emoji: "🍟",
+            categoria: "adicionales",
+          },
+          e.currentTarget
+        )
+      }
+    >
+      Agregar
+    </button>
+  </div>
+)}
 
         <div style={styles.summaryBox}>
           <div style={styles.summaryRow}>
@@ -3693,34 +3695,45 @@ function renderCarritoDesktop() {
                   ))}
                 </div>
 
-                <div style={styles.upsellBox}>
-                  <div style={styles.upsellTextWrap}>
-                    <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
-                    <div style={styles.upsellText}>
-                      Súmale una porción por solo $4.000 más
-                    </div>
-                  </div>
+                {carrito.length > 0 && (
+  <>
+    <div style={styles.summaryBox}>
+      <div style={styles.summaryRow}>
+        <span>Subtotal</span>
+        <span>${subtotal.toLocaleString("es-CO")}</span>
+      </div>
+      <div style={styles.summaryRow}>
+        <span>Domicilio</span>
+        <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+          Incluido
+        </span>
+      </div>
+      <div style={styles.summaryTotal}>
+        <span>Total</span>
+        <span>${total.toLocaleString("es-CO")}</span>
+      </div>
+    </div>
 
-                  <button
-                    type="button"
-                    style={styles.upsellBtn}
-                    onClick={(e) =>
-                      agregarProducto(
-                        {
-                          id: "upsell-papas-4000",
-                          nombre: "Papas fritas promo",
-                          descripcion: "Upsell del laboratorio",
-                          precio: 4000,
-                          emoji: "🍟",
-                          categoria: "adicionales",
-                        },
-                        e.currentTarget
-                      )
-                    }
-                  >
-                    Agregar
-                  </button>
-                </div>
+    <button
+      style={{
+        ...styles.confirmBtn,
+        ...(cargandoPedido ? styles.disabledBtn : {}),
+      }}
+      onClick={confirmarPedido}
+      disabled={cargandoPedido}
+    >
+      {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+    </button>
+
+    <div style={styles.cartTrustText}>
+      ⚡ Recíbelo caliente. Domicilio incluido.
+    </div>
+
+    <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+      Enviar pedido por WhatsApp
+    </button>
+  </>
+)}
 
                 <div style={styles.summaryBox}>
                   <div style={styles.summaryRow}>
