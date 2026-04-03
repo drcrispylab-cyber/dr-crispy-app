@@ -16,6 +16,7 @@ const {
 
 const {
   ensureClientesSheetExists,
+  listarClientesSheet,
   buscarClientePorTelefonoSheet,
   buscarClientePorIdSheet,
   crearClienteSheet,
@@ -731,11 +732,39 @@ app.get("/clientes/:id", async (req, res) => {
   }
 });
 
-// Buscar cliente por teléfono
-app.get("/clientes/telefono/:telefono", (req, res) => {
+// Listar clientes (Google Sheets)
+app.get("/clientes", async (req, res) => {
+  try {
+    const clientes = await listarClientesSheet();
+
+    return res.json({
+      ok: true,
+      total: clientes.length,
+      clientes: clientes.map((cliente) =>
+        sanitizarClienteParaRespuesta(cliente)
+      ),
+    });
+  } catch (error) {
+    console.error("❌ Error listando clientes:", error.message);
+    return res.status(500).json({
+      error: "Error listando clientes",
+    });
+  }
+});
+
+// Buscar cliente por teléfono (Google Sheets)
+app.get("/clientes/telefono/:telefono", async (req, res) => {
   try {
     const { telefono } = req.params;
-    const cliente = buscarClientePorTelefono(telefono);
+
+    if (!telefono) {
+      return res.status(400).json({
+        error: "Teléfono requerido",
+      });
+    }
+
+    const telefonoLimpio = limpiarNumeroWhatsApp(telefono);
+    const cliente = await buscarClientePorTelefonoSheet(telefonoLimpio);
 
     if (!cliente) {
       return res.status(404).json({
