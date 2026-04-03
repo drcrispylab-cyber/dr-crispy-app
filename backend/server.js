@@ -657,7 +657,14 @@ app.post("/clientes/registro", (req, res) => {
     };
 
     clientes.push(cliente);
+
+    console.log("📁 CLIENTES_FILE:", CLIENTES_FILE);
+    console.log("🆕 CLIENTE A GUARDAR:", cliente);
+    console.log("📦 TOTAL CLIENTES ANTES DE GUARDAR:", clientes.length);
+
     guardarClientes(clientes);
+
+    console.log("✅ CLIENTE GUARDADO CORRECTAMENTE");
 
     return res.status(201).json({
       ok: true,
