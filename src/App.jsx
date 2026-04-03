@@ -1706,108 +1706,119 @@ function usarDireccionGuardada(direccionId) {
     }
 
   function renderHeroInicio() {
-    return (
-      <section
-        style={{
-          ...styles.labHero,
-          gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
-        }}
-      >
-        <div style={styles.labHeroContent}>
-          <div style={styles.heroMini}>🧪 LABORATORIO ACTIVO</div>
+  return (
+    <section
+      style={{
+        ...styles.labHero,
+        gridTemplateColumns: esMovil ? "1fr" : "1.08fr 0.92fr",
+      }}
+    >
+      <div style={styles.labHeroContent}>
+        <div style={styles.heroMini}>🔥 LABORATORIO ACTIVO</div>
 
-          <h2
-            style={{
-              ...styles.labHeroTitle,
-              fontSize: esMovil ? 48 : 82,
-            }}
-          >
-            NO ES POLLO. ES UN EXPERIMENTO.
-          </h2>
+        <h2
+          style={{
+            ...styles.labHeroTitle,
+            fontSize: esMovil ? 52 : 92,
+          }}
+        >
+          NO ES POLLO. <br />
+          ES UN EXPERIMENTO.
+        </h2>
 
-          <p style={styles.labHeroText}>
-            Crujiente calibrado, combos activados y pedido rápido. 
-            Dr. Crispy Lab no vende pollo común: activa antojos.
-          </p>
+        <p style={styles.labHeroText}>
+          Crujiente calibrado, combos activados y pedido rápido.
+          <br />
+          Dr. Crispy Lab no vende pollo común: activa antojos.
+        </p>
 
-          <div style={styles.heroUrgencyWrap}>
-            <div style={styles.heroUrgencyPill}>🚚 Domicilio incluido</div>
-            <div style={styles.heroUrgencyPill}>🔥 Combos más pedidos</div>
-            <div style={styles.heroUrgencyPill}>⚡ Pide en minutos</div>
-          </div>
-
-          <div style={styles.heroActionRow}>
-            <button
-              style={styles.heroPrimaryBtn}
-              onClick={() => irASeccionCliente("catalogo")}
-            >
-              Pedir ahora
-            </button>
-
-            <button
-              style={styles.heroSecondaryBtn}
-              onClick={() => setVista("seguimiento")}
-            >
-              Ver combos
-            </button>
-          </div>
+        <div style={styles.heroUrgencyWrap}>
+          <div style={styles.heroUrgencyPill}>🚚 Domicilio incluido</div>
+          <div style={styles.heroUrgencyPill}>🔥 Top del laboratorio</div>
+          <div style={styles.heroUrgencyPill}>⚡ Pide en minutos</div>
         </div>
 
-        <div style={styles.labHeroVisual}>
-          <div style={styles.heroVisualCard}>
-            <div style={styles.reactorGlow}></div>
-            <div style={styles.smokeGlow}></div>
+        <div style={styles.heroActionRow}>
+          <button
+            style={styles.heroPrimaryBtn}
+            onClick={() => entrarExperimento1()}
+          >
+            Pedir ahora
+          </button>
 
-            <span
-              style={{ ...styles.labParticle, ...styles.labParticle1 }}
-            ></span>
-            <span
-              style={{ ...styles.labParticle, ...styles.labParticle2 }}
-            ></span>
-            <span
-              style={{ ...styles.labParticle, ...styles.labParticle3 }}
-            ></span>
-            <span
-              style={{ ...styles.labParticle, ...styles.labParticle4 }}
-            ></span>
-            <span
-              style={{ ...styles.labParticle, ...styles.labParticle5 }}
-            ></span>
+          <button
+            style={styles.heroSecondaryBtn}
+            onClick={() => irASeccionCliente("catalogo")}
+          >
+            Ver combos y experimentos
+          </button>
+        </div>
 
-            <div
-              style={{
-                ...styles.heroLogoWrap,
-                animation:
-                  "crispyGlow 1.8s ease-in-out infinite, crispyFloat 2.2s ease-in-out infinite",
-              }}
-            >
-              <img
-                src={drCrispyIcon}
-                alt="Dr. Crispy Lab"
-                style={{
-                  width: "120%",
-                  height: "120%",
-                  objectFit: "cover",
-                  transform: "scale(1.1)",
-                }}
-              />
-            </div>
+        <div style={styles.heroInfoStrip}>
+          <div style={styles.heroInfoCard}>
+            <div style={styles.heroInfoValue}>+ Más pedido</div>
+            <div style={styles.heroInfoLabel}>Combo Pareja y Experimento 01</div>
+          </div>
 
-            <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
+          <div style={styles.heroInfoCard}>
+            <div style={styles.heroInfoValue}>40 min</div>
+            <div style={styles.heroInfoLabel}>Express para recoger</div>
+          </div>
 
+          <div style={styles.heroInfoCard}>
+            <div style={styles.heroInfoValue}>3 fórmulas</div>
+            <div style={styles.heroInfoLabel}>BBQ, Honey y Fuego Atómico</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={styles.labHeroVisual}>
+        <div style={styles.heroVisualCard}>
+          <div style={styles.reactorGlow}></div>
+          <div style={styles.smokeGlow}></div>
+
+          <span style={{ ...styles.labParticle, ...styles.labParticle1 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle2 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle3 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle4 }}></span>
+          <span style={{ ...styles.labParticle, ...styles.labParticle5 }}></span>
+
+          <div
+            style={{
+              ...styles.heroLogoWrap,
+              animation:
+                "crispyGlow 1.8s ease-in-out infinite, crispyFloat 2.2s ease-in-out infinite",
+            }}
+          >
             <img
-              src={drCrispyFull}
-              alt="Dr. Crispy"
+              src={drCrispyIcon}
+              alt="Dr. Crispy Lab"
               style={{
-                ...styles.heroFullImage,
-                animation: "crispyFloat 3.5s ease-in-out infinite",
+                width: "120%",
+                height: "120%",
+                objectFit: "cover",
+                transform: "scale(1.1)",
               }}
             />
           </div>
+
+          <div style={styles.heroVisualTag}>DR. CRISPY LAB</div>
+
+          <div style={styles.heroPosterBadge}>🍗 EXPERIENCIA CRISPY ACTIVADA</div>
+
+          <img
+            src={drCrispyFull}
+            alt="Dr. Crispy"
+            style={{
+              ...styles.heroFullImage,
+              animation: "crispyFloat 3.5s ease-in-out infinite",
+            }}
+          />
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
+}
 
   function renderExpressSection() {
   return (
@@ -6225,6 +6236,50 @@ categoriaVisualTitle: {
   color: "#fff",
   fontSize: 14,
 },
+
+heroInfoStrip: {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+  gap: 12,
+  marginTop: 26,
+},
+
+heroInfoCard: {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 16,
+  padding: "14px 14px",
+  boxShadow: "0 10px 24px rgba(0,0,0,0.14)",
+},
+
+heroInfoValue: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 20,
+  marginBottom: 6,
+},
+
+heroInfoLabel: {
+  color: "#cfcfcf",
+  fontSize: 13,
+  lineHeight: 1.4,
+},
+
+heroPosterBadge: {
+  display: "inline-block",
+  background: "rgba(255,196,0,0.12)",
+  border: "1px solid rgba(255,196,0,0.22)",
+  color: "#ffd166",
+  padding: "8px 14px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+  letterSpacing: 0.8,
+  marginTop: 12,
+  position: "relative",
+  zIndex: 3,
+},
+
 };
 
 export default App;
