@@ -2352,6 +2352,7 @@ function renderBebidasScreen() {
             }}
           >
             <div style={styles.posterHeroGlow}></div>
+
             <span
               style={{
                 ...styles.posterSauceDot,
@@ -2427,49 +2428,33 @@ function renderBebidasScreen() {
               </div>
 
               <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
-                <div style={styles.posterPriceList}>
-                  {BEBIDAS.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
+                <h3 style={styles.posterSectionTitle}>NAVEGA EL LAB</h3>
+                <div style={{ display: "grid", gap: 10 }}>
+                  <button
+                    type="button"
+                    style={styles.secondaryBtn}
+                    onClick={() => setSeccionCliente("combos")}
+                  >
+                    Ver combos
+                  </button>
+
+                  <button
+                    type="button"
+                    style={styles.secondaryBtn}
+                    onClick={() => setSeccionCliente("bebidas")}
+                  >
+                    Ver bebidas
+                  </button>
+
+                  <button
+                    type="button"
+                    style={styles.secondaryBtn}
+                    onClick={() => setSeccionCliente("adicionales")}
+                  >
+                    Ver adicionales
+                  </button>
                 </div>
               </div>
-
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
-                <div style={styles.posterPriceList}>
-                  {ADICIONALES.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={styles.comboSection}>
-            <div style={styles.menuInteractiveHeader}>
-              <div style={styles.menuInteractiveBadge}>💥 COMBOS DEL LAB</div>
-              <h2 style={styles.menuInteractiveTitle}>LOS MÁS PEDIDOS</h2>
-              <p style={styles.catalogText}>
-                Más valor, más antojo y más fácil para pedir.
-              </p>
-            </div>
-
-            <div
-              style={{
-                ...styles.comboGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(3, minmax(0, 1fr))",
-              }}
-            >
-              {COMBOS.map(renderComboCard)}
             </div>
           </div>
 
@@ -2481,6 +2466,9 @@ function renderBebidasScreen() {
               <h2 style={styles.menuInteractiveTitle}>
                 SELECCIONA TU EXPERIMENTO
               </h2>
+              <p style={styles.catalogText}>
+                Aquí eliges únicamente las alitas base del experimento.
+              </p>
             </div>
 
             <div
@@ -2493,125 +2481,11 @@ function renderBebidasScreen() {
             >
               {FORMULAS.map(renderFormulaCard)}
             </div>
-
-            <div style={styles.subSectionTitleWrap}>
-              <h3 style={styles.subSectionTitle}>🥤 BEBIDAS</h3>
-            </div>
-
-            <div
-              style={{
-                ...styles.simpleGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(2, minmax(0, 1fr))",
-              }}
-            >
-              {BEBIDAS.map(renderSimpleCard)}
-            </div>
-
-            <div style={styles.subSectionTitleWrap}>
-              <h3 style={styles.subSectionTitle}>🍟 ADICIONALES</h3>
-            </div>
-
-            <div
-              style={{
-                ...styles.simpleGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(2, minmax(0, 1fr))",
-              }}
-            >
-              {ADICIONALES.map(renderSimpleCard)}
-            </div>
           </div>
-        </div>
-
-        <div style={styles.panel}>
-          <h2 style={styles.panelTitle}>📋 CHECKOUT DEL EXPERIMENTO</h2>
-
-          <Input
-            label="Nombre"
-            value={cliente.nombre}
-            onChange={(e) => actualizarCliente("nombre", e.target.value)}
-          />
-
-          <Input
-            label="Teléfono"
-            value={cliente.telefono}
-            onChange={(e) => actualizarCliente("telefono", e.target.value)}
-          />
-
-          <Input
-            label="Dirección"
-            value={cliente.direccion}
-            onChange={(e) => actualizarCliente("direccion", e.target.value)}
-            disabled={Boolean(
-              clienteSesion?.id &&
-                direccionesCliente.length > 0 &&
-                !usarOtraDireccion
-            )}
-          />
-
-          <Input
-            label="Referencia"
-            value={cliente.referencia}
-            onChange={(e) => actualizarCliente("referencia", e.target.value)}
-            disabled={Boolean(
-              clienteSesion?.id &&
-                direccionesCliente.length > 0 &&
-                !usarOtraDireccion
-            )}
-          />
-
-          <div style={{ marginBottom: 14 }}>
-            <label style={styles.label}>Método de pago</label>
-            <select
-              style={styles.input}
-              value={cliente.pago}
-              onChange={(e) => actualizarCliente("pago", e.target.value)}
-            >
-              <option value="Llave">Llave</option>
-              <option value="QR Nequi">QR Nequi</option>
-            </select>
-          </div>
-
-          {cliente.pago === "Llave" && (
-            <div style={styles.paymentInfoBox}>
-              <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
-              <div style={styles.paymentInfoText}>Llave: 3152487938</div>
-              <div style={styles.paymentInfoText}>
-                El pedido quedará pendiente de verificación.
-              </div>
-            </div>
-          )}
-
-          {cliente.pago === "QR Nequi" && (
-            <div style={styles.paymentInfoBox}>
-              <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
-              <div style={styles.paymentInfoText}>
-                Escanea este QR para realizar el pago.
-              </div>
-
-              <div style={styles.qrWrap}>
-                <img
-                  src="/qr-nequi.png"
-                  alt="QR Nequi Dr. Crispy Lab"
-                  style={styles.qrImage}
-                />
-              </div>
-
-              <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-              <div style={styles.paymentInfoText}>
-                El pedido quedará pendiente de verificación.
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      <div>
-  {renderCarritoDesktop()}
-</div>
+      <div>{renderCarritoDesktop()}</div>
     </section>
   );
 }
@@ -2747,47 +2621,49 @@ function renderCarritoDesktop() {
         )}
 
         {carrito.length > 0 && (
-  <div style={styles.upsellBox}>
-    <div style={styles.upsellTextWrap}>
-      <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
-      <div style={styles.upsellText}>
-        Súmale una porción por solo $4.000 más
-      </div>
-    </div>
+          <div style={styles.upsellBox}>
+            <div style={styles.upsellTextWrap}>
+              <div style={styles.upsellTitle}>🍟 Agrégale papas</div>
+              <div style={styles.upsellText}>
+                Súmale una porción por solo $4.000 más
+              </div>
+            </div>
 
-    <button
-      type="button"
-      style={styles.upsellBtn}
-      onClick={(e) =>
-        agregarProducto(
-          {
-            id: "upsell-papas-4000",
-            nombre: "Papas fritas promo",
-            descripcion: "Upsell del laboratorio",
-            precio: 4000,
-            emoji: "🍟",
-            categoria: "adicionales",
-          },
-          e.currentTarget
-        )
-      }
-    >
-      Agregar
-    </button>
-  </div>
-)}
+            <button
+              type="button"
+              style={styles.upsellBtn}
+              onClick={(e) =>
+                agregarProducto(
+                  {
+                    id: "upsell-papas-4000",
+                    nombre: "Papas fritas promo",
+                    descripcion: "Upsell del laboratorio",
+                    precio: 4000,
+                    emoji: "🍟",
+                    categoria: "adicionales",
+                  },
+                  e.currentTarget
+                )
+              }
+            >
+              Agregar
+            </button>
+          </div>
+        )}
 
         <div style={styles.summaryBox}>
           <div style={styles.summaryRow}>
             <span>Subtotal</span>
             <span>${subtotal.toLocaleString("es-CO")}</span>
           </div>
+
           <div style={styles.summaryRow}>
             <span>Domicilio</span>
             <span style={{ color: "#ffd166", fontWeight: "bold" }}>
               Incluido
             </span>
           </div>
+
           <div style={styles.summaryTotal}>
             <span>Total</span>
             <span>${total.toLocaleString("es-CO")}</span>
@@ -2795,14 +2671,15 @@ function renderCarritoDesktop() {
         </div>
 
         <button
-  style={{
-    ...styles.confirmBtn,
-    marginTop: 0,
-  }}
-  onClick={() => setCheckoutMovilAbierto(true)}
->
-  🔥 CONTINUAR PEDIDO
-</button>
+          style={{
+            ...styles.confirmBtn,
+            ...(cargandoPedido ? styles.disabledBtn : {}),
+          }}
+          onClick={confirmarPedido}
+          disabled={cargandoPedido}
+        >
+          {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+        </button>
 
         <div style={styles.cartTrustText}>
           ⚡ Recíbelo caliente. Domicilio incluido.
@@ -2845,67 +2722,67 @@ function renderCarritoDesktop() {
   function renderCliente() {
   return (
     <>
-     <section style={styles.clientNavWrap}>
-  <button
-    style={{
-      ...styles.clientNavBtn,
-      ...(seccionCliente === "inicio"
-        ? styles.clientNavBtnActive
-        : {}),
-    }}
-    onClick={() => irASeccionCliente("inicio")}
-  >
-    Inicio
-  </button>
+      <section style={styles.clientNavWrap}>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "inicio"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={() => irASeccionCliente("inicio")}
+        >
+          Inicio
+        </button>
 
-  <button
-    style={{
-      ...styles.clientNavBtn,
-      ...(seccionCliente === "catalogo"
-        ? styles.clientNavBtnActive
-        : {}),
-    }}
-    onClick={() => irASeccionCliente("catalogo")}
-  >
-    Experimentos
-  </button>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "catalogo"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={() => irASeccionCliente("catalogo")}
+        >
+          Experimentos
+        </button>
 
-  <button
-    style={{
-      ...styles.clientNavBtn,
-      ...(seccionCliente === "combos"
-        ? styles.clientNavBtnActive
-        : {}),
-    }}
-    onClick={() => setSeccionCliente("combos")}
-  >
-    Combos
-  </button>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "combos"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={() => setSeccionCliente("combos")}
+        >
+          Combos
+        </button>
 
-  <button
-    style={{
-      ...styles.clientNavBtn,
-      ...(seccionCliente === "adicionales"
-        ? styles.clientNavBtnActive
-        : {}),
-    }}
-    onClick={() => setSeccionCliente("adicionales")}
-  >
-    Adicionales
-  </button>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "adicionales"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={() => setSeccionCliente("adicionales")}
+        >
+          Adicionales
+        </button>
 
-  <button
-    style={{
-      ...styles.clientNavBtn,
-      ...(seccionCliente === "bebidas"
-        ? styles.clientNavBtnActive
-        : {}),
-    }}
-    onClick={() => setSeccionCliente("bebidas")}
-  >
-    Bebidas
-  </button>
-</section>
+        <button
+          style={{
+            ...styles.clientNavBtn,
+            ...(seccionCliente === "bebidas"
+              ? styles.clientNavBtnActive
+              : {}),
+          }}
+          onClick={() => setSeccionCliente("bebidas")}
+        >
+          Bebidas
+        </button>
+      </section>
 
       {seccionCliente === "inicio" && (
         <>
@@ -3189,27 +3066,28 @@ function renderCarritoDesktop() {
       {seccionCliente === "experimento1" && renderExperimento1()}
 
       {esMovil && carrito.length > 0 && (
-  <div
-    style={{
-      ...styles.floatingCartWrap,
-      ...(carritoAnimando ? styles.floatingCartWrapPop : {}),
-    }}
-  >
-    <button
-      type="button"
-      style={{
-        ...styles.floatingCartBtn,
-        ...(carritoAnimando ? styles.floatingCartBtnPulse : {}),
-      }}
-      onClick={() => setDrawerCarritoAbierto(true)}
-    >
-      <span>🛒 Ver pedido</span>
-      <span>
-        {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""} • ${total.toLocaleString("es-CO")}
-      </span>
-    </button>
-  </div>
-)}
+        <div
+          style={{
+            ...styles.floatingCartWrap,
+            ...(carritoAnimando ? styles.floatingCartWrapPop : {}),
+          }}
+        >
+          <button
+            type="button"
+            style={{
+              ...styles.floatingCartBtn,
+              ...(carritoAnimando ? styles.floatingCartBtnPulse : {}),
+            }}
+            onClick={() => setDrawerCarritoAbierto(true)}
+          >
+            <span>🛒 Ver pedido</span>
+            <span>
+              {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""} • $
+              {total.toLocaleString("es-CO")}
+            </span>
+          </button>
+        </div>
+      )}
     </>
   );
 }
@@ -3652,169 +3530,167 @@ function renderCarritoDesktop() {
       )}
 
               {esMovil && drawerCarritoAbierto && (
-          <div
-            style={styles.drawerBackdrop}
-            onClick={() => setDrawerCarritoAbierto(false)}
-          >
-            <div
-              style={styles.drawerCart}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div style={styles.drawerContainer}>
-                <div style={styles.drawerHeader}>
-                  <div style={styles.drawerHeaderContent}>
-                    <div style={styles.drawerMini}>🛒 TU PEDIDO</div>
+  <div
+    style={styles.drawerBackdrop}
+    onClick={() => setDrawerCarritoAbierto(false)}
+  >
+    <div
+      style={styles.drawerCart}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={styles.drawerContainer}>
+        <div style={styles.drawerHeader}>
+          <div style={styles.drawerHeaderContent}>
+            <div style={styles.drawerMini}>🛒 TU PEDIDO</div>
 
-                    <h2 style={styles.drawerTitle}>Tu pedido del laboratorio</h2>
+            <h2 style={styles.drawerTitle}>Tu pedido del laboratorio</h2>
 
-                    <div style={styles.drawerHeaderMeta}>
-                      <span style={styles.drawerMetaPill}>
-                        {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""}
-                      </span>
+            <div style={styles.drawerHeaderMeta}>
+              <span style={styles.drawerMetaPill}>
+                {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""}
+              </span>
 
-                      <span style={styles.drawerMetaPillHighlight}>
-                        ${total.toLocaleString("es-CO")}
-                      </span>
-                    </div>
+              <span style={styles.drawerMetaPillHighlight}>
+                ${total.toLocaleString("es-CO")}
+              </span>
+            </div>
 
-                    <div style={styles.drawerEta}>
-                      ⚡ Revísalo y confirma cuando estés listo
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    style={styles.drawerCloseBtn}
-                    onClick={() => setDrawerCarritoAbierto(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div style={styles.drawerContent}>
-                  {carrito.length === 0 ? (
-                    <div style={styles.emptyBox}>
-                      No has agregado productos todavía.
-                    </div>
-                  ) : (
-                    <div style={styles.drawerItemsWrap}>
-                      {carrito.map((item) => (
-                        <div key={item.cartKey} style={styles.cartItem}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <strong style={{ display: "block", marginBottom: 4 }}>
-                              {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
-                            </strong>
-
-                            <div style={styles.cartSub}>
-                              {item.experimento || "Experimento 1"}
-                            </div>
-
-                            {item.salsa && (
-                              <div
-                                style={{
-                                  ...styles.cartSub,
-                                  color: "#ffd166",
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                Sabor: {item.salsa}
-                              </div>
-                            )}
-
-                            {item.esCombo && Array.isArray(item.detalleCombo) && (
-                              <div style={{ marginTop: 8 }}>
-                                {formatearDetalleCombo(item.detalleCombo).map(
-                                  (detalle, idx) => (
-                                    <div key={idx} style={styles.cartSub}>
-                                      • {detalle}
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            )}
-
-                            <div
-                              style={{
-                                ...styles.cartSub,
-                                marginTop: 8,
-                                fontWeight: "bold",
-                                color: "#fff",
-                              }}
-                            >
-                              ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
-                            </div>
-                          </div>
-
-                          <div style={styles.qtyBox}>
-                            <button
-                              style={styles.qtyBtn}
-                              onClick={() => cambiarCantidad(item.cartKey, -1)}
-                            >
-                              -
-                            </button>
-                            <span>{item.cantidad}</span>
-                            <button
-                              style={styles.qtyBtn}
-                              onClick={() => cambiarCantidad(item.cartKey, 1)}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {carrito.length > 0 && (
-                  <div style={styles.drawerFooter}>
-                    <div style={styles.summaryBox}>
-                      <div style={styles.summaryRow}>
-                        <span>Subtotal</span>
-                        <span>${subtotal.toLocaleString("es-CO")}</span>
-                      </div>
-
-                      <div style={styles.summaryRow}>
-                        <span>Domicilio</span>
-                        <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                          Incluido
-                        </span>
-                      </div>
-
-                      <div style={styles.summaryTotal}>
-                        <span>Total</span>
-                        <span>${total.toLocaleString("es-CO")}</span>
-                      </div>
-                    </div>
-
-                    <button
-                      style={{
-                        ...styles.confirmBtn,
-                        ...(cargandoPedido ? styles.disabledBtn : {}),
-                        marginTop: 0,
-                      }}
-                      onClick={confirmarPedido}
-                      disabled={cargandoPedido}
-                    >
-                      {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
-                    </button>
-
-                    <div style={styles.cartTrustText}>
-                      ⚡ Recíbelo caliente. Domicilio incluido.
-                    </div>
-
-                    <button
-                      style={styles.whatsappBtn}
-                      onClick={abrirWhatsAppPedido}
-                    >
-                      Enviar pedido por WhatsApp
-                    </button>
-                  </div>
-                )}
-              </div>
+            <div style={styles.drawerEta}>
+              ⚡ Revísalo y confirma cuando estés listo
             </div>
           </div>
+
+          <button
+            type="button"
+            style={styles.drawerCloseBtn}
+            onClick={() => setDrawerCarritoAbierto(false)}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={styles.drawerContent}>
+          {carrito.length === 0 ? (
+            <div style={styles.emptyBox}>
+              No has agregado productos todavía.
+            </div>
+          ) : (
+            <div style={styles.drawerItemsWrap}>
+              {carrito.map((item) => (
+                <div key={item.cartKey} style={styles.cartItem}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <strong style={{ display: "block", marginBottom: 4 }}>
+                      {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                    </strong>
+
+                    <div style={styles.cartSub}>
+                      {item.experimento || "Experimento 1"}
+                    </div>
+
+                    {item.salsa && (
+                      <div
+                        style={{
+                          ...styles.cartSub,
+                          color: "#ffd166",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Sabor: {item.salsa}
+                      </div>
+                    )}
+
+                    {item.esCombo && Array.isArray(item.detalleCombo) && (
+                      <div style={{ marginTop: 8 }}>
+                        {formatearDetalleCombo(item.detalleCombo).map(
+                          (detalle, idx) => (
+                            <div key={idx} style={styles.cartSub}>
+                              • {detalle}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
+
+                    <div
+                      style={{
+                        ...styles.cartSub,
+                        marginTop: 8,
+                        fontWeight: "bold",
+                        color: "#fff",
+                      }}
+                    >
+                      ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                    </div>
+                  </div>
+
+                  <div style={styles.qtyBox}>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => cambiarCantidad(item.cartKey, -1)}
+                    >
+                      -
+                    </button>
+                    <span>{item.cantidad}</span>
+                    <button
+                      style={styles.qtyBtn}
+                      onClick={() => cambiarCantidad(item.cartKey, 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {carrito.length > 0 && (
+          <div style={styles.drawerFooter}>
+            <div style={styles.summaryBox}>
+              <div style={styles.summaryRow}>
+                <span>Subtotal</span>
+                <span>${subtotal.toLocaleString("es-CO")}</span>
+              </div>
+
+              <div style={styles.summaryRow}>
+                <span>Domicilio</span>
+                <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                  Incluido
+                </span>
+              </div>
+
+              <div style={styles.summaryTotal}>
+                <span>Total</span>
+                <span>${total.toLocaleString("es-CO")}</span>
+              </div>
+            </div>
+
+            <button
+              style={{
+                ...styles.confirmBtn,
+                marginTop: 0,
+              }}
+              onClick={() => setCheckoutMovilAbierto(true)}
+            >
+              🔥 CONTINUAR PEDIDO
+            </button>
+
+            <div style={styles.cartTrustText}>
+              ⚡ Recíbelo caliente. Domicilio incluido.
+            </div>
+
+            <button
+              style={styles.whatsappBtn}
+              onClick={abrirWhatsAppPedido}
+            >
+              Enviar pedido por WhatsApp
+            </button>
+          </div>
         )}
+      </div>
+    </div>
+  </div>
+)}
               {esMovil && checkoutMovilAbierto && (
         <div
           style={styles.modalBackdrop}
