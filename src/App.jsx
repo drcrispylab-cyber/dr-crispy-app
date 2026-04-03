@@ -3187,12 +3187,24 @@ function renderCarritoDesktop() {
       {seccionCliente === "experimento1" && renderExperimento1()}
 
       {esMovil && carrito.length > 0 && (
-  <div style={styles.floatingCartWrap}>
+  <div
+    style={{
+      ...styles.floatingCartWrap,
+      ...(carritoAnimando ? styles.floatingCartWrapPop : {}),
+    }}
+  >
     <button
-      style={styles.floatingCartBtn}
-      onClick={() => setMostrarCarritoMovil(true)}
+      type="button"
+      style={{
+        ...styles.floatingCartBtn,
+        ...(carritoAnimando ? styles.floatingCartBtnPulse : {}),
+      }}
+      onClick={() => setDrawerCarritoAbierto(true)}
     >
-      🛒 {carrito.length} producto{carrito.length > 1 ? "s" : ""} — ${total.toLocaleString("es-CO")}
+      <span>🛒 Ver pedido</span>
+      <span>
+        {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""} • ${total.toLocaleString("es-CO")}
+      </span>
     </button>
   </div>
 )}
@@ -3637,178 +3649,170 @@ function renderCarritoDesktop() {
         </button>
       )}
 
-      {esMovil && drawerCarritoAbierto && (
-        <div
-          style={styles.drawerBackdrop}
-          onClick={() => setDrawerCarritoAbierto(false)}
-        >
+              {esMovil && drawerCarritoAbierto && (
           <div
-            style={styles.drawerCart}
-            onClick={(e) => e.stopPropagation()}
+            style={styles.drawerBackdrop}
+            onClick={() => setDrawerCarritoAbierto(false)}
           >
-            <div style={styles.drawerHeader}>
-              <div>
-                <div style={styles.drawerMini}>🛒 TU PEDIDO</div>
-                <h2 style={styles.drawerTitle}>Tu experimento está listo</h2>
-                <div style={styles.drawerEta}>⚡ Entrega estimada: 25 - 35 min</div>
-              </div>
+            <div
+              style={styles.drawerCart}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={styles.drawerContainer}>
+                <div style={styles.drawerHeader}>
+                  <div style={styles.drawerHeaderContent}>
+                    <div style={styles.drawerMini}>🛒 TU PEDIDO</div>
 
-              <button
-                type="button"
-                style={styles.drawerCloseBtn}
-                onClick={() => setDrawerCarritoAbierto(false)}
-              >
-                ✕
-              </button>
-            </div>
+                    <h2 style={styles.drawerTitle}>Tu pedido del laboratorio</h2>
 
-            {carrito.length === 0 ? (
-              <div style={styles.emptyBox}>No has agregado productos todavía.</div>
-            ) : (
-              <>
-                <div style={styles.drawerItemsWrap}>
-                  {carrito.map((item) => (
-                    <div key={item.cartKey} style={styles.cartItem}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <strong style={{ display: "block", marginBottom: 4 }}>
-                          {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
-                        </strong>
+                    <div style={styles.drawerHeaderMeta}>
+                      <span style={styles.drawerMetaPill}>
+                        {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""}
+                      </span>
 
-                        <div style={styles.cartSub}>
-                          {item.experimento || "Experimento 1"}
-                        </div>
-
-                        {item.salsa && (
-                          <div
-                            style={{
-                              ...styles.cartSub,
-                              color: "#ffd166",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            Sabor: {item.salsa}
-                          </div>
-                        )}
-
-                        {item.esCombo && Array.isArray(item.detalleCombo) && (
-                          <div style={{ marginTop: 8 }}>
-                            {formatearDetalleCombo(item.detalleCombo).map(
-                              (detalle, idx) => (
-                                <div key={idx} style={styles.cartSub}>
-                                  • {detalle}
-                                </div>
-                              )
-                            )}
-                          </div>
-                        )}
-
-                        <div
-                          style={{
-                            ...styles.cartSub,
-                            marginTop: 8,
-                            fontWeight: "bold",
-                            color: "#fff",
-                          }}
-                        >
-                          ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
-                        </div>
-                      </div>
-
-                      <div style={styles.qtyBox}>
-                        <button
-                          style={styles.qtyBtn}
-                          onClick={() => cambiarCantidad(item.cartKey, -1)}
-                        >
-                          -
-                        </button>
-                        <span>{item.cantidad}</span>
-                        <button
-                          style={styles.qtyBtn}
-                          onClick={() => cambiarCantidad(item.cartKey, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
+                      <span style={styles.drawerMetaPillHighlight}>
+                        ${total.toLocaleString("es-CO")}
+                      </span>
                     </div>
-                  ))}
+
+                    <div style={styles.drawerEta}>
+                      ⚡ Revísalo y confirma cuando estés listo
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    style={styles.drawerCloseBtn}
+                    onClick={() => setDrawerCarritoAbierto(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div style={styles.drawerContent}>
+                  {carrito.length === 0 ? (
+                    <div style={styles.emptyBox}>
+                      No has agregado productos todavía.
+                    </div>
+                  ) : (
+                    <div style={styles.drawerItemsWrap}>
+                      {carrito.map((item) => (
+                        <div key={item.cartKey} style={styles.cartItem}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <strong style={{ display: "block", marginBottom: 4 }}>
+                              {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                            </strong>
+
+                            <div style={styles.cartSub}>
+                              {item.experimento || "Experimento 1"}
+                            </div>
+
+                            {item.salsa && (
+                              <div
+                                style={{
+                                  ...styles.cartSub,
+                                  color: "#ffd166",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Sabor: {item.salsa}
+                              </div>
+                            )}
+
+                            {item.esCombo && Array.isArray(item.detalleCombo) && (
+                              <div style={{ marginTop: 8 }}>
+                                {formatearDetalleCombo(item.detalleCombo).map(
+                                  (detalle, idx) => (
+                                    <div key={idx} style={styles.cartSub}>
+                                      • {detalle}
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            )}
+
+                            <div
+                              style={{
+                                ...styles.cartSub,
+                                marginTop: 8,
+                                fontWeight: "bold",
+                                color: "#fff",
+                              }}
+                            >
+                              ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                            </div>
+                          </div>
+
+                          <div style={styles.qtyBox}>
+                            <button
+                              style={styles.qtyBtn}
+                              onClick={() => cambiarCantidad(item.cartKey, -1)}
+                            >
+                              -
+                            </button>
+                            <span>{item.cantidad}</span>
+                            <button
+                              style={styles.qtyBtn}
+                              onClick={() => cambiarCantidad(item.cartKey, 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {carrito.length > 0 && (
-  <>
-    <div style={styles.summaryBox}>
-      <div style={styles.summaryRow}>
-        <span>Subtotal</span>
-        <span>${subtotal.toLocaleString("es-CO")}</span>
-      </div>
-      <div style={styles.summaryRow}>
-        <span>Domicilio</span>
-        <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-          Incluido
-        </span>
-      </div>
-      <div style={styles.summaryTotal}>
-        <span>Total</span>
-        <span>${total.toLocaleString("es-CO")}</span>
-      </div>
-    </div>
+                  <div style={styles.drawerFooter}>
+                    <div style={styles.summaryBox}>
+                      <div style={styles.summaryRow}>
+                        <span>Subtotal</span>
+                        <span>${subtotal.toLocaleString("es-CO")}</span>
+                      </div>
 
-    <button
-      style={{
-        ...styles.confirmBtn,
-        ...(cargandoPedido ? styles.disabledBtn : {}),
-      }}
-      onClick={confirmarPedido}
-      disabled={cargandoPedido}
-    >
-      {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
-    </button>
+                      <div style={styles.summaryRow}>
+                        <span>Domicilio</span>
+                        <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                          Incluido
+                        </span>
+                      </div>
 
-    <div style={styles.cartTrustText}>
-      ⚡ Recíbelo caliente. Domicilio incluido.
-    </div>
+                      <div style={styles.summaryTotal}>
+                        <span>Total</span>
+                        <span>${total.toLocaleString("es-CO")}</span>
+                      </div>
+                    </div>
 
-    <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
-      Enviar pedido por WhatsApp
-    </button>
-  </>
-)}
+                    <button
+                      style={{
+                        ...styles.confirmBtn,
+                        ...(cargandoPedido ? styles.disabledBtn : {}),
+                        marginTop: 0,
+                      }}
+                      onClick={confirmarPedido}
+                      disabled={cargandoPedido}
+                    >
+                      {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
+                    </button>
 
-                <div style={styles.summaryBox}>
-                  <div style={styles.summaryRow}>
-                    <span>Subtotal</span>
-                    <span>${subtotal.toLocaleString("es-CO")}</span>
+                    <div style={styles.cartTrustText}>
+                      ⚡ Recíbelo caliente. Domicilio incluido.
+                    </div>
+
+                    <button
+                      style={styles.whatsappBtn}
+                      onClick={abrirWhatsAppPedido}
+                    >
+                      Enviar pedido por WhatsApp
+                    </button>
                   </div>
-                  <div style={styles.summaryRow}>
-                    <span>Domicilio</span>
-                    <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                      Incluido
-                    </span>
-                  </div>
-                  <div style={styles.summaryTotal}>
-                    <span>Total</span>
-                    <span>${total.toLocaleString("es-CO")}</span>
-                  </div>
-                </div>
-
-                <button
-                  style={{
-                    ...styles.confirmBtn,
-                    ...(cargandoPedido ? styles.disabledBtn : {}),
-                  }}
-                  onClick={confirmarPedido}
-                  disabled={cargandoPedido}
-                >
-                  {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
-                </button>
-
-                <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
-                  Enviar pedido por WhatsApp
-                </button>
-              </>
-            )}
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       <div style={styles.container}>
         <header
@@ -4752,6 +4756,30 @@ const styles = {
   borderRadius: 24,
   boxShadow: "0 14px 30px rgba(0,0,0,0.18)",
 },
+
+drawerContainer: {
+  display: "flex",
+  flexDirection: "column",
+  height: "88vh",
+},
+
+drawerContent: {
+  flex: 1,
+  overflowY: "auto",
+  paddingTop: 4,
+  paddingBottom: 12,
+},
+
+drawerFooter: {
+  position: "sticky",
+  bottom: 0,
+  background:
+    "linear-gradient(180deg, rgba(12,12,12,0.96), rgba(8,8,8,1))",
+  borderTop: "1px solid rgba(255,255,255,0.08)",
+  paddingTop: 14,
+  paddingBottom: 4,
+  boxShadow: "0 -14px 30px rgba(0,0,0,0.34)",
+},
   badge: {
   display: "inline-block",
   background: "rgba(255,0,0,0.14)",
@@ -5259,12 +5287,13 @@ const styles = {
   },
 
   sauceVisualCardSelected: {
-    transform: "scale(0.97)",
-    border: "1px solid rgba(255,209,102,0.55)",
-    boxShadow: "0 0 0 2px rgba(255,209,102,0.12), 0 18px 34px rgba(255,0,0,0.16)",
-    background:
-      "radial-gradient(circle at top right, rgba(255,209,102,0.12), transparent 28%), linear-gradient(180deg, rgba(30,20,10,0.98), rgba(12,12,12,1))",
-  },
+  transform: "scale(0.97)",
+  border: "1px solid rgba(255,209,102,0.58)",
+  boxShadow: "0 0 0 2px rgba(255,209,102,0.14), 0 18px 34px rgba(255,0,0,0.18)",
+  background:
+    "radial-gradient(circle at top right, rgba(255,209,102,0.16), transparent 28%), linear-gradient(180deg, rgba(34,22,10,0.98), rgba(12,12,12,1))",
+  transition: "all 0.18s ease",
+},
 
   panelStickyPulse: {
     transform: "translateY(-4px) scale(1.01)",
@@ -6240,6 +6269,18 @@ const styles = {
     fontSize: 30,
     marginBottom: 8,
   },
+
+floatingCartWrapPop: {
+  transform: "translateY(-2px)",
+  transition: "transform 0.18s ease",
+},
+
+floatingCartBtnPulse: {
+  transform: "scale(1.03)",
+  boxShadow: "0 0 0 2px rgba(255,255,255,0.08), 0 22px 40px rgba(255,0,0,0.34)",
+  transition: "all 0.18s ease",
+},
+
   simpleTitle: {
     margin: "0 0 8px 0",
     fontSize: 38,
@@ -6317,6 +6358,13 @@ const styles = {
     fontSize: 15,
     lineHeight: 1.45,
   },
+  
+  sauceVisualCardHover: {
+  transform: "translateY(-3px)",
+  border: "1px solid rgba(255,0,0,0.30)",
+  boxShadow: "0 16px 30px rgba(255,0,0,0.12)",
+},
+
   modalCloseBtn: {
     background: "rgba(255,255,255,0.04)",
     color: "#fff",
@@ -6334,18 +6382,18 @@ const styles = {
     gap: 14,
   },
   sauceVisualCard: {
-    background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.14), transparent 28%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(12,12,12,1))",
-    border: "1px solid rgba(255,0,0,0.18)",
-    borderRadius: 20,
-    padding: 18,
-    cursor: "pointer",
-    textAlign: "left",
-    color: "#fff",
-    transition:
-      "transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease, background 0.2s ease",
-    boxShadow: "0 12px 24px rgba(0,0,0,0.18)",
-  },
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.14), transparent 28%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(12,12,12,1))",
+  border: "1px solid rgba(255,0,0,0.18)",
+  borderRadius: 20,
+  padding: 18,
+  cursor: "pointer",
+  textAlign: "left",
+  color: "#fff",
+  transition:
+    "transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease, background 0.2s ease",
+  boxShadow: "0 12px 24px rgba(0,0,0,0.18)",
+},
   sauceVisualCardActive: {
     border: "1px solid #ff2d2d",
     boxShadow: "0 0 0 2px rgba(255,45,45,0.18), 0 14px 32px rgba(255,0,0,0.14)",
@@ -6409,6 +6457,77 @@ const styles = {
     marginBottom: 14,
     flexWrap: "wrap",
   },
+
+drawerHeaderContent: {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+  flex: 1,
+  minWidth: 0,
+},
+
+drawerHeaderMeta: {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  alignItems: "center",
+},
+
+drawerMetaPill: {
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  color: "#f5f5f5",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+},
+
+drawerMetaPillHighlight: {
+  background: "linear-gradient(135deg, #ff1200, #b30000)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  color: "#fff",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+  boxShadow: "0 10px 20px rgba(255,0,0,0.18)",
+},drawerHeaderContent: {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+  flex: 1,
+  minWidth: 0,
+},
+
+drawerHeaderMeta: {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  alignItems: "center",
+},
+
+drawerMetaPill: {
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  color: "#f5f5f5",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+},
+
+drawerMetaPillHighlight: {
+  background: "linear-gradient(135deg, #ff1200, #b30000)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  color: "#fff",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+  boxShadow: "0 10px 20px rgba(255,0,0,0.18)",
+},
+
   cocinaId: {
     fontSize: 30,
     fontWeight: "bold",
