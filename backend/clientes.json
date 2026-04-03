@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "1",
+    "nombre": "Maria",
+    "telefono": "3043825407",
+    "password": "123456",
+    "direcciones": []
+  }
+]
