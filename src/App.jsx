@@ -310,6 +310,7 @@ function App() {
   const [cargandoClienteAuth, setCargandoClienteAuth] = useState(false);
   const [guardandoDireccionCliente, setGuardandoDireccionCliente] = useState(false);
 
+  const [checkoutMovilAbierto, setCheckoutMovilAbierto] = useState(false);
 
   const [pedidos, setPedidos] = useState([]);
   const [pedidosRepartidor, setPedidosRepartidor] = useState([]);
@@ -1192,10 +1193,12 @@ function usarDireccionGuardada(direccionId) {
       });
 
       setModalPedidoAbierto(true);
-      mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
-      mostrarToast("🎉 Tu pedido fue confirmado correctamente");
+mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
+mostrarToast("🎉 Tu pedido fue confirmado correctamente");
 
-      setCarrito([]);
+setCheckoutMovilAbierto(false);
+setDrawerCarritoAbierto(false);
+setCarrito([]);
       if (clienteSesion?.id) {
         await cargarPerfilCliente(clienteSesion.id);
       } else {
@@ -2792,15 +2795,14 @@ function renderCarritoDesktop() {
         </div>
 
         <button
-          style={{
-            ...styles.confirmBtn,
-            ...(cargandoPedido ? styles.disabledBtn : {}),
-          }}
-          onClick={confirmarPedido}
-          disabled={cargandoPedido}
-        >
-          {cargandoPedido ? "Activando pedido..." : "🔥 PEDIR AHORA"}
-        </button>
+  style={{
+    ...styles.confirmBtn,
+    marginTop: 0,
+  }}
+  onClick={() => setCheckoutMovilAbierto(true)}
+>
+  🔥 CONTINUAR PEDIDO
+</button>
 
         <div style={styles.cartTrustText}>
           ⚡ Recíbelo caliente. Domicilio incluido.
@@ -3813,6 +3815,208 @@ function renderCarritoDesktop() {
             </div>
           </div>
         )}
+              {esMovil && checkoutMovilAbierto && (
+        <div
+          style={styles.modalBackdrop}
+          onClick={() => setCheckoutMovilAbierto(false)}
+        >
+          <div
+            style={styles.checkoutMobileCard}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={styles.checkoutMobileHeader}>
+              <div>
+                <div style={styles.menuInteractiveBadge}>📦 FINALIZAR PEDIDO</div>
+                <h2 style={styles.checkoutMobileTitle}>Checkout del laboratorio</h2>
+                <p style={styles.checkoutMobileSubtitle}>
+                  Confirma tus datos de entrega y método de pago.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                style={styles.modalCloseBtn}
+                onClick={() => setCheckoutMovilAbierto(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={styles.checkoutMobileBody}>
+              {clienteSesion?.id ? (
+                <div style={styles.checkoutProfileBox}>
+                  <div style={styles.checkoutProfileRow}>
+                    <span>👤 Cliente</span>
+                    <strong>{clienteSesion.nombre || cliente.nombre || "-"}</strong>
+                  </div>
+
+                  <div style={styles.checkoutProfileRow}>
+                    <span>📞 Celular</span>
+                    <strong>{cliente.telefono || clienteSesion.telefono || "-"}</strong>
+                  </div>
+
+                  {direccionesCliente.length > 0 && !usarOtraDireccion && (
+                    <div style={{ marginBottom: 14 }}>
+                      <label style={styles.label}>Dirección guardada</label>
+                      <select
+                        style={styles.input}
+                        value={direccionSeleccionadaId}
+                        onChange={(e) => usarDireccionGuardada(e.target.value)}
+                      >
+                        {direccionesCliente.map((direccion) => (
+                          <option key={direccion.id} value={direccion.id}>
+                            {direccion.alias} — {direccion.direccion}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div style={styles.checkoutActionsRow}>
+                    <button
+                      type="button"
+                      style={styles.secondaryBtn}
+                      onClick={() => setUsarOtraDireccion((prev) => !prev)}
+                    >
+                      {usarOtraDireccion
+                        ? "Usar dirección guardada"
+                        : "Usar otra dirección hoy"}
+                    </button>
+
+                    <button
+                      type="button"
+                      style={{
+                        ...styles.secondaryBtn,
+                        ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
+                      }}
+                      onClick={guardarDireccionActualCliente}
+                      disabled={guardandoDireccionCliente}
+                    >
+                      {guardandoDireccionCliente
+                        ? "Guardando..."
+                        : "Guardar dirección actual"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={styles.checkoutGuestBox}>
+                  <div style={styles.checkoutHintBox}>
+                    Completa tus datos para finalizar el pedido.
+                  </div>
+                </div>
+              )}
+
+              <Input
+                label="Nombre"
+                value={cliente.nombre}
+                onChange={(e) => actualizarCliente("nombre", e.target.value)}
+              />
+
+              <Input
+                label="Celular para contacto"
+                value={cliente.telefono}
+                onChange={(e) => actualizarCliente("telefono", e.target.value)}
+              />
+
+              <Input
+                label="Dirección de entrega"
+                value={cliente.direccion}
+                onChange={(e) => actualizarCliente("direccion", e.target.value)}
+                disabled={Boolean(
+                  clienteSesion?.id &&
+                    direccionesCliente.length > 0 &&
+                    !usarOtraDireccion
+                )}
+              />
+
+              <Input
+                label="Referencia"
+                value={cliente.referencia}
+                onChange={(e) => actualizarCliente("referencia", e.target.value)}
+                disabled={Boolean(
+                  clienteSesion?.id &&
+                    direccionesCliente.length > 0 &&
+                    !usarOtraDireccion
+                )}
+              />
+
+              <div style={{ marginBottom: 14 }}>
+                <label style={styles.label}>Método de pago</label>
+                <select
+                  style={styles.input}
+                  value={cliente.pago}
+                  onChange={(e) => actualizarCliente("pago", e.target.value)}
+                >
+                  <option value="Llave">Llave</option>
+                  <option value="QR Nequi">QR Nequi</option>
+                </select>
+              </div>
+
+              {cliente.pago === "Llave" && (
+                <div style={styles.paymentInfoBox}>
+                  <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
+                  <div style={styles.paymentInfoText}>Llave: 3152487938</div>
+                  <div style={styles.paymentInfoText}>
+                    El pedido quedará pendiente de verificación.
+                  </div>
+                </div>
+              )}
+
+              {cliente.pago === "QR Nequi" && (
+                <div style={styles.paymentInfoBox}>
+                  <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
+                  <div style={styles.paymentInfoText}>
+                    Escanea este QR para realizar el pago.
+                  </div>
+
+                  <div style={styles.qrWrap}>
+                    <img
+                      src="/qr-nequi.png"
+                      alt="QR Nequi Dr. Crispy Lab"
+                      style={styles.qrImage}
+                    />
+                  </div>
+
+                  <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+                  <div style={styles.paymentInfoText}>
+                    El pedido quedará pendiente de verificación.
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={styles.checkoutMobileFooter}>
+              <div style={styles.checkoutMobileTotalBox}>
+                <div style={styles.checkoutMobileTotalLabel}>Total del pedido</div>
+                <div style={styles.checkoutMobileTotalValue}>
+                  ${total.toLocaleString("es-CO")}
+                </div>
+              </div>
+
+              <button
+                style={{
+                  ...styles.confirmBtn,
+                  ...(cargandoPedido ? styles.disabledBtn : {}),
+                  marginTop: 0,
+                }}
+                onClick={async () => {
+                  await confirmarPedido();
+                }}
+                disabled={cargandoPedido}
+              >
+                {cargandoPedido ? "Activando pedido..." : "🔥 CONFIRMAR PEDIDO"}
+              </button>
+
+              <button
+                style={styles.whatsappBtn}
+                onClick={abrirWhatsAppPedido}
+              >
+                Enviar pedido por WhatsApp
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={styles.container}>
         <header
@@ -7283,6 +7487,115 @@ comboModalFooter: {
   flexWrap: "wrap",
   paddingTop: 14,
   borderTop: "1px solid rgba(255,255,255,0.08)",
+},checkoutMobileCard: {
+  width: "100%",
+  maxWidth: 520,
+  maxHeight: "90vh",
+  overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(20,20,20,0.98), rgba(8,8,8,0.99))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 24,
+  boxShadow: "0 30px 90px rgba(0,0,0,0.56)",
+},
+
+checkoutMobileHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 16,
+  padding: 20,
+  borderBottom: "1px solid rgba(255,255,255,0.06)",
+},
+
+checkoutMobileTitle: {
+  margin: 0,
+  fontSize: 42,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+  lineHeight: 0.95,
+},
+
+checkoutMobileSubtitle: {
+  marginTop: 8,
+  marginBottom: 0,
+  color: "#cfcfcf",
+  fontSize: 14,
+  lineHeight: 1.45,
+},
+
+checkoutMobileBody: {
+  flex: 1,
+  overflowY: "auto",
+  padding: 20,
+},
+
+checkoutMobileFooter: {
+  borderTop: "1px solid rgba(255,255,255,0.08)",
+  padding: 20,
+  background:
+    "linear-gradient(180deg, rgba(12,12,12,0.96), rgba(8,8,8,1))",
+},
+
+checkoutMobileTotalBox: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 14,
+},
+
+checkoutMobileTotalLabel: {
+  color: "#cfcfcf",
+  fontWeight: "bold",
+  fontSize: 14,
+},
+
+checkoutMobileTotalValue: {
+  color: "#ff4a4a",
+  fontWeight: "bold",
+  fontSize: 28,
+},
+
+checkoutProfileBox: {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 16,
+  padding: 16,
+  marginBottom: 16,
+},
+
+checkoutGuestBox: {
+  marginBottom: 16,
+},
+
+checkoutHintBox: {
+  background: "rgba(255,196,0,0.10)",
+  border: "1px solid rgba(255,196,0,0.18)",
+  color: "#ffd166",
+  borderRadius: 14,
+  padding: 14,
+  fontWeight: "bold",
+  fontSize: 14,
+},
+
+checkoutProfileRow: {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  padding: "6px 0",
+  color: "#f2f2f2",
+  flexWrap: "wrap",
+},
+
+checkoutActionsRow: {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  marginTop: 12,
 },
 
 comboModalFooterText: {
