@@ -2641,19 +2641,22 @@ function renderCarritoDesktop() {
           }}
         >
           <button
-            type="button"
-            style={{
-              ...styles.floatingCartBtn,
-              ...(carritoAnimando ? styles.floatingCartBtnPulse : {}),
-            }}
-            onClick={() => setDrawerCarritoAbierto(true)}
-          >
-            <span>🛒 Ver pedido</span>
-            <span>
-              {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""} • $
-              {total.toLocaleString("es-CO")}
-            </span>
-          </button>
+  type="button"
+  style={{
+    ...styles.floatingCartBtn,
+    ...(carritoAnimando ? styles.floatingCartBtnPulse : {}),
+  }}
+  onClick={() => {
+    setPanelCarritoAbierto(true);
+    setPanelCarritoVista("carrito");
+  }}
+>
+  <span>🛒 Ver pedido</span>
+  <span>
+    {totalItemsCarrito} item{totalItemsCarrito > 1 ? "s" : ""} • $
+    {total.toLocaleString("es-CO")}
+  </span>
+</button>
         </div>
       )}
     </>
@@ -2979,12 +2982,15 @@ function renderCarritoDesktop() {
   </div>
 )}
 
-      {esMovil && carrito.length > 0 && !drawerCarritoAbierto && (
-        <button
-          type="button"
-          style={styles.floatingCartBtn}
-          onClick={() => setDrawerCarritoAbierto(true)}
-        >
+      {esMovil && carrito.length > 0 && !panelCarritoAbierto && (
+  <button
+    type="button"
+    style={styles.floatingCartBtn}
+    onClick={() => {
+      setPanelCarritoAbierto(true);
+      setPanelCarritoVista("carrito");
+    }}
+  >
           <span>🛒 Ver pedido</span>
           <span>
             {totalItemsCarrito} • ${total.toLocaleString("es-CO")}
@@ -3129,14 +3135,18 @@ function renderCarritoDesktop() {
             </div>
 
             <button
-              style={{
-                ...styles.confirmBtn,
-                marginTop: 0,
-              }}
-              onClick={() => setCheckoutMovilAbierto(true)}
-            >
-              🔥 IR AL CHECKOUT
-            </button>
+                style={{
+                  ...styles.confirmBtn,
+                  marginTop: 0,
+                }}
+                onClick={() => {
+                  setDrawerCarritoAbierto(false);
+                  setPanelCarritoAbierto(true);
+                  setPanelCarritoVista("checkout");
+                }}
+              >
+                🔥 CONTINUAR PEDIDO
+              </button>
 
             <div style={styles.cartTrustText}>
               ⚡ Recíbelo caliente. Domicilio incluido.
@@ -3501,8 +3511,13 @@ function renderCarritoDesktop() {
             ) : (
               <div style={styles.drawerItemsWrap}>
                 {carrito.map((item) => (
-                  <div key={item.cartKey} style={styles.cartItemPro}>
-                    <div style={styles.cartItemThumbWrap}>
+                    <div
+                      key={item.cartKey}
+                      style={{
+                        ...styles.cartItemPro,
+                        gridTemplateColumns: esMovil ? "64px 1fr" : "72px 1fr auto",
+                      }}
+>                    <div style={styles.cartItemThumbWrap}>
                       <img
                         src={item.imagen || "/images/producto-placeholder.png"}
                         alt={item.nombre}
@@ -3548,8 +3563,14 @@ function renderCarritoDesktop() {
                       </div>
                     </div>
 
-                    <div style={styles.qtyBoxPro}>
-                      <button
+<div
+  style={{
+    ...styles.qtyBoxPro,
+    marginTop: esMovil ? 10 : 0,
+    justifySelf: esMovil ? "start" : "end",
+    gridColumn: esMovil ? "2 / 3" : "auto",
+  }}
+>                  <button
                         style={styles.qtyBtnPro}
                         onClick={() => cambiarCantidad(item.cartKey, -1)}
                       >
@@ -5456,11 +5477,10 @@ comboIncludePill: {
    
   floatingCartWrap: {
   position: "fixed",
-  bottom: 16,
-  left: 16,
-  right: 16,
-  zIndex: 999,
-  animation: "slideUp 0.25s ease",
+  left: 12,
+  right: 12,
+  bottom: "calc(12px + env(safe-area-inset-bottom))",
+  zIndex: 9998,
 },
 
   floatingCartBtn: {
@@ -5721,12 +5741,10 @@ cartItemPro: {
   gridTemplateColumns: "72px 1fr auto",
   gap: 12,
   alignItems: "start",
-  background:
-    "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,1))",
+  padding: 12,
+  borderRadius: 16,
+  background: "rgba(255,255,255,0.04)",
   border: "1px solid rgba(255,255,255,0.06)",
-  borderRadius: 18,
-  padding: 14,
-  boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
 },
 
 cartItemThumbWrap: {
@@ -6938,17 +6956,15 @@ floatingCartBtnPulse: {
     boxShadow: "0 12px 24px rgba(255,0,0,0.16)",
   },
   modalBackdrop: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.78)",
-    backdropFilter: "blur(10px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 18,
-    zIndex: 50,
-    animation: "fadeInSoft 0.22s ease",
-  },
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.66)",
+  zIndex: 9999,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 12,
+},
   modalCard: {
     width: "100%",
     maxWidth: 920,
@@ -8696,15 +8712,17 @@ checkoutMobileSubtitle: {
 
 checkoutMobileBody: {
   flex: 1,
+  minHeight: 0,
   overflowY: "auto",
-  padding: 20,
+  padding: 18,
+  WebkitOverflowScrolling: "touch",
 },
 
 checkoutMobileFooter: {
   borderTop: "1px solid rgba(255,255,255,0.08)",
-  padding: 20,
-  background:
-    "linear-gradient(180deg, rgba(12,12,12,0.96), rgba(8,8,8,1))",
+  padding: "16px 18px calc(16px + env(safe-area-inset-bottom))",
+  background: "rgba(10,10,10,0.96)",
+  flexShrink: 0,
 },
 
 checkoutMobileTotalBox: {
