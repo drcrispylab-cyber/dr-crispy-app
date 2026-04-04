@@ -3667,7 +3667,7 @@ function renderCarritoDesktop() {
               }}
               onClick={() => setCheckoutMovilAbierto(true)}
             >
-              🔥 CONTINUAR PEDIDO
+              🔥 IR AL CHECKOUT
             </button>
 
             <div style={styles.cartTrustText}>
@@ -3715,67 +3715,84 @@ function renderCarritoDesktop() {
 
             <div style={styles.checkoutMobileBody}>
               {clienteSesion?.id ? (
-                <div style={styles.checkoutProfileBox}>
-                  <div style={styles.checkoutProfileRow}>
-                    <span>👤 Cliente</span>
-                    <strong>{clienteSesion.nombre || cliente.nombre || "-"}</strong>
-                  </div>
+  <div style={styles.checkoutProfileBox}>
+    <div style={styles.checkoutProfileTop}>
+      <div>
+        <div style={styles.checkoutProfileBadge}>👤 PERFIL ACTIVO</div>
+        <div style={styles.checkoutProfileName}>
+          {clienteSesion.nombre || cliente.nombre || "-"}
+        </div>
+      </div>
 
-                  <div style={styles.checkoutProfileRow}>
-                    <span>📞 Celular</span>
-                    <strong>{cliente.telefono || clienteSesion.telefono || "-"}</strong>
-                  </div>
+      <div style={styles.checkoutProfileStatus}>Listo para pedir</div>
+    </div>
 
-                  {direccionesCliente.length > 0 && !usarOtraDireccion && (
-                    <div style={{ marginBottom: 14 }}>
-                      <label style={styles.label}>Dirección guardada</label>
-                      <select
-                        style={styles.input}
-                        value={direccionSeleccionadaId}
-                        onChange={(e) => usarDireccionGuardada(e.target.value)}
-                      >
-                        {direccionesCliente.map((direccion) => (
-                          <option key={direccion.id} value={direccion.id}>
-                            {direccion.alias} — {direccion.direccion}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+    <div style={styles.checkoutProfileDataGrid}>
+      <div style={styles.checkoutProfileDataCard}>
+        <div style={styles.checkoutProfileLabel}>Celular</div>
+        <div style={styles.checkoutProfileValue}>
+          {cliente.telefono || clienteSesion.telefono || "-"}
+        </div>
+      </div>
 
-                  <div style={styles.checkoutActionsRow}>
-                    <button
-                      type="button"
-                      style={styles.secondaryBtn}
-                      onClick={() => setUsarOtraDireccion((prev) => !prev)}
-                    >
-                      {usarOtraDireccion
-                        ? "Usar dirección guardada"
-                        : "Usar otra dirección hoy"}
-                    </button>
+      <div style={styles.checkoutProfileDataCard}>
+        <div style={styles.checkoutProfileLabel}>Entrega</div>
+        <div style={styles.checkoutProfileValue}>
+          {cliente.direccion || "Selecciona dirección"}
+        </div>
+      </div>
+    </div>
 
-                    <button
-                      type="button"
-                      style={{
-                        ...styles.secondaryBtn,
-                        ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
-                      }}
-                      onClick={guardarDireccionActualCliente}
-                      disabled={guardandoDireccionCliente}
-                    >
-                      {guardandoDireccionCliente
-                        ? "Guardando..."
-                        : "Guardar dirección actual"}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div style={styles.checkoutGuestBox}>
-                  <div style={styles.checkoutHintBox}>
-                    Completa tus datos para finalizar el pedido.
-                  </div>
-                </div>
-              )}
+    {direccionesCliente.length > 0 && !usarOtraDireccion && (
+      <div style={{ marginBottom: 14 }}>
+        <label style={styles.label}>Dirección guardada</label>
+        <select
+          style={styles.input}
+          value={direccionSeleccionadaId}
+          onChange={(e) => usarDireccionGuardada(e.target.value)}
+        >
+          {direccionesCliente.map((direccion) => (
+            <option key={direccion.id} value={direccion.id}>
+              {direccion.alias} — {direccion.direccion}
+            </option>
+          ))}
+        </select>
+      </div>
+    )}
+
+    <div style={styles.checkoutActionsRow}>
+      <button
+        type="button"
+        style={styles.secondaryBtn}
+        onClick={() => setUsarOtraDireccion((prev) => !prev)}
+      >
+        {usarOtraDireccion
+          ? "Usar dirección guardada"
+          : "Usar otra dirección hoy"}
+      </button>
+
+      <button
+        type="button"
+        style={{
+          ...styles.secondaryBtn,
+          ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
+        }}
+        onClick={guardarDireccionActualCliente}
+        disabled={guardandoDireccionCliente}
+      >
+        {guardandoDireccionCliente
+          ? "Guardando..."
+          : "Guardar dirección actual"}
+      </button>
+    </div>
+  </div>
+) : (
+  <div style={styles.checkoutGuestBox}>
+    <div style={styles.checkoutHintBox}>
+      Completa tus datos para finalizar el pedido.
+    </div>
+  </div>
+)}
 
               <Input
                 label="Nombre"
@@ -3811,17 +3828,54 @@ function renderCarritoDesktop() {
                 )}
               />
 
-              <div style={{ marginBottom: 14 }}>
-                <label style={styles.label}>Método de pago</label>
-                <select
-                  style={styles.input}
-                  value={cliente.pago}
-                  onChange={(e) => actualizarCliente("pago", e.target.value)}
-                >
-                  <option value="Llave">Llave</option>
-                  <option value="QR Nequi">QR Nequi</option>
-                </select>
-              </div>
+              <div style={{ marginBottom: 16 }}>
+  <label style={styles.label}>Método de pago</label>
+
+  <div
+    style={{
+      ...styles.paymentMethodGrid,
+      gridTemplateColumns: esMovil ? "1fr" : "1fr 1fr",
+    }}
+  >
+    <button
+      type="button"
+      style={{
+        ...styles.paymentMethodCard,
+        ...(cliente.pago === "Llave" ? styles.paymentMethodCardActive : {}),
+      }}
+      onClick={() => actualizarCliente("pago", "Llave")}
+    >
+      <div style={styles.paymentMethodIcon}>🔑</div>
+      <div style={styles.paymentMethodInfo}>
+        <div style={styles.paymentMethodTitle}>Pago por Llave</div>
+        <div style={styles.paymentMethodText}>3152487938</div>
+        <div style={styles.paymentMethodHint}>
+          Verificación manual del laboratorio
+        </div>
+      </div>
+    </button>
+
+    <button
+      type="button"
+      style={{
+        ...styles.paymentMethodCard,
+        ...(cliente.pago === "QR Nequi"
+          ? styles.paymentMethodCardActive
+          : {}),
+      }}
+      onClick={() => actualizarCliente("pago", "QR Nequi")}
+    >
+      <div style={styles.paymentMethodIcon}>📱</div>
+      <div style={styles.paymentMethodInfo}>
+        <div style={styles.paymentMethodTitle}>QR Nequi</div>
+        <div style={styles.paymentMethodText}>Pago escaneando QR</div>
+        <div style={styles.paymentMethodHint}>
+          Rápido y directo desde tu celular
+        </div>
+      </div>
+    </button>
+  </div>
+</div>
 
               {cliente.pago === "Llave" && (
                 <div style={styles.paymentInfoBox}>
@@ -3857,34 +3911,48 @@ function renderCarritoDesktop() {
             </div>
 
             <div style={styles.checkoutMobileFooter}>
-              <div style={styles.checkoutMobileTotalBox}>
-                <div style={styles.checkoutMobileTotalLabel}>Total del pedido</div>
-                <div style={styles.checkoutMobileTotalValue}>
-                  ${total.toLocaleString("es-CO")}
-                </div>
-              </div>
+  <div style={styles.checkoutMobileResumeCard}>
+    <div style={styles.checkoutMobileResumeRow}>
+      <span>Subtotal</span>
+      <strong>${subtotal.toLocaleString("es-CO")}</strong>
+    </div>
 
-              <button
-                style={{
-                  ...styles.confirmBtn,
-                  ...(cargandoPedido ? styles.disabledBtn : {}),
-                  marginTop: 0,
-                }}
-                onClick={async () => {
-                  await confirmarPedido();
-                }}
-                disabled={cargandoPedido}
-              >
-                {cargandoPedido ? "Activando pedido..." : "🔥 CONFIRMAR PEDIDO"}
-              </button>
+    <div style={styles.checkoutMobileResumeRow}>
+      <span>Domicilio</span>
+      <strong style={{ color: "#ffd166" }}>Incluido</strong>
+    </div>
 
-              <button
-                style={styles.whatsappBtn}
-                onClick={abrirWhatsAppPedido}
-              >
-                Enviar pedido por WhatsApp
-              </button>
-            </div>
+    <div style={styles.checkoutMobileResumeTotal}>
+      <span>Total del pedido</span>
+      <span>${total.toLocaleString("es-CO")}</span>
+    </div>
+  </div>
+
+  <button
+    style={{
+      ...styles.confirmBtn,
+      ...(cargandoPedido ? styles.disabledBtn : {}),
+      marginTop: 0,
+    }}
+    onClick={async () => {
+      await confirmarPedido();
+    }}
+    disabled={cargandoPedido}
+  >
+    {cargandoPedido ? "Activando pedido..." : "🔥 CONFIRMAR PEDIDO"}
+  </button>
+
+  <div style={styles.checkoutTrustText}>
+    ⚡ Pedido rápido, claro y listo para validar
+  </div>
+
+  <button
+    style={styles.whatsappBtn}
+    onClick={abrirWhatsAppPedido}
+  >
+    Enviar pedido por WhatsApp
+  </button>
+</div>
           </div>
         </div>
       )}
@@ -6478,6 +6546,168 @@ floatingCartBtnPulse: {
     fontSize: 30,
     marginBottom: 10,
   },
+
+  paymentMethodGrid: {
+  display: "grid",
+  gap: 12,
+},
+
+paymentMethodCard: {
+  background:
+    "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 18,
+  padding: 16,
+  display: "flex",
+  alignItems: "flex-start",
+  gap: 12,
+  textAlign: "left",
+  cursor: "pointer",
+  color: "#fff",
+  width: "100%",
+  transition: "all 0.2s ease",
+  boxShadow: "0 10px 24px rgba(0,0,0,0.16)",
+},
+
+paymentMethodCardActive: {
+  border: "1px solid rgba(255,0,0,0.42)",
+  boxShadow: "0 0 0 2px rgba(255,0,0,0.12), 0 14px 28px rgba(255,0,0,0.16)",
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.14), transparent 26%), linear-gradient(180deg, rgba(28,18,18,0.98), rgba(10,10,10,1))",
+},
+
+paymentMethodIcon: {
+  fontSize: 24,
+  flexShrink: 0,
+  marginTop: 2,
+},
+
+paymentMethodInfo: {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  minWidth: 0,
+},
+
+paymentMethodTitle: {
+  fontWeight: "bold",
+  color: "#fff",
+  fontSize: 15,
+},
+
+paymentMethodText: {
+  color: "#f2f2f2",
+  fontSize: 14,
+},
+
+paymentMethodHint: {
+  color: "#bdbdbd",
+  fontSize: 12,
+  lineHeight: 1.4,
+},
+
+checkoutProfileTop: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+  flexWrap: "wrap",
+  marginBottom: 14,
+},
+
+checkoutProfileBadge: {
+  display: "inline-block",
+  background: "rgba(255,0,0,0.14)",
+  border: "1px solid rgba(255,0,0,0.24)",
+  color: "#ffb0b0",
+  padding: "6px 10px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 11,
+  letterSpacing: 0.6,
+  marginBottom: 8,
+},
+
+checkoutProfileName: {
+  fontSize: 22,
+  fontWeight: "bold",
+  color: "#fff",
+  lineHeight: 1.1,
+},
+
+checkoutProfileStatus: {
+  background: "rgba(80,220,120,0.10)",
+  border: "1px solid rgba(80,220,120,0.20)",
+  color: "#9ef0b8",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+},
+
+checkoutProfileDataGrid: {
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: 10,
+  marginBottom: 14,
+},
+
+checkoutProfileDataCard: {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 14,
+  padding: 12,
+},
+
+checkoutProfileLabel: {
+  color: "#bdbdbd",
+  fontSize: 12,
+  marginBottom: 6,
+},
+
+checkoutProfileValue: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 14,
+  lineHeight: 1.4,
+},
+
+checkoutMobileResumeCard: {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 16,
+  padding: 14,
+  marginBottom: 14,
+},
+
+checkoutMobileResumeRow: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  color: "#d7d7d7",
+  fontSize: 14,
+  marginBottom: 8,
+},
+
+checkoutMobileResumeTotal: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  color: "#ff4a4a",
+  fontWeight: "bold",
+  fontSize: 24,
+  marginTop: 10,
+},
+
+checkoutTrustText: {
+  marginTop: 10,
+  marginBottom: 10,
+  textAlign: "center",
+  color: "#ffd1d1",
+  fontWeight: "bold",
+  fontSize: 13,
+},
+
   sauceVisualName: {
     fontSize: 34,
     fontWeight: "bold",
