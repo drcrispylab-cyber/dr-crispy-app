@@ -2815,158 +2815,190 @@ function renderCarritoDesktop() {
       )}
 
       {formulaSeleccionada && (
-        <div
-          style={styles.modalBackdrop}
-          onClick={() => setFormulaSeleccionada(null)}
-        >
-          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalTop}>
-              <div>
-                <div style={styles.menuInteractiveBadge}>
-                  🧪 SELECCIÓN DE FÓRMULA
-                </div>
-                <h2 style={styles.modalTitle}>{formulaSeleccionada.nombre}</h2>
-                <p style={styles.modalSubtitle}>
-                  Elige la salsa base del experimento
-                </p>
-              </div>
-
-              <button
-                style={styles.modalCloseBtn}
-                onClick={() => setFormulaSeleccionada(null)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div
-              style={{
-                ...styles.sauceVisualGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(3, minmax(0, 1fr))",
-              }}
-            >
-              {SALSAS.map((salsa) => (
-                <button
-                  key={salsa.nombre}
-                  style={{
-                      ...styles.sauceVisualCard,
-                      ...(salsaSeleccionAnimando === salsa.nombre
-                        ? styles.sauceVisualCardSelected
-                        : {}),
-                    }}
-                  onClick={(e) =>
-                    seleccionarSalsa(
-                      formulaSeleccionada,
-                      salsa,
-                      e.currentTarget
-                    )
-                  }
-                >
-                  <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
-                  <div style={styles.sauceVisualName}>{salsa.nombre}</div>
-                  <div style={styles.sauceVisualDesc}>{salsa.descripcion}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {comboPendiente && (
   <div
-    style={styles.modalBackdrop}
-    onClick={() => setComboPendiente(null)}
+    style={styles.kfcModalBackdrop}
+    onClick={() => setFormulaSeleccionada(null)}
   >
     <div
-      style={{
-        ...styles.modalCard,
-        maxWidth: 1040,
-        padding: 0,
-        overflow: "hidden",
-      }}
+      style={styles.kfcModalCard}
       onClick={(e) => e.stopPropagation()}
     >
       <div
         style={{
-          ...styles.comboModalLayout,
-          gridTemplateColumns: esMovil ? "1fr" : "0.95fr 1.05fr",
+          ...styles.kfcModalLayout,
+          gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
         }}
       >
-        <div style={styles.comboModalImageSide}>
+        <div style={styles.kfcModalImageWrap}>
           <img
-            src={
-              comboPendiente.combo.imagen || "/images/combo-placeholder.png"
-            }
-            alt={comboPendiente.combo.nombre}
-            style={styles.comboModalImage}
+            src={formulaSeleccionada.imagen || "/images/producto-placeholder.png"}
+            alt={formulaSeleccionada.nombre}
+            style={styles.kfcModalImage}
           />
-
-          <div style={styles.comboModalImageOverlay}></div>
-
-          <div style={styles.comboModalImageContent}>
-            <div style={styles.comboModalBadge}>🔥 SALSA DEL COMBO</div>
-            <h2 style={styles.comboModalImageTitle}>
-              {comboPendiente.combo.nombre}
-            </h2>
-            <div style={styles.comboModalImagePrice}>
-              ${comboPendiente.combo.precio.toLocaleString("es-CO")}
-            </div>
-          </div>
         </div>
 
-        <div style={styles.comboModalContentSide}>
-          <div style={styles.modalTop}>
+        <div style={styles.kfcModalContent}>
+          <div style={styles.kfcModalTopBar}>
             <div>
-              <div style={styles.menuInteractiveBadge}>🧪 PERSONALIZA TU COMBO</div>
-              <h2 style={styles.modalTitle}>{comboPendiente.combo.nombre}</h2>
-              <p style={styles.modalSubtitle}>
-                Elige el sabor de tus alitas para este experimento.
+              <div style={styles.kfcModalMiniBadge}>🧪 PERSONALIZA TU PEDIDO</div>
+              <h2 style={styles.kfcModalTitle}>{formulaSeleccionada.nombre}</h2>
+              <div style={styles.kfcModalPrice}>
+                ${formulaSeleccionada.precio.toLocaleString("es-CO")}
+              </div>
+              <p style={styles.kfcModalDesc}>
+                {formulaSeleccionada.descripcion}
               </p>
             </div>
 
             <button
-              style={styles.modalCloseBtn}
+              type="button"
+              style={styles.kfcModalCloseBtn}
+              onClick={() => setFormulaSeleccionada(null)}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div style={styles.kfcModalSection}>
+            <div style={styles.kfcModalSectionHeader}>
+              <div>
+                <div style={styles.kfcModalSectionTitle}>¿Qué sabor deseas?</div>
+                <div style={styles.kfcModalSectionSub}>
+                  Es necesario elegir uno
+                </div>
+              </div>
+
+              <div style={styles.kfcStepBubble}>1 / 1</div>
+            </div>
+
+            <div style={styles.kfcOptionList}>
+              {SALSAS.map((salsa) => (
+                <button
+                  key={salsa.nombre}
+                  type="button"
+                  style={styles.kfcOptionCard}
+                  onClick={() => {
+                    if (salsa.nombre === "Fuego Atómico") {
+                      setSalsaPendiente({
+                        producto: formulaSeleccionada,
+                        salsa,
+                        target: null,
+                      });
+                      setFormulaSeleccionada(null);
+                      setNivelAtomico("");
+                      return;
+                    }
+
+                    agregarProducto(
+                      {
+                        ...formulaSeleccionada,
+                        salsa: salsa.nombre,
+                      },
+                      null
+                    );
+
+                    setFormulaSeleccionada(null);
+                  }}
+                >
+                  <div style={styles.kfcOptionLeft}>
+                    <div style={styles.kfcOptionEmoji}>{salsa.emoji}</div>
+                    <div>
+                      <div style={styles.kfcOptionTitle}>{salsa.nombre}</div>
+                      <div style={styles.kfcOptionText}>{salsa.descripcion}</div>
+                    </div>
+                  </div>
+
+                  <div style={styles.kfcOptionAction}>Elegir</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={styles.kfcModalFooterNote}>
+            Selecciona un sabor para agregar este producto al carrito.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+      {comboPendiente && (
+  <div
+    style={styles.kfcModalBackdrop}
+    onClick={() => setComboPendiente(null)}
+  >
+    <div
+      style={styles.kfcModalCard}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div
+        style={{
+          ...styles.kfcModalLayout,
+          gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
+        }}
+      >
+        <div style={styles.kfcModalImageWrap}>
+          <img
+            src={comboPendiente.combo.imagen || "/images/producto-placeholder.png"}
+            alt={comboPendiente.combo.nombre}
+            style={styles.kfcModalImage}
+          />
+        </div>
+
+        <div style={styles.kfcModalContent}>
+          <div style={styles.kfcModalTopBar}>
+            <div>
+              <div style={styles.kfcModalMiniBadge}>🔥 PERSONALIZA TU COMBO</div>
+              <h2 style={styles.kfcModalTitle}>{comboPendiente.combo.nombre}</h2>
+              <div style={styles.kfcModalPrice}>
+                ${comboPendiente.combo.precio.toLocaleString("es-CO")}
+              </div>
+              <p style={styles.kfcModalDesc}>
+                {comboPendiente.combo.descripcion}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              style={styles.kfcModalCloseBtn}
               onClick={() => setComboPendiente(null)}
             >
               ✕
             </button>
           </div>
 
-          <div style={styles.comboModalInfoBox}>
-            <div style={styles.comboModalInfoTitle}>Incluye:</div>
+          <div style={styles.kfcComboSummaryBox}>
+            <div style={styles.kfcComboSummaryTitle}>Incluye este combo:</div>
 
-            <div style={styles.comboModalInfoList}>
+            <div style={styles.kfcComboSummaryList}>
               {comboPendiente.combo.itemsInternos.map((item) => (
-                <div key={item.id} style={styles.comboModalInfoItem}>
+                <div key={item.id} style={styles.kfcComboSummaryItem}>
                   • {item.nombre} x{item.cantidad}
                 </div>
               ))}
             </div>
           </div>
 
-          <div
-            style={{
-              ...styles.sauceVisualGrid,
-              gridTemplateColumns: esMovil
-                ? "1fr"
-                : "repeat(3, minmax(0, 1fr))",
-            }}
-          >
-            {SALSAS.map((salsa) => (
-              <button
-                key={salsa.nombre}
-                style={{
-                  ...styles.sauceVisualCard,
-                  ...(salsaSeleccionAnimando === salsa.nombre
-                    ? styles.sauceVisualCardSelected
-                    : {}),
-                }}
-                onClick={() => {
-                  setSalsaSeleccionAnimando(salsa.nombre);
+          <div style={styles.kfcModalSection}>
+            <div style={styles.kfcModalSectionHeader}>
+              <div>
+                <div style={styles.kfcModalSectionTitle}>¿Qué sabor deseas?</div>
+                <div style={styles.kfcModalSectionSub}>
+                  Es necesario elegir uno
+                </div>
+              </div>
 
-                  setTimeout(() => {
+              <div style={styles.kfcStepBubble}>1 / 1</div>
+            </div>
+
+            <div style={styles.kfcOptionList}>
+              {SALSAS.map((salsa) => (
+                <button
+                  key={salsa.nombre}
+                  type="button"
+                  style={styles.kfcOptionCard}
+                  onClick={() => {
                     if (salsa.nombre === "Fuego Atómico") {
                       setComboSalsaPendiente({
                         combo: comboPendiente.combo,
@@ -2975,7 +3007,6 @@ function renderCarritoDesktop() {
                       });
                       setComboPendiente(null);
                       setNivelAtomico("");
-                      setSalsaSeleccionAnimando("");
                       return;
                     }
 
@@ -2984,25 +3015,30 @@ function renderCarritoDesktop() {
                       comboPendiente.target,
                       salsa.nombre
                     );
+
                     setComboPendiente(null);
-                    setSalsaSeleccionAnimando("");
-                  }, 220);
-                }}
-              >
-                <div style={styles.sauceVisualEmoji}>{salsa.emoji}</div>
-                <div style={styles.sauceVisualName}>{salsa.nombre}</div>
-                <div style={styles.sauceVisualDesc}>{salsa.descripcion}</div>
-              </button>
-            ))}
+                  }}
+                >
+                  <div style={styles.kfcOptionLeft}>
+                    <div style={styles.kfcOptionEmoji}>{salsa.emoji}</div>
+                    <div>
+                      <div style={styles.kfcOptionTitle}>{salsa.nombre}</div>
+                      <div style={styles.kfcOptionText}>{salsa.descripcion}</div>
+                    </div>
+                  </div>
+
+                  <div style={styles.kfcOptionAction}>Elegir</div>
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div style={styles.comboModalFooter}>
-            <div style={styles.comboModalFooterText}>
-              Selecciona una salsa para agregar este combo al pedido.
+          <div style={styles.kfcStickyFooter}>
+            <div style={styles.kfcStickyFooterPrice}>
+              Total: ${comboPendiente.combo.precio.toLocaleString("es-CO")}
             </div>
-
-            <div style={styles.comboModalFooterPrice}>
-              ${comboPendiente.combo.precio.toLocaleString("es-CO")}
+            <div style={styles.kfcModalFooterNote}>
+              Selecciona una salsa para continuar.
             </div>
           </div>
         </div>
@@ -3013,144 +3049,172 @@ function renderCarritoDesktop() {
 
 
       {comboSalsaPendiente && (
-        <div style={styles.modalBackdrop}>
-          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalTop}>
-              <div>
-                <div style={styles.menuInteractiveBadge}>🌶️ FUEGO ATÓMICO</div>
-                <h2 style={styles.modalTitle}>Selecciona nivel de picante</h2>
-                <p style={styles.modalSubtitle}>
-                  Esta opción aplica para las alitas del combo.
-                </p>
-              </div>
+  <div style={styles.kfcModalBackdrop}>
+    <div
+      style={{ ...styles.kfcModalCard, maxWidth: 720 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={styles.kfcModalContentOnly}>
+        <div style={styles.kfcModalTopBar}>
+          <div>
+            <div style={styles.kfcModalMiniBadge}>🌶️ NIVEL DE PICANTE</div>
+            <h2 style={styles.kfcModalTitle}>Fuego Atómico</h2>
+            <p style={styles.kfcModalDesc}>
+              Elige el nivel de picante para las alitas de tu combo.
+            </p>
+          </div>
 
-              <button
-                style={styles.modalCloseBtn}
-                onClick={() => {
-                  setComboSalsaPendiente(null);
-                  setNivelAtomico("");
-                }}
-              >
-                ✕
-              </button>
-            </div>
+          <button
+            type="button"
+            style={styles.kfcModalCloseBtn}
+            onClick={() => {
+              setComboSalsaPendiente(null);
+              setNivelAtomico("");
+            }}
+          >
+            ✕
+          </button>
+        </div>
 
-            <div
+        <div style={styles.kfcOptionList}>
+          {["Bajo", "Medio", "Alto"].map((nivel) => (
+            <button
+              key={nivel}
+              type="button"
               style={{
-                ...styles.sauceVisualGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(3, minmax(0, 1fr))",
+                ...styles.kfcOptionCard,
+                ...(nivelAtomico === nivel ? styles.kfcOptionCardActive : {}),
               }}
+              onClick={() => setNivelAtomico(nivel)}
             >
-              {["Bajo", "Medio", "Alto"].map((nivel) => (
-                <button
-                  key={nivel}
-                  style={{
-                    ...styles.sauceVisualCard,
-                    ...(nivelAtomico === nivel
-                      ? styles.sauceVisualCardActive
-                      : {}),
-                  }}
-                  onClick={() => setNivelAtomico(nivel)}
-                >
-                  <div style={styles.sauceVisualEmoji}>🌶️</div>
-                  <div style={styles.sauceVisualName}>{nivel}</div>
-                  <div style={styles.sauceVisualDesc}>
+              <div style={styles.kfcOptionLeft}>
+                <div style={styles.kfcOptionEmoji}>🌶️</div>
+                <div>
+                  <div style={styles.kfcOptionTitle}>{nivel}</div>
+                  <div style={styles.kfcOptionText}>
                     Intensidad {nivel.toLowerCase()}
                   </div>
-                </button>
-              ))}
-            </div>
+                </div>
+              </div>
 
-            <button
-              style={{ ...styles.confirmBtn, marginTop: 18 }}
-              onClick={() => {
-                if (!nivelAtomico) {
-                  mostrarMensaje("error", "Selecciona el nivel de picante.");
-                  return;
-                }
-
-                setTimeout(() => {
-                  agregarCombo(
-                    comboSalsaPendiente.combo,
-                    comboSalsaPendiente.target,
-                    `Fuego Atómico - ${nivelAtomico}`
-                  );
-
-                  setComboSalsaPendiente(null);
-                  setNivelAtomico("");
-                }, 180);
-              }}
-            >
-              Confirmar nivel
+              <div style={styles.kfcRadioDot}>
+                {nivelAtomico === nivel ? "✓" : ""}
+              </div>
             </button>
-          </div>
+          ))}
         </div>
-      )}
+
+        <div style={styles.kfcStickyFooter}>
+          <button
+            style={{ ...styles.confirmBtn, marginTop: 0 }}
+            onClick={() => {
+              if (!nivelAtomico) {
+                mostrarMensaje("error", "Selecciona el nivel de picante.");
+                return;
+              }
+
+              agregarCombo(
+                comboSalsaPendiente.combo,
+                comboSalsaPendiente.target,
+                `Fuego Atómico - ${nivelAtomico}`
+              );
+
+              setComboSalsaPendiente(null);
+              setNivelAtomico("");
+            }}
+          >
+            Confirmar y agregar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       
 
-      {salsaPendiente && (
-        <div style={styles.modalBackdrop}>
-          <div style={styles.modalCard} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalTop}>
-              <div>
-                <div style={styles.menuInteractiveBadge}>🌶️ FUEGO ATÓMICO</div>
-                <h2 style={styles.modalTitle}>Selecciona nivel de picante</h2>
-                <p style={styles.modalSubtitle}>
-                  Esta opción solo aplica para Fuego Atómico.
-                </p>
+      {comboSalsaPendiente && (
+  <div style={styles.kfcModalBackdrop}>
+    <div
+      style={{ ...styles.kfcModalCard, maxWidth: 720 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={styles.kfcModalContentOnly}>
+        <div style={styles.kfcModalTopBar}>
+          <div>
+            <div style={styles.kfcModalMiniBadge}>🌶️ NIVEL DE PICANTE</div>
+            <h2 style={styles.kfcModalTitle}>Fuego Atómico</h2>
+            <p style={styles.kfcModalDesc}>
+              Elige el nivel de picante para las alitas de tu combo.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            style={styles.kfcModalCloseBtn}
+            onClick={() => {
+              setComboSalsaPendiente(null);
+              setNivelAtomico("");
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={styles.kfcOptionList}>
+          {["Bajo", "Medio", "Alto"].map((nivel) => (
+            <button
+              key={nivel}
+              type="button"
+              style={{
+                ...styles.kfcOptionCard,
+                ...(nivelAtomico === nivel ? styles.kfcOptionCardActive : {}),
+              }}
+              onClick={() => setNivelAtomico(nivel)}
+            >
+              <div style={styles.kfcOptionLeft}>
+                <div style={styles.kfcOptionEmoji}>🌶️</div>
+                <div>
+                  <div style={styles.kfcOptionTitle}>{nivel}</div>
+                  <div style={styles.kfcOptionText}>
+                    Intensidad {nivel.toLowerCase()}
+                  </div>
+                </div>
               </div>
 
-              <button
-                style={styles.modalCloseBtn}
-                onClick={() => {
-                  setSalsaPendiente(null);
-                  setNivelAtomico("");
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div
-              style={{
-                ...styles.sauceVisualGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(3, minmax(0, 1fr))",
-              }}
-            >
-              {["Bajo", "Medio", "Alto"].map((nivel) => (
-                <button
-                  key={nivel}
-                  style={{
-                    ...styles.sauceVisualCard,
-                    ...(nivelAtomico === nivel
-                      ? styles.sauceVisualCardActive
-                      : {}),
-                  }}
-                  onClick={() => setNivelAtomico(nivel)}
-                >
-                  <div style={styles.sauceVisualEmoji}>🌶️</div>
-                  <div style={styles.sauceVisualName}>{nivel}</div>
-                  <div style={styles.sauceVisualDesc}>
-                    Nivel de intensidad {nivel.toLowerCase()}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <button
-              style={{ ...styles.confirmBtn, marginTop: 18 }}
-              onClick={confirmarFuegoAtomico}
-            >
-              Confirmar nivel
+              <div style={styles.kfcRadioDot}>
+                {nivelAtomico === nivel ? "✓" : ""}
+              </div>
             </button>
-          </div>
+          ))}
         </div>
-      )}
+
+        <div style={styles.kfcStickyFooter}>
+          <button
+            style={{ ...styles.confirmBtn, marginTop: 0 }}
+            onClick={() => {
+              if (!nivelAtomico) {
+                mostrarMensaje("error", "Selecciona el nivel de picante.");
+                return;
+              }
+
+              agregarCombo(
+                comboSalsaPendiente.combo,
+                comboSalsaPendiente.target,
+                `Fuego Atómico - ${nivelAtomico}`
+              );
+
+              setComboSalsaPendiente(null);
+              setNivelAtomico("");
+            }}
+          >
+            Confirmar y agregar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {esMovil && carrito.length > 0 && !drawerCarritoAbierto && (
         <button
@@ -7176,6 +7240,286 @@ checkoutTrustText: {
     background: "#fff",
     padding: 8,
   },
+
+  kfcModalBackdrop: {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.78)",
+  backdropFilter: "blur(8px)",
+  zIndex: 200,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 20,
+},
+
+kfcModalCard: {
+  width: "100%",
+  maxWidth: 1120,
+  maxHeight: "92vh",
+  overflow: "hidden",
+  borderRadius: 22,
+  background:
+    "linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "0 24px 60px rgba(0,0,0,0.45)",
+},
+
+kfcModalLayout: {
+  display: "grid",
+  minHeight: 560,
+},
+
+kfcModalImageWrap: {
+  background:
+    "radial-gradient(circle at center, rgba(255,0,0,0.18), transparent 38%), #101010",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 22,
+  borderRight: "1px solid rgba(255,255,255,0.06)",
+},
+
+kfcModalImage: {
+  width: "100%",
+  maxWidth: 280,
+  borderRadius: 18,
+  objectFit: "cover",
+  display: "block",
+},
+
+kfcModalContent: {
+  display: "flex",
+  flexDirection: "column",
+  minHeight: 560,
+  maxHeight: "92vh",
+  overflowY: "auto",
+  padding: 24,
+},
+
+kfcModalContentOnly: {
+  display: "flex",
+  flexDirection: "column",
+  padding: 24,
+},
+
+kfcModalTopBar: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 16,
+  marginBottom: 22,
+},
+
+kfcModalMiniBadge: {
+  display: "inline-block",
+  background: "rgba(255,0,0,0.12)",
+  border: "1px solid rgba(255,0,0,0.24)",
+  color: "#ffb0b0",
+  padding: "7px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+  marginBottom: 12,
+},
+
+kfcModalTitle: {
+  margin: 0,
+  fontSize: 46,
+  lineHeight: 0.95,
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+  color: "#fff",
+},
+
+kfcModalPrice: {
+  marginTop: 12,
+  color: "#ff4b4b",
+  fontWeight: "bold",
+  fontSize: 32,
+  textShadow: "0 0 14px rgba(255,0,0,0.16)",
+},
+
+kfcModalDesc: {
+  marginTop: 10,
+  marginBottom: 0,
+  color: "#d0d0d0",
+  lineHeight: 1.6,
+  fontSize: 15,
+  maxWidth: 620,
+},
+
+kfcModalCloseBtn: {
+  width: 44,
+  height: 44,
+  borderRadius: 12,
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.04)",
+  color: "#fff",
+  fontSize: 18,
+  cursor: "pointer",
+  flexShrink: 0,
+},
+
+kfcModalSection: {
+  marginTop: 6,
+},
+
+kfcModalSectionHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 14,
+  marginBottom: 14,
+  flexWrap: "wrap",
+},
+
+kfcModalSectionTitle: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 24,
+  lineHeight: 1.1,
+},
+
+kfcModalSectionSub: {
+  color: "#bcbcbc",
+  fontSize: 13,
+  marginTop: 4,
+},
+
+kfcStepBubble: {
+  background: "#111827",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#fff",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 13,
+},
+
+kfcOptionList: {
+  display: "grid",
+  gap: 12,
+},
+
+kfcOptionCard: {
+  width: "100%",
+  background:
+    "linear-gradient(180deg, rgba(26,26,26,0.98), rgba(18,18,18,1))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 18,
+  padding: "16px 18px",
+  color: "#fff",
+  cursor: "pointer",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 16,
+  textAlign: "left",
+},
+
+kfcOptionCardActive: {
+  border: "1px solid rgba(255,0,0,0.28)",
+  boxShadow: "0 0 0 2px rgba(255,0,0,0.10)",
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(26,26,26,0.98), rgba(18,18,18,1))",
+},
+
+kfcOptionLeft: {
+  display: "flex",
+  alignItems: "center",
+  gap: 14,
+  minWidth: 0,
+},
+
+kfcOptionEmoji: {
+  fontSize: 26,
+  flexShrink: 0,
+},
+
+kfcOptionTitle: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 16,
+  marginBottom: 4,
+},
+
+kfcOptionText: {
+  color: "#bcbcbc",
+  fontSize: 13,
+  lineHeight: 1.4,
+},
+
+kfcOptionAction: {
+  background: "#20262d",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#fff",
+  padding: "10px 14px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 13,
+  whiteSpace: "nowrap",
+},
+
+kfcRadioDot: {
+  width: 34,
+  height: 34,
+  borderRadius: "50%",
+  border: "1px solid rgba(255,255,255,0.22)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: "bold",
+  color: "#fff",
+  flexShrink: 0,
+},
+
+kfcComboSummaryBox: {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 16,
+  padding: 16,
+  marginBottom: 18,
+},
+
+kfcComboSummaryTitle: {
+  color: "#ffd166",
+  fontWeight: "bold",
+  marginBottom: 10,
+  fontSize: 14,
+},
+
+kfcComboSummaryList: {
+  display: "grid",
+  gap: 8,
+},
+
+kfcComboSummaryItem: {
+  color: "#e2e2e2",
+  fontSize: 14,
+  lineHeight: 1.4,
+},
+
+kfcStickyFooter: {
+  marginTop: 22,
+  paddingTop: 18,
+  borderTop: "1px solid rgba(255,255,255,0.08)",
+  display: "grid",
+  gap: 12,
+},
+
+kfcStickyFooterPrice: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 24,
+},
+
+kfcModalFooterNote: {
+  color: "#bdbdbd",
+  fontSize: 13,
+  lineHeight: 1.45,
+},
   cocinaCard: {
     background:
       "linear-gradient(180deg, rgba(25,25,25,0.98), rgba(10,10,10,1))",
