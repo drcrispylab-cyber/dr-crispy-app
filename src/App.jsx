@@ -381,9 +381,8 @@ function App() {
   const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
   const [panelCarritoAbierto, setPanelCarritoAbierto] = useState(false);
-  const [panelCarritoVista, setPanelCarritoVista] = useState("carrito");
-  const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);nst [panelCarritoVista, setPanelCarritoVista] = useState("carrito"); // carrito | checkout | auth_login | auth_registroconst [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
-
+const [panelCarritoVista, setPanelCarritoVista] = useState("carrito");
+const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
   const [botonAnimando, setBotonAnimando] = useState(null);
 
   const [drawerCarritoAbierto, setDrawerCarritoAbierto] = useState(false);
