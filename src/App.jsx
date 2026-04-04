@@ -20,6 +20,7 @@ const FORMULAS = [
     precio: 28900,
     emoji: "🍗",
     categoria: "formulas",
+    imagen: "/images/alitas-x6.png",
   },
   {
     id: 2,
@@ -28,6 +29,7 @@ const FORMULAS = [
     precio: 48900,
     emoji: "🔥",
     categoria: "formulas",
+    imagen: "/images/alitas-x12.png",
   },
   {
     id: 3,
@@ -36,6 +38,7 @@ const FORMULAS = [
     precio: 71900,
     emoji: "🧪",
     categoria: "formulas",
+    imagen: "/images/alitas-x18.png",
   },
   {
     id: 4,
@@ -44,6 +47,7 @@ const FORMULAS = [
     precio: 92900,
     emoji: "💥",
     categoria: "formulas",
+    imagen: "/images/alitas-x24.png",
   },
 ];
 
@@ -55,6 +59,7 @@ const COMBOS = [
     precio: 31900,
     emoji: "🧪",
     badge: "RÁPIDO",
+    imagen: "/images/combo-individual.png",
     itemsInternos: [
       {
         id: "combo1-alitas",
@@ -84,6 +89,7 @@ const COMBOS = [
     precio: 55900,
     emoji: "⭐",
     badge: "MÁS PEDIDO",
+    imagen: "/images/combo-pareja.png",
     itemsInternos: [
       {
         id: "combo2-alitas",
@@ -113,6 +119,7 @@ const COMBOS = [
     precio: 79900,
     emoji: "🔥",
     badge: "MEJOR VALOR",
+    imagen: "/images/combo-pro.png",
     itemsInternos: [
       {
         id: "combo3-alitas",
@@ -142,6 +149,7 @@ const COMBOS = [
     precio: 100900,
     emoji: "🚀",
     badge: "FAMILIAR",
+    imagen: "/images/combo-familia.png",
     itemsInternos: [
       {
         id: "combo4-alitas",
@@ -174,6 +182,7 @@ const BEBIDAS = [
     precio: 4500,
     emoji: "🥤",
     categoria: "bebidas",
+    imagen: "/images/coca-400.png",
   },
   {
     id: 6,
@@ -182,6 +191,7 @@ const BEBIDAS = [
     precio: 8000,
     emoji: "🥤",
     categoria: "bebidas",
+    imagen: "/images/coca-15l.png",
   },
   {
     id: 7,
@@ -190,6 +200,7 @@ const BEBIDAS = [
     precio: 10000,
     emoji: "🥤",
     categoria: "bebidas",
+    imagen: "/images/coca-225l.png",
   },
   {
     id: 8,
@@ -198,6 +209,7 @@ const BEBIDAS = [
     precio: 4000,
     emoji: "🥤",
     categoria: "bebidas",
+    imagen: "/images/soda-400.png",
   },
 ];
 
@@ -209,6 +221,7 @@ const ADICIONALES = [
     precio: 5000,
     emoji: "🍟",
     categoria: "adicionales",
+    imagen: "/images/papas-fritas.png",
   },
 ];
 
@@ -1741,47 +1754,59 @@ setCarrito([]);
   }
 
   function renderFormulaCard(producto) {
-  const cardKey = `formula-${producto.id}`;
+  return renderCatalogCard({
+    id: `formula-${producto.id}`,
+    nombre: producto.nombre,
+    descripcion: producto.descripcion,
+    precio: producto.precio,
+    imagen: producto.imagen,
+    badge: "ELIGE TU SALSA",
+    onAgregar: () => setFormulaSeleccionada(producto),
+  });
+}
+
+function renderCatalogCard({
+  id,
+  nombre,
+  descripcion,
+  precio,
+  imagen,
+  badge,
+  onAgregar,
+}) {
+  const cardKey = `catalog-${id}`;
 
   return (
     <div
-      key={producto.id}
+      key={id}
       style={{
-        ...styles.productCardPro,
-        ...(cardHover === cardKey ? styles.productCardProHover : {}),
+        ...styles.kfcCard,
+        ...(cardHover === cardKey ? styles.kfcCardHover : {}),
       }}
       onMouseEnter={() => setCardHover(cardKey)}
       onMouseLeave={() => setCardHover("")}
-      onClick={() => setFormulaSeleccionada(producto)}
     >
-      <div style={styles.productCardGlow}></div>
-
-      <div style={styles.productCardTop}>
-        <div style={styles.productEmoji}>{producto.emoji}</div>
-        <div style={styles.productBadge}>🔥 EXPERIMENTO ACTIVO</div>
+      <div style={styles.kfcCardImageWrap}>
+        <img
+          src={imagen || "/images/producto-placeholder.png"}
+          alt={nombre}
+          style={styles.kfcCardImage}
+        />
       </div>
 
-      <h3 style={styles.productTitlePro}>{producto.nombre}</h3>
+      <div style={styles.kfcCardContent}>
+        <div style={styles.kfcCardPrice}>${precio.toLocaleString("es-CO")}</div>
 
-      <p style={styles.productDescPro}>{producto.descripcion}</p>
+        <h3 style={styles.kfcCardTitle}>{nombre}</h3>
 
-      <div style={styles.productMetaRow}>
-        <div style={styles.productMetaPill}>🍗 Crujiente calibrado</div>
-        <div style={styles.productMetaPill}>🧪 Elige tu salsa</div>
-      </div>
+        <p style={styles.kfcCardDesc}>{descripcion}</p>
 
-      <div style={styles.productBottomPro}>
-        <div>
-          <div style={styles.productPriceLabel}>Precio</div>
-          <div style={styles.productPricePro}>
-            ${producto.precio.toLocaleString("es-CO")}
-          </div>
-        </div>
+        {badge ? <div style={styles.kfcCardBadge}>{badge}</div> : null}
 
         <button
           type="button"
           style={{
-            ...styles.productBtnPro,
+            ...styles.kfcCardBtn,
             ...(botonAnimando === cardKey ? styles.addBtnPop : {}),
           }}
           onClick={(e) => {
@@ -1792,10 +1817,10 @@ setCarrito([]);
               setBotonAnimando(null);
             }, 220);
 
-            setFormulaSeleccionada(producto);
+            onAgregar(e);
           }}
         >
-          Elegir sabor →
+          Agregar
         </button>
       </div>
     </div>
@@ -1805,145 +1830,30 @@ setCarrito([]);
   function renderSimpleCard(producto) {
   const esBebida = producto.categoria === "bebidas";
   const esAdicional = producto.categoria === "adicionales";
-  const cardKey = `simple-${producto.id}`;
 
-  return (
-    <div
-      key={producto.id}
-      style={{
-        ...styles.productCardPro,
-        ...(cardHover === cardKey ? styles.productCardProHover : {}),
-      }}
-      onMouseEnter={() => setCardHover(cardKey)}
-      onMouseLeave={() => setCardHover("")}
-      onClick={(e) => agregarProducto(producto, e.currentTarget)}
-    >
-      <div style={styles.productCardGlow}></div>
-
-      <div style={styles.productCardTop}>
-        <div style={styles.productEmoji}>{producto.emoji}</div>
-        <div style={styles.productBadge}>
-          {esBebida ? "🥤 BEBIDA" : esAdicional ? "🍟 ADICIONAL" : "🔥 PRODUCTO"}
-        </div>
-      </div>
-
-      <h3 style={styles.productTitlePro}>{producto.nombre}</h3>
-
-      <p style={styles.productDescPro}>{producto.descripcion}</p>
-
-      <div style={styles.productMetaRow}>
-        <div style={styles.productMetaPill}>
-          {esBebida ? "⚡ Fría y lista" : "🔥 Súmalo al pedido"}
-        </div>
-        <div style={styles.productMetaPill}>
-          {esBebida ? "🥤 Combina perfecto" : "🍗 Más completo"}
-        </div>
-      </div>
-
-      <div style={styles.productBottomPro}>
-        <div>
-          <div style={styles.productPriceLabel}>Precio</div>
-          <div style={styles.productPricePro}>
-            ${producto.precio.toLocaleString("es-CO")}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          style={{
-            ...styles.productBtnPro,
-            ...(botonAnimando === getCartKey(producto) ? styles.addBtnPop : {}),
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            agregarProducto(producto, e.currentTarget);
-          }}
-        >
-          Agregar →
-        </button>
-      </div>
-    </div>
-  );
+  return renderCatalogCard({
+    id: `simple-${producto.id}`,
+    nombre: producto.nombre,
+    descripcion: producto.descripcion,
+    precio: producto.precio,
+    imagen: producto.imagen,
+    badge: esBebida ? "BEBIDA" : esAdicional ? "ADICIONAL" : "",
+    onAgregar: (e) => agregarProducto(producto, e.currentTarget),
+  });
 }
 
   function renderComboCard(combo) {
-  const cardKey = `combo-${combo.id}`;
-
-  return (
-    <div
-      key={combo.id}
-      style={{
-        ...styles.productCardPro,
-        ...(cardHover === cardKey ? styles.productCardProHover : {}),
-        ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeaturedPro : {}),
-      }}
-      onMouseEnter={() => setCardHover(cardKey)}
-      onMouseLeave={() => setCardHover("")}
-      onClick={() => {
-        setBotonAnimando(cardKey);
-
-        setTimeout(() => {
-          setBotonAnimando(null);
-        }, 220);
-
-        setComboPendiente({ combo, target: null });
-      }}
-    >
-      <div style={styles.productCardGlow}></div>
-
-      <div style={styles.productCardTop}>
-        <div style={styles.productEmoji}>{combo.emoji}</div>
-        <div style={styles.productBadge}>{combo.badge || "🔥 COMBO"}</div>
-      </div>
-
-      <h3 style={styles.productTitlePro}>{combo.nombre}</h3>
-
-      <p style={styles.productDescPro}>{combo.descripcion}</p>
-
-      <div style={styles.comboIncludesPro}>
-        {combo.itemsInternos.map((item) => (
-          <div key={item.id} style={styles.comboIncludePill}>
-            • {item.nombre} x{item.cantidad}
-          </div>
-        ))}
-      </div>
-
-      <div style={styles.productMetaRow}>
-        <div style={styles.productMetaPill}>🚚 Domicilio incluido</div>
-        <div style={styles.productMetaPill}>🧪 Elige tu salsa</div>
-      </div>
-
-      <div style={styles.productBottomPro}>
-        <div>
-          <div style={styles.productPriceLabel}>Precio del combo</div>
-          <div style={styles.productPricePro}>
-            ${combo.precio.toLocaleString("es-CO")}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          style={{
-            ...styles.productBtnPro,
-            ...(botonAnimando === cardKey ? styles.addBtnPop : {}),
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-
-            setBotonAnimando(cardKey);
-
-            setTimeout(() => {
-              setBotonAnimando(null);
-            }, 220);
-
-            setComboPendiente({ combo, target: e.currentTarget });
-          }}
-        >
-          Pedir combo →
-        </button>
-      </div>
-    </div>
-  );
+  return renderCatalogCard({
+    id: `combo-${combo.id}`,
+    nombre: combo.nombre,
+    descripcion: combo.descripcion,
+    precio: combo.precio,
+    imagen: combo.imagen,
+    badge: combo.badge || "COMBO",
+    onAgregar: (e) => {
+      setComboPendiente({ combo, target: e.currentTarget });
+    },
+  });
 }
 
   function renderHeroInicio() {
@@ -2360,10 +2270,7 @@ function renderCombosScreen() {
         <div
           style={{
             ...styles.comboGrid,
-            gridTemplateColumns: esMovil
-              ? "1fr"
-              : "repeat(2, minmax(0, 1fr))",
-            marginTop: 22,
+            gridTemplateColumns: "1fr",
           }}
         >
           {COMBOS.map(renderComboCard)}
@@ -2402,10 +2309,7 @@ function renderBebidasScreen() {
         <div
           style={{
             ...styles.simpleGrid,
-            gridTemplateColumns: esMovil
-              ? "1fr"
-              : "repeat(2, minmax(0, 1fr))",
-            marginTop: 22,
+            gridTemplateColumns: "1fr",
           }}
         >
           {BEBIDAS.map(renderSimpleCard)}
@@ -2480,9 +2384,7 @@ function renderBebidasScreen() {
             <div
               style={{
                 ...styles.posterFormulaGrid,
-                gridTemplateColumns: esMovil
-                  ? "1fr"
-                  : "repeat(2, minmax(0, 1fr))",
+                gridTemplateColumns: "1fr",
               }}
             >
               {FORMULAS.map(renderFormulaCard)}
@@ -2523,10 +2425,7 @@ function renderAdicionalesScreen() {
         <div
           style={{
             ...styles.simpleGrid,
-            gridTemplateColumns: esMovil
-              ? "1fr"
-              : "repeat(2, minmax(0, 1fr))",
-            marginTop: 22,
+            gridTemplateColumns: "1fr",
           }}
         >
           {ADICIONALES.map(renderSimpleCard)}
@@ -7362,7 +7261,106 @@ drawerMetaPillHighlight: {
   fontSize: 12,
   boxShadow: "0 10px 20px rgba(255,0,0,0.18)",
 },
+kfcCard: {
+  display: "grid",
+  gridTemplateColumns: "108px 1fr",
+  gap: 14,
+  alignItems: "start",
+  background:
+    "linear-gradient(180deg, rgba(20,20,20,0.98), rgba(10,10,10,1))",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 18,
+  padding: 14,
+  boxShadow: "0 10px 24px rgba(0,0,0,0.20)",
+  transition: "transform 0.22s ease, box-shadow 0.22s ease, border 0.22s ease",
+},
 
+kfcCardHover: {
+  transform: "translateY(-4px)",
+  border: "1px solid rgba(255,0,0,0.20)",
+  boxShadow: "0 18px 34px rgba(255,0,0,0.10)",
+},
+
+kfcCardImageWrap: {
+  width: 108,
+  height: 108,
+  borderRadius: 16,
+  overflow: "hidden",
+  background: "#151515",
+  border: "1px solid rgba(255,255,255,0.06)",
+  flexShrink: 0,
+},
+
+kfcCardImage: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+kfcCardContent: {
+  minWidth: 0,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+},
+
+kfcCardPrice: {
+  color: "#ffffff",
+  fontWeight: "bold",
+  fontSize: 22,
+  lineHeight: 1,
+  marginBottom: 8,
+  textShadow: "0 0 12px rgba(255,0,0,0.10)",
+},
+
+kfcCardTitle: {
+  margin: "0 0 6px 0",
+  color: "#fff",
+  fontSize: 22,
+  lineHeight: 1,
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 0.8,
+},
+
+kfcCardDesc: {
+  margin: 0,
+  color: "#bdbdbd",
+  fontSize: 14,
+  lineHeight: 1.45,
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  maxWidth: "100%",
+},
+
+kfcCardBadge: {
+  marginTop: 10,
+  marginBottom: 10,
+  background: "rgba(255,0,0,0.12)",
+  border: "1px solid rgba(255,0,0,0.22)",
+  color: "#ffb0b0",
+  padding: "6px 10px",
+  borderRadius: 999,
+  fontSize: 11,
+  fontWeight: "bold",
+  letterSpacing: 0.5,
+},
+
+kfcCardBtn: {
+  marginTop: 4,
+  background: "#242a31",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#fff",
+  padding: "10px 16px",
+  borderRadius: 999,
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: 14,
+  transition: "all 0.18s ease",
+},
   cocinaId: {
     fontSize: 30,
     fontWeight: "bold",
