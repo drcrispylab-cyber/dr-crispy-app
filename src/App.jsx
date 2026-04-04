@@ -381,8 +381,9 @@ function App() {
   const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
   const [panelCarritoAbierto, setPanelCarritoAbierto] = useState(false);
-const [panelCarritoVista, setPanelCarritoVista] = useState("carrito");
-const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
+  const [panelCarritoVista, setPanelCarritoVista] = useState("carrito");
+  const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
+ 
   const [botonAnimando, setBotonAnimando] = useState(null);
 
   const [drawerCarritoAbierto, setDrawerCarritoAbierto] = useState(false);
@@ -2211,45 +2212,6 @@ function renderCategoriasVisuales() {
   );
 }
 
-function renderCombosScreen() {
-  return (
-    <section
-      style={{
-        ...styles.mainGrid,
-        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
-      }}
-    >
-      <div style={styles.panel}>
-        <div style={styles.experimentoHeaderRow}>
-          <div>
-            <div style={styles.menuInteractiveBadge}>🔥 COMBOS ACTIVADOS</div>
-            <h2 style={styles.experimentScreenTitle}>COMBOS DEL LAB</h2>
-            <p style={styles.experimentScreenText}>
-              Los más pedidos del laboratorio. Más rápidos de elegir, más fáciles de vender.
-            </p>
-          </div>
-
-          <button
-            style={styles.backCatalogBtn}
-            onClick={() => irASeccionCliente("inicio")}
-          >
-            ← Volver al inicio
-          </button>
-        </div>
-
-        <div
-          style={{
-            ...styles.comboGrid,
-            gridTemplateColumns: "1fr",
-          }}
-        >
-          {COMBOS.map(renderComboCard)}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function renderBebidasScreen() {
   return (
     <section
@@ -3461,134 +3423,6 @@ function renderCarritoDesktop() {
 </div>
           </div>
         </div>
-      )}
-      
-  
-
-      {panelCarritoVista === "carrito" && (
-        <>
-          <div style={styles.globalCartBody}>
-            {carrito.length === 0 ? (
-              <div style={styles.emptyBox}>
-                No has agregado productos todavía.
-              </div>
-            ) : (
-              <div style={styles.drawerItemsWrap}>
-                {carrito.map((item) => (
-                  <div key={item.cartKey} style={styles.cartItemPro}>
-                    <div style={styles.cartItemThumbWrap}>
-                      <img
-                        src={item.imagen || "/images/producto-placeholder.png"}
-                        alt={item.nombre}
-                        style={styles.cartItemThumb}
-                      />
-                    </div>
-
-                    <div style={{ minWidth: 0 }}>
-                      <strong style={styles.cartItemTitlePro}>
-                        {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
-                      </strong>
-
-                      <div style={styles.cartItemMetaPro}>
-                        {item.experimento || "Experimento 1"}
-                      </div>
-
-                      {item.salsa && (
-                        <div
-                          style={{
-                            ...styles.cartItemMetaPro,
-                            color: "#ffd166",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Sabor: {item.salsa}
-                        </div>
-                      )}
-
-                      {item.esCombo && Array.isArray(item.detalleCombo) && (
-                        <div style={{ marginTop: 8 }}>
-                          {formatearDetalleCombo(item.detalleCombo).map(
-                            (detalle, idx) => (
-                              <div key={idx} style={styles.cartItemMetaPro}>
-                                • {detalle}
-                              </div>
-                            )
-                          )}
-                        </div>
-                      )}
-
-                      <div style={styles.cartItemPricePro}>
-                        ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
-                      </div>
-                    </div>
-
-                    <div style={styles.qtyBoxPro}>
-                      <button
-                        style={styles.qtyBtnPro}
-                        onClick={() => cambiarCantidad(item.cartKey, -1)}
-                      >
-                        -
-                      </button>
-
-                      <span style={styles.qtyValuePro}>{item.cantidad}</span>
-
-                      <button
-                        style={styles.qtyBtnPro}
-                        onClick={() => cambiarCantidad(item.cartKey, 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div style={styles.globalCartFooterPro}>
-            <div style={styles.cartSummaryCardPro}>
-              <div style={styles.summaryRow}>
-                <span>Subtotal</span>
-                <span>${subtotal.toLocaleString("es-CO")}</span>
-              </div>
-
-              <div style={styles.summaryRow}>
-                <span>Domicilio</span>
-                <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                  Incluido
-                </span>
-              </div>
-
-              <div style={styles.summaryTotal}>
-                <span>Total</span>
-                <span>${total.toLocaleString("es-CO")}</span>
-              </div>
-            </div>
-
-            <div style={styles.globalCartActions}>
-              <button
-                type="button"
-                style={styles.secondaryBtn}
-                onClick={cerrarPanelCarrito}
-              >
-                Seguir comprando
-              </button>
-
-              <button
-                type="button"
-                style={{ ...styles.confirmBtn, marginTop: 0 }}
-                onClick={irAlCheckoutDesdePanel}
-                disabled={carrito.length === 0}
-              >
-                🔥 CONTINUAR PEDIDO
-              </button>
-            </div>
-
-            <div style={styles.globalCartFooterHint}>
-              ⚡ Pedido rápido, claro y listo para continuar
-            </div>
-          </div>
-        </>
       )}
 
       {panelCarritoAbierto && (
