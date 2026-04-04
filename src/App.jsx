@@ -5051,27 +5051,28 @@ const styles = {
 },
 
 drawerContainer: {
+  flex: 1,
+  minHeight: 0,
   display: "flex",
   flexDirection: "column",
-  height: "88vh",
 },
 
 drawerContent: {
   flex: 1,
+  minHeight: 0,
   overflowY: "auto",
-  paddingTop: 4,
-  paddingBottom: 12,
+  padding: 18,
+  paddingBottom: 120,
+  WebkitOverflowScrolling: "touch",
 },
 
-drawerFooter: {
-  position: "sticky",
-  bottom: 0,
-  background:
-    "linear-gradient(180deg, rgba(12,12,12,0.96), rgba(8,8,8,1))",
-  borderTop: "1px solid rgba(255,255,255,0.08)",
-  paddingTop: 14,
-  paddingBottom: 4,
-  boxShadow: "0 -14px 30px rgba(0,0,0,0.34)",
+drawerContent: {
+  flex: 1,
+  minHeight: 0,
+  overflowY: "auto",
+  padding: 18,
+  paddingBottom: 120,
+  WebkitOverflowScrolling: "touch",
 },
   badge: {
   display: "inline-block",
@@ -5478,36 +5479,36 @@ comboIncludePill: {
 },
 
   drawerBackdrop: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.76)",
-    backdropFilter: "blur(8px)",
-    zIndex: 90,
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "center",
-  },
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.62)",
+  zIndex: 9999,
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "stretch",
+},
 
-  drawerCart: {
-    width: "100%",
-    maxHeight: "88vh",
-    overflowY: "auto",
-    background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.08), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    border: "1px solid rgba(255,255,255,0.06)",
-    padding: 18,
-    boxShadow: "0 -20px 60px rgba(0,0,0,0.42)",
-  },
+drawerCart: {
+  width: "100%",
+  maxWidth: 520,
+  height: "100dvh",
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+  borderLeft: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "-20px 0 50px rgba(0,0,0,0.38)",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+},
 
   drawerHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 14,
-    marginBottom: 16,
-  },
+  padding: "18px 18px 14px",
+  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  flexShrink: 0,
+},
 
   drawerMini: {
     display: "inline-block",
@@ -5578,24 +5579,24 @@ comboIncludePill: {
   globalCartBackdrop: {
   position: "fixed",
   inset: 0,
-  background: "rgba(0,0,0,0.58)",
-  backdropFilter: "blur(6px)",
-  zIndex: 120,
+  background: "rgba(0,0,0,0.62)",
+  zIndex: 9999,
   display: "flex",
   justifyContent: "flex-end",
+  alignItems: "stretch",
 },
 
 globalCartPanel: {
   width: "100%",
-  maxWidth: 560,
-  height: "100vh",
+  maxWidth: 520,
+  height: "100dvh",
   background:
-    "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 22%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
   borderLeft: "1px solid rgba(255,255,255,0.08)",
-  boxShadow: "-24px 0 60px rgba(0,0,0,0.42)",
+  boxShadow: "-20px 0 50px rgba(0,0,0,0.38)",
   display: "flex",
   flexDirection: "column",
-  animation: "slideInRightCart 0.28s ease",
+  overflow: "hidden",
 },
 
 globalCartHeader: {
@@ -5619,22 +5620,19 @@ globalCartTitle: {
 
 globalCartBody: {
   flex: 1,
+  minHeight: 0,
   overflowY: "auto",
-  padding: 20,
-  display: "flex",
-  flexDirection: "column",
-  gap: 14,
+  padding: 18,
+  paddingBottom: 120,
+  WebkitOverflowScrolling: "touch",
 },
 globalCartHeaderPro: {
+  padding: "18px 18px 14px",
+  borderBottom: "1px solid rgba(255,255,255,0.08)",
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "flex-start",
-  gap: 14,
-  padding: 20,
-  paddingBottom: 16,
-  borderBottom: "1px solid rgba(255,255,255,0.06)",
-  background:
-    "linear-gradient(180deg, rgba(18,18,18,0.96), rgba(18,18,18,0.82))",
+  gap: 12,
+  flexShrink: 0,
 },
 
 globalCartHeaderLeft: {
@@ -5810,11 +5808,9 @@ cartSummaryCardPro: {
 
 globalCartFooterPro: {
   borderTop: "1px solid rgba(255,255,255,0.08)",
-  padding: 18,
-  background:
-    "linear-gradient(180deg, rgba(12,12,12,0.96), rgba(8,8,8,1))",
-  display: "grid",
-  gap: 14,
+  padding: "16px 18px calc(16px + env(safe-area-inset-bottom))",
+  background: "rgba(10,10,10,0.96)",
+  flexShrink: 0,
 },
 
 globalCartFooterHint: {
@@ -8656,27 +8652,28 @@ comboModalFooter: {
   flexWrap: "wrap",
   paddingTop: 14,
   borderTop: "1px solid rgba(255,255,255,0.08)",
-},checkoutMobileCard: {
-  width: "100%",
-  maxWidth: 520,
-  maxHeight: "90vh",
-  overflow: "hidden",
-  display: "flex",
-  flexDirection: "column",
+},
+checkoutMobileCard: {
+  width: "min(100%, 560px)",
+  maxHeight: "92dvh",
+  margin: "auto",
   background:
-    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(20,20,20,0.98), rgba(8,8,8,0.99))",
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
   border: "1px solid rgba(255,255,255,0.08)",
   borderRadius: 24,
   boxShadow: "0 30px 90px rgba(0,0,0,0.56)",
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
 },
 
 checkoutMobileHeader: {
+  padding: "18px 18px 14px",
+  borderBottom: "1px solid rgba(255,255,255,0.08)",
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "flex-start",
-  gap: 16,
-  padding: 20,
-  borderBottom: "1px solid rgba(255,255,255,0.06)",
+  gap: 12,
+  flexShrink: 0,
 },
 
 checkoutMobileTitle: {
