@@ -1741,166 +1741,206 @@ setCarrito([]);
   }
 
   function renderFormulaCard(producto) {
-    return (
-      <div key={producto.id} style={styles.posterProductCard}>
-        <div style={styles.posterProductTop}>
-          <div style={styles.posterEmoji}>{producto.emoji}</div>
-          <div style={styles.posterChip}>EXPERIMENTO ACTIVO</div>
-        </div>
+  const cardKey = `formula-${producto.id}`;
 
-        <h3 style={styles.posterProductTitle}>{producto.nombre}</h3>
-        <p style={styles.posterProductDesc}>{producto.descripcion}</p>
-        <div style={styles.posterProductPrice}>
-          ${producto.precio.toLocaleString("es-CO")}
+  return (
+    <div
+      key={producto.id}
+      style={{
+        ...styles.productCardPro,
+        ...(cardHover === cardKey ? styles.productCardProHover : {}),
+      }}
+      onMouseEnter={() => setCardHover(cardKey)}
+      onMouseLeave={() => setCardHover("")}
+      onClick={() => setFormulaSeleccionada(producto)}
+    >
+      <div style={styles.productCardGlow}></div>
+
+      <div style={styles.productCardTop}>
+        <div style={styles.productEmoji}>{producto.emoji}</div>
+        <div style={styles.productBadge}>🔥 EXPERIMENTO ACTIVO</div>
+      </div>
+
+      <h3 style={styles.productTitlePro}>{producto.nombre}</h3>
+
+      <p style={styles.productDescPro}>{producto.descripcion}</p>
+
+      <div style={styles.productMetaRow}>
+        <div style={styles.productMetaPill}>🍗 Crujiente calibrado</div>
+        <div style={styles.productMetaPill}>🧪 Elige tu salsa</div>
+      </div>
+
+      <div style={styles.productBottomPro}>
+        <div>
+          <div style={styles.productPriceLabel}>Precio</div>
+          <div style={styles.productPricePro}>
+            ${producto.precio.toLocaleString("es-CO")}
+          </div>
         </div>
 
         <button
-          style={styles.selectSauceBigBtn}
-          onClick={() => setFormulaSeleccionada(producto)}
+          type="button"
+          style={{
+            ...styles.productBtnPro,
+            ...(botonAnimando === cardKey ? styles.addBtnPop : {}),
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setBotonAnimando(cardKey);
+
+            setTimeout(() => {
+              setBotonAnimando(null);
+            }, 220);
+
+            setFormulaSeleccionada(producto);
+          }}
         >
-          Elegir fórmula
+          Elegir sabor →
         </button>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   function renderSimpleCard(producto) {
   const esBebida = producto.categoria === "bebidas";
   const esAdicional = producto.categoria === "adicionales";
+  const cardKey = `simple-${producto.id}`;
 
   return (
-    <div key={producto.id} style={styles.simpleCardPro}>
-      <div style={styles.simpleCardTop}>
-        <div style={styles.simpleEmojiPro}>{producto.emoji}</div>
+    <div
+      key={producto.id}
+      style={{
+        ...styles.productCardPro,
+        ...(cardHover === cardKey ? styles.productCardProHover : {}),
+      }}
+      onMouseEnter={() => setCardHover(cardKey)}
+      onMouseLeave={() => setCardHover("")}
+      onClick={(e) => agregarProducto(producto, e.currentTarget)}
+    >
+      <div style={styles.productCardGlow}></div>
 
-        <div style={styles.simpleTypeBadge}>
-          {esBebida ? "BEBIDA" : esAdicional ? "ADICIONAL" : "PRODUCTO"}
+      <div style={styles.productCardTop}>
+        <div style={styles.productEmoji}>{producto.emoji}</div>
+        <div style={styles.productBadge}>
+          {esBebida ? "🥤 BEBIDA" : esAdicional ? "🍟 ADICIONAL" : "🔥 PRODUCTO"}
         </div>
       </div>
 
-      <div style={styles.simpleVisualWrap}>
-        <img
-          src={
-            producto.imagen ||
-            (esBebida
-              ? "/images/bebida-placeholder.png"
-              : "/images/adicional-placeholder.png")
-          }
-          alt={producto.nombre}
-          style={styles.simpleVisualImage}
-        />
-        <div style={styles.simpleVisualOverlay}></div>
+      <h3 style={styles.productTitlePro}>{producto.nombre}</h3>
+
+      <p style={styles.productDescPro}>{producto.descripcion}</p>
+
+      <div style={styles.productMetaRow}>
+        <div style={styles.productMetaPill}>
+          {esBebida ? "⚡ Fría y lista" : "🔥 Súmalo al pedido"}
+        </div>
+        <div style={styles.productMetaPill}>
+          {esBebida ? "🥤 Combina perfecto" : "🍗 Más completo"}
+        </div>
       </div>
 
-      <div style={styles.simpleCardBody}>
-        <h3 style={styles.simpleTitlePro}>{producto.nombre}</h3>
-
-        <p style={styles.simpleDescPro}>{producto.descripcion}</p>
-
-        <div style={styles.simpleBenefitRow}>
-          <div style={styles.simpleBenefitPill}>
-            {esBebida ? "🥤 Fría y lista" : "🍟 Súmalo a tu pedido"}
-          </div>
-
-          <div style={styles.simpleBenefitPill}>
-            {esBebida ? "⚡ Combina perfecto" : "🔥 Más completo"}
+      <div style={styles.productBottomPro}>
+        <div>
+          <div style={styles.productPriceLabel}>Precio</div>
+          <div style={styles.productPricePro}>
+            ${producto.precio.toLocaleString("es-CO")}
           </div>
         </div>
 
-        <div style={styles.simpleBottomRow}>
-  <div>
-    <div style={styles.simplePriceLabel}>Precio</div>
-    <div style={styles.simplePricePro}>
-      ${producto.precio.toLocaleString("es-CO")}
-    </div>
-  </div>
-
-  <button
-    style={{
-      ...styles.addBtnPro,
-      ...(botonAnimando === getCartKey(producto) ? styles.addBtnPop : {}),
-    }}
-    onClick={(e) => agregarProducto(producto, e.currentTarget)}
-  >
-    Agregar
-  </button>
-</div>
+        <button
+          type="button"
+          style={{
+            ...styles.productBtnPro,
+            ...(botonAnimando === getCartKey(producto) ? styles.addBtnPop : {}),
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            agregarProducto(producto, e.currentTarget);
+          }}
+        >
+          Agregar →
+        </button>
       </div>
     </div>
   );
 }
 
   function renderComboCard(combo) {
+  const cardKey = `combo-${combo.id}`;
+
   return (
     <div
       key={combo.id}
       style={{
-        ...styles.comboCardPro,
-        ...(combo.badge === "MÁS PEDIDO"
-          ? styles.comboCardProFeatured
-          : {}),
+        ...styles.productCardPro,
+        ...(cardHover === cardKey ? styles.productCardProHover : {}),
+        ...(combo.badge === "MÁS PEDIDO" ? styles.comboCardFeaturedPro : {}),
+      }}
+      onMouseEnter={() => setCardHover(cardKey)}
+      onMouseLeave={() => setCardHover("")}
+      onClick={() => {
+        setBotonAnimando(cardKey);
+
+        setTimeout(() => {
+          setBotonAnimando(null);
+        }, 220);
+
+        setComboPendiente({ combo, target: null });
       }}
     >
-      <div style={styles.comboImageWrap}>
-        <img
-          src={combo.imagen || "/images/combo-placeholder.png"}
-          alt={combo.nombre}
-          style={styles.comboImage}
-        />
+      <div style={styles.productCardGlow}></div>
 
-        <div style={styles.comboImageOverlay}></div>
-
-        <div style={styles.comboTopBadges}>
-          <div style={styles.comboBadgePro}>{combo.badge}</div>
-          <div style={styles.comboDeliveryBadge}>🚚 Domicilio incluido</div>
-        </div>
+      <div style={styles.productCardTop}>
+        <div style={styles.productEmoji}>{combo.emoji}</div>
+        <div style={styles.productBadge}>{combo.badge || "🔥 COMBO"}</div>
       </div>
 
-      <div style={styles.comboBodyPro}>
-        <div style={styles.comboEmojiLine}>
-          <span style={styles.comboEmojiPro}>{combo.emoji}</span>
-          <span style={styles.comboMiniTag}>DR. CRISPY LAB</span>
+      <h3 style={styles.productTitlePro}>{combo.nombre}</h3>
+
+      <p style={styles.productDescPro}>{combo.descripcion}</p>
+
+      <div style={styles.comboIncludesPro}>
+        {combo.itemsInternos.map((item) => (
+          <div key={item.id} style={styles.comboIncludePill}>
+            • {item.nombre} x{item.cantidad}
+          </div>
+        ))}
+      </div>
+
+      <div style={styles.productMetaRow}>
+        <div style={styles.productMetaPill}>🚚 Domicilio incluido</div>
+        <div style={styles.productMetaPill}>🧪 Elige tu salsa</div>
+      </div>
+
+      <div style={styles.productBottomPro}>
+        <div>
+          <div style={styles.productPriceLabel}>Precio del combo</div>
+          <div style={styles.productPricePro}>
+            ${combo.precio.toLocaleString("es-CO")}
+          </div>
         </div>
 
-        <h3 style={styles.comboTitlePro}>{combo.nombre}</h3>
+        <button
+          type="button"
+          style={{
+            ...styles.productBtnPro,
+            ...(botonAnimando === cardKey ? styles.addBtnPop : {}),
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
 
-        <p style={styles.comboDescPro}>{combo.descripcion}</p>
+            setBotonAnimando(cardKey);
 
-        <div style={styles.comboQuickList}>
-          {combo.itemsInternos.map((item) => (
-            <div key={item.id} style={styles.comboQuickItem}>
-              • {item.nombre} x{item.cantidad}
-            </div>
-          ))}
-        </div>
+            setTimeout(() => {
+              setBotonAnimando(null);
+            }, 220);
 
-        <div style={styles.comboBottomRow}>
-  <div>
-    <div style={styles.comboPriceLabel}>Precio del experimento</div>
-    <div style={styles.comboPricePro}>
-      ${combo.precio.toLocaleString("es-CO")}
-    </div>
-  </div>
-
-  <button
-    type="button"
-    style={{
-      ...styles.comboBtnPro,
-      ...(botonAnimando === combo.id ? styles.addBtnPop : {}),
-    }}
-    onClick={() => {
-      setBotonAnimando(combo.id);
-
-      setTimeout(() => {
-        setBotonAnimando("");
-      }, 220);
-
-      setComboPendiente({ combo, target: null });
-    }}
-  >
-    Pedir combo
-  </button>
-</div>
+            setComboPendiente({ combo, target: e.currentTarget });
+          }}
+        >
+          Pedir combo →
+        </button>
       </div>
     </div>
   );
@@ -2380,7 +2420,7 @@ function renderBebidasScreen() {
     <section
       style={{
         ...styles.mainGrid,
-        gridTemplateColumns: esMovil ? "1fr" : "1.35fr 0.85fr",
+        gridTemplateColumns: "1fr",
       }}
     >
       <div>
@@ -2415,24 +2455,9 @@ function renderBebidasScreen() {
           >
             <div style={styles.posterHeroGlow}></div>
 
-            <span
-              style={{
-                ...styles.posterSauceDot,
-                ...styles.posterSauceDot1,
-              }}
-            ></span>
-            <span
-              style={{
-                ...styles.posterSauceDot,
-                ...styles.posterSauceDot2,
-              }}
-            ></span>
-            <span
-              style={{
-                ...styles.posterSauceDot,
-                ...styles.posterSauceDot3,
-              }}
-            ></span>
+            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot1 }}></span>
+            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot2 }}></span>
+            <span style={{ ...styles.posterSauceDot, ...styles.posterSauceDot3 }}></span>
 
             <div style={styles.posterOverlayContent}>
               <div style={styles.posterBrand}>DR. CRISPY LAB</div>
@@ -2441,90 +2466,14 @@ function renderBebidasScreen() {
             </div>
           </div>
 
-          <div
-            style={{
-              ...styles.posterSections,
-              gridTemplateColumns: esMovil ? "1fr" : "1.2fr 0.8fr",
-            }}
-          >
-            <div style={styles.posterLeftCol}>
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>FORMULAS ACTIVADAS</h3>
-
-                <div style={styles.posterInfoList}>
-                  <div style={styles.posterInfoItem}>
-                    <strong>BBQ REACTOR</strong> <span>(SALSA BBQ AHUMADA)</span>
-                  </div>
-                  <div style={styles.posterInfoItem}>
-                    <strong>HONEY MUTANTE</strong>{" "}
-                    <span>(MIEL MOSTAZA)</span>
-                  </div>
-                  <div style={styles.posterInfoItem}>
-                    <strong>FUEGO ATÓMICO</strong>{" "}
-                    <span>(ACEITE PICANTE NASHVILLE)</span>
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>PICANTE ESPECIAL</h3>
-                <div style={styles.reactionScale}>
-                  <div style={styles.reactionItem}>
-                    Fuego Atómico permite nivel bajo, medio o alto.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={styles.posterRightCol}>
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>EXPERIMENTOS</h3>
-                <div style={styles.posterPriceList}>
-                  {FORMULAS.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
-                <div style={styles.posterPriceList}>
-                  {BEBIDAS.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
-                <div style={styles.posterPriceList}>
-                  {ADICIONALES.map((item) => (
-                    <div key={item.id} style={styles.posterPriceRow}>
-                      <span>{item.nombre.toUpperCase()}</span>
-                      <span>${item.precio.toLocaleString("es-CO")}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div style={styles.menuInteractiveSection}>
             <div style={styles.menuInteractiveHeader}>
-              <div style={styles.menuInteractiveBadge}>
-                🍗 MENÚ INTERACTIVO
-              </div>
+              <div style={styles.menuInteractiveBadge}>🍗 MENÚ INTERACTIVO</div>
               <h2 style={styles.menuInteractiveTitle}>
                 SELECCIONA TU EXPERIMENTO
               </h2>
               <p style={styles.catalogText}>
-                Aquí eliges únicamente las alitas base del experimento.
+                Elige el tamaño y después selecciona tu salsa.
               </p>
             </div>
 
@@ -5318,6 +5267,31 @@ drawerFooter: {
     fontSize: 15,
     boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
   },
+
+  comboCardFeaturedPro: {
+  border: "1px solid rgba(255,0,0,0.28)",
+  boxShadow: "0 24px 46px rgba(255,0,0,0.18)",
+},
+
+comboIncludesPro: {
+  display: "grid",
+  gap: 8,
+  marginTop: 16,
+  marginBottom: 8,
+  position: "relative",
+  zIndex: 2,
+},
+
+comboIncludePill: {
+  background: "rgba(255,255,255,0.045)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#e8e8e8",
+  padding: "9px 12px",
+  borderRadius: 12,
+  fontSize: 13,
+  lineHeight: 1.35,
+  fontWeight: "bold",
+},
   heroSecondaryBtn: {
     background: "#151515",
     color: "#fff",
@@ -6905,6 +6879,68 @@ floatingCartBtnPulse: {
   gap: 12,
 },
 
+productCardPro: {
+  background: "linear-gradient(145deg, #111, #0a0a0a)",
+  borderRadius: 20,
+  padding: 20,
+  border: "1px solid rgba(255,0,0,0.15)",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.6)",
+  transition: "all 0.25s ease",
+  cursor: "pointer",
+},
+
+productCardTop: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: 10,
+},
+
+productEmoji: {
+  fontSize: 28,
+},
+
+productBadge: {
+  fontSize: 10,
+  background: "rgba(255,0,0,0.2)",
+  color: "#ff3b3b",
+  padding: "4px 8px",
+  borderRadius: 8,
+  fontWeight: "bold",
+},
+
+productTitlePro: {
+  color: "#fff",
+  fontSize: 18,
+  fontWeight: "bold",
+  marginBottom: 6,
+},
+
+productDescPro: {
+  color: "#aaa",
+  fontSize: 13,
+  marginBottom: 14,
+},
+
+productPricePro: {
+  color: "#fff",
+  fontSize: 22,
+  fontWeight: "bold",
+  marginBottom: 16,
+},
+
+productBtnPro: {
+  width: "100%",
+  background: "linear-gradient(90deg, #ff0000, #ff3b3b)",
+  border: "none",
+  color: "#fff",
+  padding: "12px",
+  borderRadius: 12,
+  fontWeight: "bold",
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+},
+
 paymentMethodCard: {
   background:
     "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
@@ -7010,6 +7046,147 @@ checkoutProfileDataCard: {
   border: "1px solid rgba(255,255,255,0.07)",
   borderRadius: 14,
   padding: 12,
+},
+
+productCardPro: {
+  position: "relative",
+  overflow: "hidden",
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 26%), linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 22,
+  padding: 22,
+  boxShadow: "0 16px 30px rgba(0,0,0,0.22)",
+  transition:
+    "transform 0.25s ease, box-shadow 0.25s ease, border 0.25s ease",
+  cursor: "pointer",
+},
+
+productCardProHover: {
+  transform: "translateY(-8px)",
+  border: "1px solid rgba(255,0,0,0.26)",
+  boxShadow: "0 24px 44px rgba(255,0,0,0.16)",
+},
+
+productCardGlow: {
+  position: "absolute",
+  width: 180,
+  height: 180,
+  borderRadius: "50%",
+  background:
+    "radial-gradient(circle, rgba(255,0,0,0.18) 0%, rgba(255,0,0,0.08) 40%, rgba(255,0,0,0.02) 70%, transparent 100%)",
+  top: -70,
+  right: -50,
+  filter: "blur(12px)",
+  pointerEvents: "none",
+},
+
+productCardTop: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  marginBottom: 14,
+  position: "relative",
+  zIndex: 2,
+},
+
+productEmoji: {
+  fontSize: 34,
+  filter: "drop-shadow(0 4px 10px rgba(255,0,0,0.20))",
+},
+
+productBadge: {
+  background: "rgba(255,0,0,0.14)",
+  border: "1px solid rgba(255,0,0,0.26)",
+  color: "#ffb0b0",
+  padding: "7px 10px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 11,
+  letterSpacing: 0.6,
+},
+
+productTitlePro: {
+  margin: "0 0 8px 0",
+  fontSize: 42,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+  lineHeight: 0.95,
+  position: "relative",
+  zIndex: 2,
+},
+
+productDescPro: {
+  margin: 0,
+  color: "#d0d0d0",
+  fontSize: 14,
+  lineHeight: 1.55,
+  minHeight: 42,
+  position: "relative",
+  zIndex: 2,
+},
+
+productMetaRow: {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+  marginTop: 16,
+  marginBottom: 18,
+  position: "relative",
+  zIndex: 2,
+},
+
+productMetaPill: {
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#f1f1f1",
+  padding: "8px 10px",
+  borderRadius: 999,
+  fontSize: 12,
+  fontWeight: "bold",
+},
+
+productBottomPro: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  gap: 16,
+  marginTop: 6,
+  position: "relative",
+  zIndex: 2,
+},
+
+productPriceLabel: {
+  color: "#9e9e9e",
+  fontSize: 12,
+  marginBottom: 6,
+  textTransform: "uppercase",
+  letterSpacing: 0.8,
+  fontWeight: "bold",
+},
+
+productPricePro: {
+  color: "#fff",
+  fontSize: 30,
+  fontWeight: "bold",
+  textShadow: "0 0 14px rgba(255,0,0,0.14)",
+},
+
+productBtnPro: {
+  border: "none",
+  background: "linear-gradient(135deg, #ff1200, #b30000)",
+  color: "#fff",
+  borderRadius: 14,
+  padding: "13px 16px",
+  fontWeight: "bold",
+  fontSize: 14,
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+  boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
+  transition: "transform 0.18s ease, box-shadow 0.18s ease",
 },
 
 checkoutProfileLabel: {
