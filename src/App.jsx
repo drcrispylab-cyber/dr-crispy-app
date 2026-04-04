@@ -2428,31 +2428,26 @@ function renderBebidasScreen() {
               </div>
 
               <div style={styles.posterBlock}>
-                <h3 style={styles.posterSectionTitle}>NAVEGA EL LAB</h3>
-                <div style={{ display: "grid", gap: 10 }}>
-                  <button
-                    type="button"
-                    style={styles.secondaryBtn}
-                    onClick={() => setSeccionCliente("combos")}
-                  >
-                    Ver combos
-                  </button>
+                <h3 style={styles.posterSectionTitle}>BEBIDAS</h3>
+                <div style={styles.posterPriceList}>
+                  {BEBIDAS.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                  <button
-                    type="button"
-                    style={styles.secondaryBtn}
-                    onClick={() => setSeccionCliente("bebidas")}
-                  >
-                    Ver bebidas
-                  </button>
-
-                  <button
-                    type="button"
-                    style={styles.secondaryBtn}
-                    onClick={() => setSeccionCliente("adicionales")}
-                  >
-                    Ver adicionales
-                  </button>
+              <div style={styles.posterBlock}>
+                <h3 style={styles.posterSectionTitle}>ADICIONALES</h3>
+                <div style={styles.posterPriceList}>
+                  {ADICIONALES.map((item) => (
+                    <div key={item.id} style={styles.posterPriceRow}>
+                      <span>{item.nombre.toUpperCase()}</span>
+                      <span>${item.precio.toLocaleString("es-CO")}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
