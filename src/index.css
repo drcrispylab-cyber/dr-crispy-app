@@ -340,3 +340,24 @@ a {
     opacity: 1;
   }
 }
+
+@keyframes slideInRightCart {
+  from {
+    transform: translateX(100%);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideInRightCart {
+  from {
+    transform: translateX(100%);
+    opacity: 0.72;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

@@ -368,6 +368,8 @@ function App() {
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
 
+const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
+  
   const [panelCarritoAbierto, setPanelCarritoAbierto] = useState(false);
 const [panelCarritoVista, setPanelCarritoVista] = useState("carrito"); // carrito | checkout
 const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
@@ -387,6 +389,18 @@ const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
 
   const puedeVerAdmin = rutaPrivada === "admin";
   const puedeVerRepartidor = rutaPrivada === "repartidor";
+
+  useEffect(() => {
+  if (panelCarritoAbierto) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [panelCarritoAbierto]);
 
   useEffect(() => {
     function handleResize() {
@@ -807,6 +821,7 @@ function usarDireccionGuardada(direccionId) {
 
   setBotonAnimando(key);
   setCarritoAnimando(true);
+  setHeaderCartAnimando(true);
   setPanelCarritoVista("carrito");
   setPanelCarritoAbierto(true);
 
@@ -817,6 +832,10 @@ function usarDireccionGuardada(direccionId) {
   setTimeout(() => {
     setCarritoAnimando(false);
   }, 420);
+
+  setTimeout(() => {
+    setHeaderCartAnimando(false);
+  }, 520);
 
   if (existente) {
     setCarrito((prev) =>
@@ -859,10 +878,15 @@ function usarDireccionGuardada(direccionId) {
   setPanelCarritoVista("carrito");
   setPanelCarritoAbierto(true);
   setCarritoAnimando(true);
+  setHeaderCartAnimando(true);
 
   setTimeout(() => {
     setCarritoAnimando(false);
   }, 420);
+
+  setTimeout(() => {
+    setHeaderCartAnimando(false);
+  }, 520);
 
   setCarrito((prev) => {
     const existente = prev.find(
@@ -891,6 +915,7 @@ function usarDireccionGuardada(direccionId) {
 
   setPanelCarritoVista("carrito");
   setPanelCarritoAbierto(true);
+  setHeaderCartAnimando(true);
 
   setCarrito((prev) => {
     const existente = prev.find((item) => item.cartKey === cartKey);
@@ -934,6 +959,10 @@ function usarDireccionGuardada(direccionId) {
 
   setCarritoAnimando(true);
   setTimeout(() => setCarritoAnimando(false), 650);
+
+  setTimeout(() => {
+    setHeaderCartAnimando(false);
+  }, 520);
 
   mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
 }
@@ -2258,8 +2287,6 @@ function renderCategoriasVisuales() {
           {COMBOS.map(renderComboCard)}
         </div>
       </div>
-
-      {renderCarritoDesktop()}
     </section>
   );
 }
@@ -2302,8 +2329,6 @@ function renderCombosScreen() {
           {COMBOS.map(renderComboCard)}
         </div>
       </div>
-
-      {renderCarritoDesktop()}
     </section>
   );
 }
@@ -2346,8 +2371,6 @@ function renderBebidasScreen() {
           {BEBIDAS.map(renderSimpleCard)}
         </div>
       </div>
-
-      {renderCarritoDesktop()}
     </section>
   );
 }
@@ -2518,8 +2541,6 @@ function renderBebidasScreen() {
           </div>
         </div>
       </div>
-
-      <div>{renderCarritoDesktop()}</div>
     </section>
   );
 }
@@ -2562,8 +2583,6 @@ function renderAdicionalesScreen() {
           {ADICIONALES.map(renderSimpleCard)}
         </div>
       </div>
-
-      {renderCarritoDesktop()}
     </section>
   );
 }
@@ -4554,22 +4573,23 @@ function renderCarritoDesktop() {
   </button>
 
   <button
-    type="button"
-    style={{
-      ...styles.navBtn,
-      ...(panelCarritoAbierto ? styles.navBtnActive : {}),
-      position: "relative",
-    }}
-    onClick={() => {
-      setPanelCarritoVista("carrito");
-      setPanelCarritoAbierto(true);
-    }}
-  >
-    🛒 Carrito
-    {totalItemsCarrito > 0
-      ? ` (${totalItemsCarrito}) • $${total.toLocaleString("es-CO")}`
-      : ""}
-  </button>
+  type="button"
+  style={{
+    ...styles.navBtn,
+    ...(panelCarritoAbierto ? styles.navBtnActive : {}),
+    ...(headerCartAnimando ? styles.headerCartBtnPop : {}),
+    position: "relative",
+  }}
+  onClick={() => {
+    setPanelCarritoVista("carrito");
+    setPanelCarritoAbierto(true);
+  }}
+>
+  🛒 Carrito
+  {totalItemsCarrito > 0
+    ? ` (${totalItemsCarrito}) • $${total.toLocaleString("es-CO")}`
+    : ""}
+</button>
 
   {puedeVerAdmin && (
     <button
@@ -5907,6 +5927,7 @@ globalCartPanel: {
   boxShadow: "-20px 0 50px rgba(0,0,0,0.38)",
   display: "flex",
   flexDirection: "column",
+  animation: "slideInRightCart 0.28s ease",
 },
 
 globalCartHeader: {
@@ -6793,6 +6814,11 @@ checkoutGuestPromptText: {
     flexDirection: "column",
     justifyContent: "space-between",
   },
+  headerCartBtnPop: {
+  transform: "scale(1.06)",
+  boxShadow: "0 0 0 2px rgba(255,255,255,0.06), 0 0 24px rgba(255,0,0,0.32)",
+  transition: "all 0.18s ease",
+},
   comboCardFeatured: {
     border: "1px solid rgba(255,0,0,0.34)",
     boxShadow: "0 20px 40px rgba(255,0,0,0.18)",
@@ -6980,6 +7006,30 @@ checkoutGuestPromptText: {
     fontSize: 30,
     marginBottom: 8,
   },
+
+globalCartBackdrop: {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.58)",
+  backdropFilter: "blur(8px)",
+  zIndex: 120,
+  display: "flex",
+  justifyContent: "flex-end",
+  animation: "fadeInSoft 0.22s ease",
+},
+
+globalCartPanel: {
+  width: "100%",
+  maxWidth: 520,
+  height: "100vh",
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+  borderLeft: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "-20px 0 50px rgba(0,0,0,0.38)",
+  display: "flex",
+  flexDirection: "column",
+  animation: "slideInRightCart 0.28s ease",
+},
 
 floatingCartWrapPop: {
   transform: "translateY(-2px)",
