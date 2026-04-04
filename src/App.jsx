@@ -2802,7 +2802,9 @@ function renderCarritoDesktop() {
       >
         <div style={styles.kfcModalImageWrap}>
           <img
-            src={formulaSeleccionada.imagen || "/images/producto-placeholder.png"}
+            src={
+              formulaSeleccionada.imagen || "/images/producto-placeholder.png"
+            }
             alt={formulaSeleccionada.nombre}
             style={styles.kfcModalImage}
           />
@@ -2811,8 +2813,12 @@ function renderCarritoDesktop() {
         <div style={styles.kfcModalContent}>
           <div style={styles.kfcModalTopBar}>
             <div>
-              <div style={styles.kfcModalMiniBadge}>🧪 PERSONALIZA TU PEDIDO</div>
-              <h2 style={styles.kfcModalTitle}>{formulaSeleccionada.nombre}</h2>
+              <div style={styles.kfcModalMiniBadge}>
+                🧪 PERSONALIZA TU PEDIDO
+              </div>
+              <h2 style={styles.kfcModalTitle}>
+                {formulaSeleccionada.nombre}
+              </h2>
               <div style={styles.kfcModalPrice}>
                 ${formulaSeleccionada.precio.toLocaleString("es-CO")}
               </div>
@@ -2833,7 +2839,9 @@ function renderCarritoDesktop() {
           <div style={styles.kfcModalSection}>
             <div style={styles.kfcModalSectionHeader}>
               <div>
-                <div style={styles.kfcModalSectionTitle}>¿Qué sabor deseas?</div>
+                <div style={styles.kfcModalSectionTitle}>
+                  ¿Qué sabor deseas?
+                </div>
                 <div style={styles.kfcModalSectionSub}>
                   Es necesario elegir uno
                 </div>
@@ -2849,17 +2857,6 @@ function renderCarritoDesktop() {
                   type="button"
                   style={styles.kfcOptionCard}
                   onClick={() => {
-                    if (salsa.nombre === "Fuego Atómico") {
-                      setSalsaPendiente({
-                        producto: formulaSeleccionada,
-                        salsa,
-                        target: null,
-                      });
-                      setFormulaSeleccionada(null);
-                      setNivelAtomico("");
-                      return;
-                    }
-
                     agregarProducto(
                       {
                         ...formulaSeleccionada,
@@ -2875,7 +2872,9 @@ function renderCarritoDesktop() {
                     <div style={styles.kfcOptionEmoji}>{salsa.emoji}</div>
                     <div>
                       <div style={styles.kfcOptionTitle}>{salsa.nombre}</div>
-                      <div style={styles.kfcOptionText}>{salsa.descripcion}</div>
+                      <div style={styles.kfcOptionText}>
+                        {salsa.descripcion}
+                      </div>
                     </div>
                   </div>
 
@@ -2911,7 +2910,9 @@ function renderCarritoDesktop() {
       >
         <div style={styles.kfcModalImageWrap}>
           <img
-            src={comboPendiente.combo.imagen || "/images/producto-placeholder.png"}
+            src={
+              comboPendiente.combo.imagen || "/images/producto-placeholder.png"
+            }
             alt={comboPendiente.combo.nombre}
             style={styles.kfcModalImage}
           />
@@ -2920,8 +2921,12 @@ function renderCarritoDesktop() {
         <div style={styles.kfcModalContent}>
           <div style={styles.kfcModalTopBar}>
             <div>
-              <div style={styles.kfcModalMiniBadge}>🔥 PERSONALIZA TU COMBO</div>
-              <h2 style={styles.kfcModalTitle}>{comboPendiente.combo.nombre}</h2>
+              <div style={styles.kfcModalMiniBadge}>
+                🔥 PERSONALIZA TU COMBO
+              </div>
+              <h2 style={styles.kfcModalTitle}>
+                {comboPendiente.combo.nombre}
+              </h2>
               <div style={styles.kfcModalPrice}>
                 ${comboPendiente.combo.precio.toLocaleString("es-CO")}
               </div>
@@ -2940,7 +2945,9 @@ function renderCarritoDesktop() {
           </div>
 
           <div style={styles.kfcComboSummaryBox}>
-            <div style={styles.kfcComboSummaryTitle}>Incluye este combo:</div>
+            <div style={styles.kfcComboSummaryTitle}>
+              Incluye este combo:
+            </div>
 
             <div style={styles.kfcComboSummaryList}>
               {comboPendiente.combo.itemsInternos.map((item) => (
@@ -2954,7 +2961,9 @@ function renderCarritoDesktop() {
           <div style={styles.kfcModalSection}>
             <div style={styles.kfcModalSectionHeader}>
               <div>
-                <div style={styles.kfcModalSectionTitle}>¿Qué sabor deseas?</div>
+                <div style={styles.kfcModalSectionTitle}>
+                  ¿Qué sabor deseas?
+                </div>
                 <div style={styles.kfcModalSectionSub}>
                   Es necesario elegir uno
                 </div>
@@ -2970,22 +2979,22 @@ function renderCarritoDesktop() {
                   type="button"
                   style={styles.kfcOptionCard}
                   onClick={() => {
-                  agregarProducto(
-                    {
-                      ...formulaSeleccionada,
-                      salsa: salsa.nombre,
-                    },
-                    null
-                  );
+                    agregarCombo(
+                      comboPendiente.combo,
+                      comboPendiente.target,
+                      salsa.nombre
+                    );
 
-                  setFormulaSeleccionada(null);
-                }}
+                    setComboPendiente(null);
+                  }}
                 >
                   <div style={styles.kfcOptionLeft}>
                     <div style={styles.kfcOptionEmoji}>{salsa.emoji}</div>
                     <div>
                       <div style={styles.kfcOptionTitle}>{salsa.nombre}</div>
-                      <div style={styles.kfcOptionText}>{salsa.descripcion}</div>
+                      <div style={styles.kfcOptionText}>
+                        {salsa.descripcion}
+                      </div>
                     </div>
                   </div>
 
@@ -3464,25 +3473,47 @@ function renderCarritoDesktop() {
       style={styles.globalCartPanel}
       onClick={(e) => e.stopPropagation()}
     >
-      <div style={styles.globalCartHeader}>
-        <div>
-          <div style={styles.drawerMini}>
-            {panelCarritoVista === "carrito" ? "🛒 TU PEDIDO" : "📦 CHECKOUT"}
+      <div style={styles.globalCartHeaderPro}>
+        <div style={styles.globalCartHeaderLeft}>
+          <div style={styles.globalCartTopRow}>
+            <div style={styles.globalCartMiniPill}>
+              {panelCarritoVista === "carrito" ? "🛒 TU PEDIDO" : "📦 CHECKOUT"}
+            </div>
+
+            <div style={styles.globalCartCountPill}>
+              {totalItemsCarrito} item{totalItemsCarrito !== 1 ? "s" : ""}
+            </div>
           </div>
-          <h2 style={styles.globalCartTitle}>
+
+          <h2 style={styles.globalCartTitlePro}>
             {panelCarritoVista === "carrito"
               ? "Tu pedido del laboratorio"
               : "Finalizar pedido"}
           </h2>
+
+          <p style={styles.globalCartSubPro}>
+            {panelCarritoVista === "carrito"
+              ? "Revisa tus productos antes de continuar."
+              : "Confirma tus datos y termina tu pedido."}
+          </p>
         </div>
 
-        <button
-          type="button"
-          style={styles.drawerCloseBtn}
-          onClick={cerrarPanelCarrito}
-        >
-          ✕
-        </button>
+        <div style={{ display: "grid", gap: 10 }}>
+          <div style={styles.globalCartTopTotalCard}>
+            <div style={styles.globalCartTopTotalLabel}>Total</div>
+            <div style={styles.globalCartTopTotalValue}>
+              ${total.toLocaleString("es-CO")}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            style={styles.drawerCloseBtn}
+            onClick={cerrarPanelCarrito}
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {panelCarritoVista === "carrito" && (
@@ -3495,20 +3526,28 @@ function renderCarritoDesktop() {
             ) : (
               <div style={styles.drawerItemsWrap}>
                 {carrito.map((item) => (
-                  <div key={item.cartKey} style={styles.cartItem}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <strong style={{ display: "block", marginBottom: 4 }}>
+                  <div key={item.cartKey} style={styles.cartItemPro}>
+                    <div style={styles.cartItemThumbWrap}>
+                      <img
+                        src={item.imagen || "/images/producto-placeholder.png"}
+                        alt={item.nombre}
+                        style={styles.cartItemThumb}
+                      />
+                    </div>
+
+                    <div style={{ minWidth: 0 }}>
+                      <strong style={styles.cartItemTitlePro}>
                         {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
                       </strong>
 
-                      <div style={styles.cartSub}>
+                      <div style={styles.cartItemMetaPro}>
                         {item.experimento || "Experimento 1"}
                       </div>
 
                       {item.salsa && (
                         <div
                           style={{
-                            ...styles.cartSub,
+                            ...styles.cartItemMetaPro,
                             color: "#ffd166",
                             fontWeight: "bold",
                           }}
@@ -3521,7 +3560,7 @@ function renderCarritoDesktop() {
                         <div style={{ marginTop: 8 }}>
                           {formatearDetalleCombo(item.detalleCombo).map(
                             (detalle, idx) => (
-                              <div key={idx} style={styles.cartSub}>
+                              <div key={idx} style={styles.cartItemMetaPro}>
                                 • {detalle}
                               </div>
                             )
@@ -3529,28 +3568,23 @@ function renderCarritoDesktop() {
                         </div>
                       )}
 
-                      <div
-                        style={{
-                          ...styles.cartSub,
-                          marginTop: 8,
-                          fontWeight: "bold",
-                          color: "#fff",
-                        }}
-                      >
+                      <div style={styles.cartItemPricePro}>
                         ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
                       </div>
                     </div>
 
-                    <div style={styles.qtyBox}>
+                    <div style={styles.qtyBoxPro}>
                       <button
-                        style={styles.qtyBtn}
+                        style={styles.qtyBtnPro}
                         onClick={() => cambiarCantidad(item.cartKey, -1)}
                       >
                         -
                       </button>
-                      <span>{item.cantidad}</span>
+
+                      <span style={styles.qtyValuePro}>{item.cantidad}</span>
+
                       <button
-                        style={styles.qtyBtn}
+                        style={styles.qtyBtnPro}
                         onClick={() => cambiarCantidad(item.cartKey, 1)}
                       >
                         +
@@ -3562,8 +3596,8 @@ function renderCarritoDesktop() {
             )}
           </div>
 
-          <div style={styles.globalCartFooter}>
-            <div style={styles.summaryBox}>
+          <div style={styles.globalCartFooterPro}>
+            <div style={styles.cartSummaryCardPro}>
               <div style={styles.summaryRow}>
                 <span>Subtotal</span>
                 <span>${subtotal.toLocaleString("es-CO")}</span>
@@ -3599,6 +3633,10 @@ function renderCarritoDesktop() {
               >
                 🔥 CONTINUAR PEDIDO
               </button>
+            </div>
+
+            <div style={styles.globalCartFooterHint}>
+              ⚡ Pedido rápido, claro y listo para continuar
             </div>
           </div>
         </>
@@ -3838,7 +3876,7 @@ function renderCarritoDesktop() {
             )}
           </div>
 
-          <div style={styles.globalCartFooter}>
+          <div style={styles.globalCartFooterPro}>
             <div style={styles.checkoutMobileResumeCard}>
               <div style={styles.checkoutMobileResumeRow}>
                 <span>Subtotal</span>
@@ -3876,6 +3914,10 @@ function renderCarritoDesktop() {
               >
                 {cargandoPedido ? "Activando pedido..." : "🔥 CONFIRMAR PEDIDO"}
               </button>
+            </div>
+
+            <div style={styles.globalCartFooterHint}>
+              ⚡ Estás a un paso de confirmar tu experimento
             </div>
           </div>
         </>
@@ -5384,12 +5426,12 @@ comboIncludePill: {
 
 globalCartPanel: {
   width: "100%",
-  maxWidth: 520,
+  maxWidth: 560,
   height: "100vh",
   background:
-    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+    "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 22%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
   borderLeft: "1px solid rgba(255,255,255,0.08)",
-  boxShadow: "-20px 0 50px rgba(0,0,0,0.38)",
+  boxShadow: "-24px 0 60px rgba(0,0,0,0.42)",
   display: "flex",
   flexDirection: "column",
   animation: "slideInRightCart 0.28s ease",
@@ -5417,9 +5459,209 @@ globalCartTitle: {
 globalCartBody: {
   flex: 1,
   overflowY: "auto",
-  padding: 18,
+  padding: 20,
+  display: "flex",
+  flexDirection: "column",
+  gap: 14,
+},
+globalCartHeaderPro: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 14,
+  padding: 20,
+  paddingBottom: 16,
+  borderBottom: "1px solid rgba(255,255,255,0.06)",
+  background:
+    "linear-gradient(180deg, rgba(18,18,18,0.96), rgba(18,18,18,0.82))",
 },
 
+globalCartHeaderLeft: {
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+},
+
+globalCartTopRow: {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  flexWrap: "wrap",
+},
+
+globalCartMiniPill: {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  background: "rgba(255,0,0,0.12)",
+  border: "1px solid rgba(255,0,0,0.22)",
+  color: "#ffb0b0",
+  padding: "7px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+},
+
+globalCartCountPill: {
+  display: "inline-flex",
+  alignItems: "center",
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#fff",
+  padding: "7px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+},
+
+globalCartTitlePro: {
+  margin: 0,
+  fontSize: 40,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+  lineHeight: 0.95,
+},
+
+globalCartSubPro: {
+  margin: 0,
+  color: "#c9c9c9",
+  fontSize: 14,
+  lineHeight: 1.45,
+},
+
+globalCartTopTotalCard: {
+  minWidth: 120,
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 16,
+  padding: "12px 14px",
+  textAlign: "right",
+},
+
+globalCartTopTotalLabel: {
+  color: "#a7a7a7",
+  fontSize: 12,
+  marginBottom: 4,
+  fontWeight: "bold",
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+},
+
+globalCartTopTotalValue: {
+  color: "#fff",
+  fontSize: 24,
+  fontWeight: "bold",
+  lineHeight: 1,
+},
+
+cartItemPro: {
+  display: "grid",
+  gridTemplateColumns: "72px 1fr auto",
+  gap: 12,
+  alignItems: "start",
+  background:
+    "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,1))",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 18,
+  padding: 14,
+  boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+},
+
+cartItemThumbWrap: {
+  width: 72,
+  height: 72,
+  borderRadius: 14,
+  overflow: "hidden",
+  background: "#151515",
+  border: "1px solid rgba(255,255,255,0.06)",
+},
+
+cartItemThumb: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+
+cartItemTitlePro: {
+  display: "block",
+  marginBottom: 4,
+  color: "#fff",
+  fontSize: 16,
+  lineHeight: 1.2,
+},
+
+cartItemMetaPro: {
+  color: "#bdbdbd",
+  fontSize: 13,
+  lineHeight: 1.4,
+  marginTop: 4,
+},
+
+cartItemPricePro: {
+  marginTop: 10,
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 15,
+},
+
+qtyBoxPro: {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 999,
+  padding: "6px 8px",
+},
+
+qtyBtnPro: {
+  width: 30,
+  height: 30,
+  background: "linear-gradient(135deg, #ff1200, #b30000)",
+  border: "none",
+  color: "#fff",
+  borderRadius: "50%",
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: 16,
+  lineHeight: 1,
+},
+
+qtyValuePro: {
+  minWidth: 20,
+  textAlign: "center",
+  fontWeight: "bold",
+  color: "#fff",
+  fontSize: 14,
+},
+
+cartSummaryCardPro: {
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 18,
+  padding: 16,
+},
+
+globalCartFooterPro: {
+  borderTop: "1px solid rgba(255,255,255,0.08)",
+  padding: 18,
+  background:
+    "linear-gradient(180deg, rgba(12,12,12,0.96), rgba(8,8,8,1))",
+  display: "grid",
+  gap: 14,
+},
+
+globalCartFooterHint: {
+  color: "#d5d5d5",
+  fontSize: 13,
+  textAlign: "center",
+  lineHeight: 1.4,
+},
 globalCartFooter: {
   borderTop: "1px solid rgba(255,255,255,0.08)",
   padding: 18,
