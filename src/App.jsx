@@ -373,10 +373,7 @@ function App() {
   const [modoCocina, setModoCocina] = useState(false);
 
   const [formulaSeleccionada, setFormulaSeleccionada] = useState(null);
-  const [salsaPendiente, setSalsaPendiente] = useState(null);
-  const [nivelAtomico, setNivelAtomico] = useState("");
   const [comboPendiente, setComboPendiente] = useState(null);
-  const [comboSalsaPendiente, setComboSalsaPendiente] = useState(null);
   const audioRef = useRef(null);
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
@@ -985,42 +982,16 @@ function usarDireccionGuardada(direccionId) {
   }
 
   function seleccionarSalsa(producto, salsa, target) {
-    if (salsa.nombre === "Fuego Atómico") {
-      setSalsaPendiente({ producto, salsa, target });
-      setNivelAtomico("");
-      return;
-    }
+  agregarProducto(
+    {
+      ...producto,
+      salsa: salsa.nombre,
+    },
+    target
+  );
 
-    agregarProducto(
-      {
-        ...producto,
-        salsa: salsa.nombre,
-      },
-      target
-    );
-
-    setFormulaSeleccionada(null);
-  }
-
-  function confirmarFuegoAtomico() {
-    if (!salsaPendiente || !nivelAtomico) {
-      mostrarMensaje("error", "Selecciona nivel bajo, medio o alto.");
-      return;
-    }
-
-    agregarProducto({
-      ...salsaPendiente.producto,
-      salsa: `${salsaPendiente.salsa.nombre} - ${nivelAtomico}`,
-    });
-
-    mostrarToast(
-      `✅ ${salsaPendiente.producto.nombre} añadido con Fuego Atómico ${nivelAtomico}`
-    );
-
-    setSalsaPendiente(null);
-    setNivelAtomico("");
-    setFormulaSeleccionada(null);
-  }
+  setFormulaSeleccionada(null);
+}
 
   function cambiarCantidad(cartKey, cambio) {
     setCarrito((prev) =>
@@ -2999,25 +2970,16 @@ function renderCarritoDesktop() {
                   type="button"
                   style={styles.kfcOptionCard}
                   onClick={() => {
-                    if (salsa.nombre === "Fuego Atómico") {
-                      setComboSalsaPendiente({
-                        combo: comboPendiente.combo,
-                        target: comboPendiente.target,
-                        salsa,
-                      });
-                      setComboPendiente(null);
-                      setNivelAtomico("");
-                      return;
-                    }
+                  agregarProducto(
+                    {
+                      ...formulaSeleccionada,
+                      salsa: salsa.nombre,
+                    },
+                    null
+                  );
 
-                    agregarCombo(
-                      comboPendiente.combo,
-                      comboPendiente.target,
-                      salsa.nombre
-                    );
-
-                    setComboPendiente(null);
-                  }}
+                  setFormulaSeleccionada(null);
+                }}
                 >
                   <div style={styles.kfcOptionLeft}>
                     <div style={styles.kfcOptionEmoji}>{salsa.emoji}</div>
@@ -3041,175 +3003,6 @@ function renderCarritoDesktop() {
               Selecciona una salsa para continuar.
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-
-      {comboSalsaPendiente && (
-  <div style={styles.kfcModalBackdrop}>
-    <div
-      style={{ ...styles.kfcModalCard, maxWidth: 720 }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div style={styles.kfcModalContentOnly}>
-        <div style={styles.kfcModalTopBar}>
-          <div>
-            <div style={styles.kfcModalMiniBadge}>🌶️ NIVEL DE PICANTE</div>
-            <h2 style={styles.kfcModalTitle}>Fuego Atómico</h2>
-            <p style={styles.kfcModalDesc}>
-              Elige el nivel de picante para las alitas de tu combo.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            style={styles.kfcModalCloseBtn}
-            onClick={() => {
-              setComboSalsaPendiente(null);
-              setNivelAtomico("");
-            }}
-          >
-            ✕
-          </button>
-        </div>
-
-        <div style={styles.kfcOptionList}>
-          {["Bajo", "Medio", "Alto"].map((nivel) => (
-            <button
-              key={nivel}
-              type="button"
-              style={{
-                ...styles.kfcOptionCard,
-                ...(nivelAtomico === nivel ? styles.kfcOptionCardActive : {}),
-              }}
-              onClick={() => setNivelAtomico(nivel)}
-            >
-              <div style={styles.kfcOptionLeft}>
-                <div style={styles.kfcOptionEmoji}>🌶️</div>
-                <div>
-                  <div style={styles.kfcOptionTitle}>{nivel}</div>
-                  <div style={styles.kfcOptionText}>
-                    Intensidad {nivel.toLowerCase()}
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.kfcRadioDot}>
-                {nivelAtomico === nivel ? "✓" : ""}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div style={styles.kfcStickyFooter}>
-          <button
-            style={{ ...styles.confirmBtn, marginTop: 0 }}
-            onClick={() => {
-              if (!nivelAtomico) {
-                mostrarMensaje("error", "Selecciona el nivel de picante.");
-                return;
-              }
-
-              agregarCombo(
-                comboSalsaPendiente.combo,
-                comboSalsaPendiente.target,
-                `Fuego Atómico - ${nivelAtomico}`
-              );
-
-              setComboSalsaPendiente(null);
-              setNivelAtomico("");
-            }}
-          >
-            Confirmar y agregar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-      
-
-      {comboSalsaPendiente && (
-  <div style={styles.kfcModalBackdrop}>
-    <div
-      style={{ ...styles.kfcModalCard, maxWidth: 720 }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div style={styles.kfcModalContentOnly}>
-        <div style={styles.kfcModalTopBar}>
-          <div>
-            <div style={styles.kfcModalMiniBadge}>🌶️ NIVEL DE PICANTE</div>
-            <h2 style={styles.kfcModalTitle}>Fuego Atómico</h2>
-            <p style={styles.kfcModalDesc}>
-              Elige el nivel de picante para las alitas de tu combo.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            style={styles.kfcModalCloseBtn}
-            onClick={() => {
-              setComboSalsaPendiente(null);
-              setNivelAtomico("");
-            }}
-          >
-            ✕
-          </button>
-        </div>
-
-        <div style={styles.kfcOptionList}>
-          {["Bajo", "Medio", "Alto"].map((nivel) => (
-            <button
-              key={nivel}
-              type="button"
-              style={{
-                ...styles.kfcOptionCard,
-                ...(nivelAtomico === nivel ? styles.kfcOptionCardActive : {}),
-              }}
-              onClick={() => setNivelAtomico(nivel)}
-            >
-              <div style={styles.kfcOptionLeft}>
-                <div style={styles.kfcOptionEmoji}>🌶️</div>
-                <div>
-                  <div style={styles.kfcOptionTitle}>{nivel}</div>
-                  <div style={styles.kfcOptionText}>
-                    Intensidad {nivel.toLowerCase()}
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.kfcRadioDot}>
-                {nivelAtomico === nivel ? "✓" : ""}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div style={styles.kfcStickyFooter}>
-          <button
-            style={{ ...styles.confirmBtn, marginTop: 0 }}
-            onClick={() => {
-              if (!nivelAtomico) {
-                mostrarMensaje("error", "Selecciona el nivel de picante.");
-                return;
-              }
-
-              agregarCombo(
-                comboSalsaPendiente.combo,
-                comboSalsaPendiente.target,
-                `Fuego Atómico - ${nivelAtomico}`
-              );
-
-              setComboSalsaPendiente(null);
-              setNivelAtomico("");
-            }}
-          >
-            Confirmar y agregar
-          </button>
         </div>
       </div>
     </div>
