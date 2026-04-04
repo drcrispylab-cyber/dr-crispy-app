@@ -378,10 +378,11 @@ function App() {
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
 
-const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
+  const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
   const [panelCarritoAbierto, setPanelCarritoAbierto] = useState(false);
-const [panelCarritoVista, setPanelCarritoVista] = useState("carrito"); // carrito | checkout | auth_login | auth_registroconst [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
+  const [panelCarritoVista, setPanelCarritoVista] = useState("carrito");
+  const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);nst [panelCarritoVista, setPanelCarritoVista] = useState("carrito"); // carrito | checkout | auth_login | auth_registroconst [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
 
   const [botonAnimando, setBotonAnimando] = useState(null);
 
@@ -3463,57 +3464,7 @@ function renderCarritoDesktop() {
         </div>
       )}
       
-  {panelCarritoAbierto && (
-  <div
-    style={styles.globalCartBackdrop}
-    onClick={cerrarPanelCarrito}
-  >
-    <div
-      style={styles.globalCartPanel}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div style={styles.globalCartHeaderPro}>
-        <div style={styles.globalCartHeaderLeft}>
-          <div style={styles.globalCartTopRow}>
-            <div style={styles.globalCartMiniPill}>
-              {panelCarritoVista === "carrito" ? "🛒 TU PEDIDO" : "📦 CHECKOUT"}
-            </div>
-
-            <div style={styles.globalCartCountPill}>
-              {totalItemsCarrito} item{totalItemsCarrito !== 1 ? "s" : ""}
-            </div>
-          </div>
-
-          <h2 style={styles.globalCartTitlePro}>
-            {panelCarritoVista === "carrito"
-              ? "Tu pedido del laboratorio"
-              : "Finalizar pedido"}
-          </h2>
-
-          <p style={styles.globalCartSubPro}>
-            {panelCarritoVista === "carrito"
-              ? "Revisa tus productos antes de continuar."
-              : "Confirma tus datos y termina tu pedido."}
-          </p>
-        </div>
-
-        <div style={{ display: "grid", gap: 10 }}>
-          <div style={styles.globalCartTopTotalCard}>
-            <div style={styles.globalCartTopTotalLabel}>Total</div>
-            <div style={styles.globalCartTopTotalValue}>
-              ${total.toLocaleString("es-CO")}
-            </div>
-          </div>
-
-          <button
-            type="button"
-            style={styles.drawerCloseBtn}
-            onClick={cerrarPanelCarrito}
-          >
-            ✕
-          </button>
-        </div>
-      </div>
+  
 
       {panelCarritoVista === "carrito" && (
         <>
