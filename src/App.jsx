@@ -381,8 +381,7 @@ function App() {
 const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
   const [panelCarritoAbierto, setPanelCarritoAbierto] = useState(false);
-const [panelCarritoVista, setPanelCarritoVista] = useState("carrito"); // carrito | checkout
-const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
+const [panelCarritoVista, setPanelCarritoVista] = useState("carrito"); // carrito | checkout | auth_login | auth_registroconst [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
 
   const [botonAnimando, setBotonAnimando] = useState(null);
 
@@ -3642,6 +3641,198 @@ function renderCarritoDesktop() {
         </>
       )}
 
+      {panelCarritoAbierto && (
+  <div
+    style={styles.globalCartBackdrop}
+    onClick={cerrarPanelCarrito}
+  >
+    <div
+      style={styles.globalCartPanel}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={styles.globalCartHeaderPro}>
+        <div style={styles.globalCartHeaderLeft}>
+          <div style={styles.globalCartTopRow}>
+            <div style={styles.globalCartMiniPill}>
+              {panelCarritoVista === "carrito"
+                ? "🛒 TU PEDIDO"
+                : panelCarritoVista === "checkout"
+                ? "📦 CHECKOUT"
+                : panelCarritoVista === "auth_login"
+                ? "👤 INGRESAR"
+                : "🧪 CREAR PERFIL"}
+            </div>
+
+            <div style={styles.globalCartCountPill}>
+              {totalItemsCarrito} item{totalItemsCarrito !== 1 ? "s" : ""}
+            </div>
+          </div>
+
+          <h2 style={styles.globalCartTitlePro}>
+            {panelCarritoVista === "carrito"
+              ? "Tu pedido del laboratorio"
+              : panelCarritoVista === "checkout"
+              ? "Finalizar pedido"
+              : panelCarritoVista === "auth_login"
+              ? "Iniciar sesión"
+              : "Crear perfil"}
+          </h2>
+
+          <p style={styles.globalCartSubPro}>
+            {panelCarritoVista === "carrito"
+              ? "Revisa tus productos antes de continuar."
+              : panelCarritoVista === "checkout"
+              ? "Confirma tus datos y termina tu pedido."
+              : panelCarritoVista === "auth_login"
+              ? "Ingresa con tu perfil para autocompletar tus datos."
+              : "Crea tu perfil y acelera tus próximos pedidos."}
+          </p>
+        </div>
+
+        <div style={{ display: "grid", gap: 10 }}>
+          <div style={styles.globalCartTopTotalCard}>
+            <div style={styles.globalCartTopTotalLabel}>Total</div>
+            <div style={styles.globalCartTopTotalValue}>
+              ${total.toLocaleString("es-CO")}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            style={styles.drawerCloseBtn}
+            onClick={cerrarPanelCarrito}
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      {panelCarritoVista === "carrito" && (
+        <>
+          <div style={styles.globalCartBody}>
+            {carrito.length === 0 ? (
+              <div style={styles.emptyBox}>
+                No has agregado productos todavía.
+              </div>
+            ) : (
+              <div style={styles.drawerItemsWrap}>
+                {carrito.map((item) => (
+                  <div key={item.cartKey} style={styles.cartItemPro}>
+                    <div style={styles.cartItemThumbWrap}>
+                      <img
+                        src={item.imagen || "/images/producto-placeholder.png"}
+                        alt={item.nombre}
+                        style={styles.cartItemThumb}
+                      />
+                    </div>
+
+                    <div style={{ minWidth: 0 }}>
+                      <strong style={styles.cartItemTitlePro}>
+                        {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                      </strong>
+
+                      <div style={styles.cartItemMetaPro}>
+                        {item.experimento || "Experimento 1"}
+                      </div>
+
+                      {item.salsa && (
+                        <div
+                          style={{
+                            ...styles.cartItemMetaPro,
+                            color: "#ffd166",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Sabor: {item.salsa}
+                        </div>
+                      )}
+
+                      {item.esCombo && Array.isArray(item.detalleCombo) && (
+                        <div style={{ marginTop: 8 }}>
+                          {formatearDetalleCombo(item.detalleCombo).map(
+                            (detalle, idx) => (
+                              <div key={idx} style={styles.cartItemMetaPro}>
+                                • {detalle}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+
+                      <div style={styles.cartItemPricePro}>
+                        ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                      </div>
+                    </div>
+
+                    <div style={styles.qtyBoxPro}>
+                      <button
+                        style={styles.qtyBtnPro}
+                        onClick={() => cambiarCantidad(item.cartKey, -1)}
+                      >
+                        -
+                      </button>
+
+                      <span style={styles.qtyValuePro}>{item.cantidad}</span>
+
+                      <button
+                        style={styles.qtyBtnPro}
+                        onClick={() => cambiarCantidad(item.cartKey, 1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={styles.globalCartFooterPro}>
+            <div style={styles.cartSummaryCardPro}>
+              <div style={styles.summaryRow}>
+                <span>Subtotal</span>
+                <span>${subtotal.toLocaleString("es-CO")}</span>
+              </div>
+
+              <div style={styles.summaryRow}>
+                <span>Domicilio</span>
+                <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                  Incluido
+                </span>
+              </div>
+
+              <div style={styles.summaryTotal}>
+                <span>Total</span>
+                <span>${total.toLocaleString("es-CO")}</span>
+              </div>
+            </div>
+
+            <div style={styles.globalCartActions}>
+              <button
+                type="button"
+                style={styles.secondaryBtn}
+                onClick={cerrarPanelCarrito}
+              >
+                Seguir comprando
+              </button>
+
+              <button
+                type="button"
+                style={{ ...styles.confirmBtn, marginTop: 0 }}
+                onClick={irAlCheckoutDesdePanel}
+                disabled={carrito.length === 0}
+              >
+                🔥 CONTINUAR PEDIDO
+              </button>
+            </div>
+
+            <div style={styles.globalCartFooterHint}>
+              ⚡ Pedido rápido, claro y listo para continuar
+            </div>
+          </div>
+        </>
+      )}
+
       {panelCarritoVista === "checkout" && (
         <>
           <div style={styles.globalCartBody}>
@@ -3660,11 +3851,8 @@ function renderCarritoDesktop() {
                     type="button"
                     style={styles.secondaryBtn}
                     onClick={() => {
-                      cerrarPanelCarrito();
-                      setVista("cliente");
-                      setSeccionCliente("inicio");
                       setClienteAuthModo("login");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
+                      setPanelCarritoVista("auth_login");
                     }}
                   >
                     Iniciar sesión
@@ -3674,14 +3862,21 @@ function renderCarritoDesktop() {
                     type="button"
                     style={styles.secondaryBtn}
                     onClick={() => {
-                      cerrarPanelCarrito();
-                      setVista("cliente");
-                      setSeccionCliente("inicio");
                       setClienteAuthModo("registro");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
+                      setPanelCarritoVista("auth_registro");
                     }}
                   >
                     Crear perfil
+                  </button>
+
+                  <button
+                    type="button"
+                    style={styles.secondaryBtn}
+                    onClick={() => {
+                      setMostrarPromptPerfil(false);
+                    }}
+                  >
+                    Continuar como invitado
                   </button>
                 </div>
               </div>
@@ -3918,6 +4113,188 @@ function renderCarritoDesktop() {
 
             <div style={styles.globalCartFooterHint}>
               ⚡ Estás a un paso de confirmar tu experimento
+            </div>
+          </div>
+        </>
+      )}
+
+      {panelCarritoVista === "auth_login" && (
+        <>
+          <div style={styles.globalCartBody}>
+            <div style={styles.panel}>
+              <div style={styles.menuInteractiveBadge}>👤 INGRESAR</div>
+              <h2 style={styles.panelTitle}>INICIAR SESIÓN</h2>
+              <p style={styles.loginHint}>
+                Entra con tu perfil para autocompletar tus datos y pedir más rápido.
+              </p>
+
+              <Input
+                label="Teléfono registrado"
+                value={clienteLoginData.telefono}
+                onChange={(e) =>
+                  setClienteLoginData((prev) => ({
+                    ...prev,
+                    telefono: e.target.value,
+                  }))
+                }
+              />
+
+              <div style={{ marginBottom: 14 }}>
+                <label style={styles.label}>Contraseña</label>
+                <input
+                  type="password"
+                  style={styles.input}
+                  value={clienteLoginData.password}
+                  onChange={(e) =>
+                    setClienteLoginData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.globalCartFooterPro}>
+            <div style={styles.globalCartActions}>
+              <button
+                type="button"
+                style={styles.secondaryBtn}
+                onClick={() => setPanelCarritoVista("checkout")}
+              >
+                ← Volver
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  ...styles.confirmBtn,
+                  marginTop: 0,
+                  ...(cargandoClienteAuth ? styles.disabledBtn : {}),
+                }}
+                onClick={async () => {
+                  await iniciarSesionCliente();
+                  setMostrarPromptPerfil(false);
+                  setPanelCarritoVista("checkout");
+                }}
+                disabled={cargandoClienteAuth}
+              >
+                {cargandoClienteAuth ? "Ingresando..." : "Ingresar con mi perfil"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {panelCarritoVista === "auth_registro" && (
+        <>
+          <div style={styles.globalCartBody}>
+            <div style={styles.panel}>
+              <div style={styles.menuInteractiveBadge}>🧪 CREAR PERFIL</div>
+              <h2 style={styles.panelTitle}>CREAR PERFIL</h2>
+              <p style={styles.loginHint}>
+                Guarda tus datos y acelera tus próximos pedidos.
+              </p>
+
+              <Input
+                label="Nombre"
+                value={clienteRegistroData.nombre}
+                onChange={(e) =>
+                  setClienteRegistroData((prev) => ({
+                    ...prev,
+                    nombre: e.target.value,
+                  }))
+                }
+              />
+
+              <Input
+                label="Teléfono"
+                value={clienteRegistroData.telefono}
+                onChange={(e) =>
+                  setClienteRegistroData((prev) => ({
+                    ...prev,
+                    telefono: e.target.value,
+                  }))
+                }
+              />
+
+              <div style={{ marginBottom: 14 }}>
+                <label style={styles.label}>Contraseña</label>
+                <input
+                  type="password"
+                  style={styles.input}
+                  value={clienteRegistroData.password}
+                  onChange={(e) =>
+                    setClienteRegistroData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <Input
+                label="Dirección principal"
+                value={clienteRegistroData.direccion}
+                onChange={(e) =>
+                  setClienteRegistroData((prev) => ({
+                    ...prev,
+                    direccion: e.target.value,
+                  }))
+                }
+              />
+
+              <Input
+                label="Referencia"
+                value={clienteRegistroData.referencia}
+                onChange={(e) =>
+                  setClienteRegistroData((prev) => ({
+                    ...prev,
+                    referencia: e.target.value,
+                  }))
+                }
+              />
+
+              <Input
+                label="Alias de dirección"
+                value={clienteRegistroData.aliasDireccion}
+                onChange={(e) =>
+                  setClienteRegistroData((prev) => ({
+                    ...prev,
+                    aliasDireccion: e.target.value,
+                  }))
+                }
+              />
+            </div>
+          </div>
+
+          <div style={styles.globalCartFooterPro}>
+            <div style={styles.globalCartActions}>
+              <button
+                type="button"
+                style={styles.secondaryBtn}
+                onClick={() => setPanelCarritoVista("checkout")}
+              >
+                ← Volver
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  ...styles.confirmBtn,
+                  marginTop: 0,
+                  ...(cargandoClienteAuth ? styles.disabledBtn : {}),
+                }}
+                onClick={async () => {
+                  await registrarCliente();
+                  setMostrarPromptPerfil(false);
+                  setPanelCarritoVista("checkout");
+                }}
+                disabled={cargandoClienteAuth}
+              >
+                {cargandoClienteAuth ? "Creando perfil..." : "Crear perfil"}
+              </button>
             </div>
           </div>
         </>
