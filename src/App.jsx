@@ -368,6 +368,10 @@ function App() {
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
 
+  const [panelCarritoAbierto, setPanelCarritoAbierto] = useState(false);
+const [panelCarritoVista, setPanelCarritoVista] = useState("carrito"); // carrito | checkout
+const [mostrarPromptPerfil, setMostrarPromptPerfil] = useState(false);
+
   const [botonAnimando, setBotonAnimando] = useState(null);
 
   const [drawerCarritoAbierto, setDrawerCarritoAbierto] = useState(false);
@@ -454,6 +458,22 @@ function App() {
       pago: "Llave",
     });
   }
+
+  function cerrarPanelCarrito() {
+  setPanelCarritoAbierto(false);
+  setPanelCarritoVista("carrito");
+}
+
+function irAlCheckoutDesdePanel() {
+  if (!clienteSesion?.id) {
+    setMostrarPromptPerfil(true);
+  } else {
+    setMostrarPromptPerfil(false);
+  }
+
+  setPanelCarritoVista("checkout");
+}
+
 
   function guardarSesionCliente(clienteData) {
     setClienteSesion(clienteData);
@@ -787,6 +807,8 @@ function usarDireccionGuardada(direccionId) {
 
   setBotonAnimando(key);
   setCarritoAnimando(true);
+  setPanelCarritoVista("carrito");
+  setPanelCarritoAbierto(true);
 
   setTimeout(() => {
     setBotonAnimando(null);
@@ -815,8 +837,9 @@ function usarDireccionGuardada(direccionId) {
       ...producto,
       cantidad: 1,
       cartKey: key,
-      experimento: "Experimento 1",
-      categoriaExperimento: "Alitas Crispy",
+      experimento: producto.experimento || "Experimento 1",
+      categoriaExperimento:
+        producto.categoriaExperimento || "Alitas Crispy",
     },
   ]);
 
@@ -824,85 +847,96 @@ function usarDireccionGuardada(direccionId) {
 }
 
   function agregarProductoDirecto(producto, cantidad = 1, target = null) {
-    const nuevoProducto = {
-      ...producto,
-      cantidad,
-      cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
-      experimento: producto.experimento || "Experimento 1",
-      categoriaExperimento:
-        producto.categoriaExperimento || "Alitas Crispy",
-    };
+  const nuevoProducto = {
+    ...producto,
+    cantidad,
+    cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
+    experimento: producto.experimento || "Experimento 1",
+    categoriaExperimento:
+      producto.categoriaExperimento || "Alitas Crispy",
+  };
 
-    setCarrito((prev) => {
-      const existente = prev.find(
-        (item) => item.cartKey === nuevoProducto.cartKey
+  setPanelCarritoVista("carrito");
+  setPanelCarritoAbierto(true);
+  setCarritoAnimando(true);
+
+  setTimeout(() => {
+    setCarritoAnimando(false);
+  }, 420);
+
+  setCarrito((prev) => {
+    const existente = prev.find(
+      (item) => item.cartKey === nuevoProducto.cartKey
+    );
+
+    if (existente) {
+      return prev.map((item) =>
+        item.cartKey === nuevoProducto.cartKey
+          ? { ...item, cantidad: item.cantidad + cantidad }
+          : item
       );
-
-      if (existente) {
-        return prev.map((item) =>
-          item.cartKey === nuevoProducto.cartKey
-            ? { ...item, cantidad: item.cantidad + cantidad }
-            : item
-        );
-      }
-
-      return [...prev, nuevoProducto];
-    });
-
-    if (target) {
-      mostrarToast(`✅ ${producto.nombre} agregado`, target);
     }
+
+    return [...prev, nuevoProducto];
+  });
+
+  if (target) {
+    mostrarToast(`✅ ${producto.nombre} agregado`, target);
   }
+}
 
   function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
-    const salsaFinal = salsaSeleccionada || "BBQ Reactor";
-    const cartKey = `${combo.id}-combo-${salsaFinal}`;
+  const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+  const cartKey = `${combo.id}-combo-${salsaFinal}`;
 
-    setCarrito((prev) => {
-      const existente = prev.find((item) => item.cartKey === cartKey);
+  setPanelCarritoVista("carrito");
+  setPanelCarritoAbierto(true);
 
-      if (existente) {
-        return prev.map((item) =>
-          item.cartKey === cartKey
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        );
-      }
+  setCarrito((prev) => {
+    const existente = prev.find((item) => item.cartKey === cartKey);
 
-      return [
-        ...prev,
-        {
-          id: combo.id,
-          nombre: combo.nombre,
-          descripcion: combo.descripcion,
-          precio: combo.precio,
-          cantidad: 1,
-          cartKey,
-          esCombo: true,
-          badge: combo.badge,
-          emoji: combo.emoji,
-          salsa: salsaFinal,
-          experimento: "Combos del Lab",
-          categoriaExperimento: "Combos del Lab",
-          detalleCombo: combo.itemsInternos.map((item) => {
-            if (item.nombre.toLowerCase().includes("alitas")) {
-              return {
-                ...item,
-                salsa: salsaFinal,
-              };
-            }
+    if (existente) {
+      return prev.map((item) =>
+        item.cartKey === cartKey
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      );
+    }
 
-            return { ...item };
-          }),
-        },
-      ];
-    });
+    return [
+      ...prev,
+      {
+        id: combo.id,
+        nombre: combo.nombre,
+        descripcion: combo.descripcion,
+        precio: combo.precio,
+        cantidad: 1,
+        cartKey,
+        esCombo: true,
+        badge: combo.badge,
+        emoji: combo.emoji,
+        salsa: salsaFinal,
+        experimento: "Combos del Lab",
+        categoriaExperimento: "Combos del Lab",
+        detalleCombo: combo.itemsInternos.map((item) => {
+          if (item.nombre.toLowerCase().includes("alitas")) {
+            return {
+              ...item,
+              salsa: salsaFinal,
+            };
+          }
 
-    setCarritoAnimando(true);
-    setTimeout(() => setCarritoAnimando(false), 650);
+          return { ...item };
+        }),
+      },
+    ];
+  });
 
-    mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-  }
+  setCarritoAnimando(true);
+  setTimeout(() => setCarritoAnimando(false), 650);
+
+  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
+}
 
   function prepararCombo(combo, target = null) {
     setComboPendiente({ combo, target });
@@ -1192,12 +1226,17 @@ function usarDireccionGuardada(direccionId) {
         total,
       });
 
-      setModalPedidoAbierto(true);
+     setModalPedidoAbierto(true);
 mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
 mostrarToast("🎉 Tu pedido fue confirmado correctamente");
 
+// 🔥 cerrar todos los carritos / paneles
 setCheckoutMovilAbierto(false);
 setDrawerCarritoAbierto(false);
+setPanelCarritoAbierto(false);
+setPanelCarritoVista("carrito");
+
+// 🔥 limpiar carrito
 setCarrito([]);
       if (clienteSesion?.id) {
         await cargarPerfilCliente(clienteSesion.id);
@@ -3956,6 +3995,436 @@ function renderCarritoDesktop() {
           </div>
         </div>
       )}
+      
+  {panelCarritoAbierto && (
+  <div
+    style={styles.globalCartBackdrop}
+    onClick={cerrarPanelCarrito}
+  >
+    <div
+      style={styles.globalCartPanel}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div style={styles.globalCartHeader}>
+        <div>
+          <div style={styles.drawerMini}>
+            {panelCarritoVista === "carrito" ? "🛒 TU PEDIDO" : "📦 CHECKOUT"}
+          </div>
+          <h2 style={styles.globalCartTitle}>
+            {panelCarritoVista === "carrito"
+              ? "Tu pedido del laboratorio"
+              : "Finalizar pedido"}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          style={styles.drawerCloseBtn}
+          onClick={cerrarPanelCarrito}
+        >
+          ✕
+        </button>
+      </div>
+
+      {panelCarritoVista === "carrito" && (
+        <>
+          <div style={styles.globalCartBody}>
+            {carrito.length === 0 ? (
+              <div style={styles.emptyBox}>
+                No has agregado productos todavía.
+              </div>
+            ) : (
+              <div style={styles.drawerItemsWrap}>
+                {carrito.map((item) => (
+                  <div key={item.cartKey} style={styles.cartItem}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <strong style={{ display: "block", marginBottom: 4 }}>
+                        {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+                      </strong>
+
+                      <div style={styles.cartSub}>
+                        {item.experimento || "Experimento 1"}
+                      </div>
+
+                      {item.salsa && (
+                        <div
+                          style={{
+                            ...styles.cartSub,
+                            color: "#ffd166",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Sabor: {item.salsa}
+                        </div>
+                      )}
+
+                      {item.esCombo && Array.isArray(item.detalleCombo) && (
+                        <div style={{ marginTop: 8 }}>
+                          {formatearDetalleCombo(item.detalleCombo).map(
+                            (detalle, idx) => (
+                              <div key={idx} style={styles.cartSub}>
+                                • {detalle}
+                              </div>
+                            )
+                          )}
+                        </div>
+                      )}
+
+                      <div
+                        style={{
+                          ...styles.cartSub,
+                          marginTop: 8,
+                          fontWeight: "bold",
+                          color: "#fff",
+                        }}
+                      >
+                        ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
+                      </div>
+                    </div>
+
+                    <div style={styles.qtyBox}>
+                      <button
+                        style={styles.qtyBtn}
+                        onClick={() => cambiarCantidad(item.cartKey, -1)}
+                      >
+                        -
+                      </button>
+                      <span>{item.cantidad}</span>
+                      <button
+                        style={styles.qtyBtn}
+                        onClick={() => cambiarCantidad(item.cartKey, 1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={styles.globalCartFooter}>
+            <div style={styles.summaryBox}>
+              <div style={styles.summaryRow}>
+                <span>Subtotal</span>
+                <span>${subtotal.toLocaleString("es-CO")}</span>
+              </div>
+
+              <div style={styles.summaryRow}>
+                <span>Domicilio</span>
+                <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+                  Incluido
+                </span>
+              </div>
+
+              <div style={styles.summaryTotal}>
+                <span>Total</span>
+                <span>${total.toLocaleString("es-CO")}</span>
+              </div>
+            </div>
+
+            <div style={styles.globalCartActions}>
+              <button
+                type="button"
+                style={styles.secondaryBtn}
+                onClick={cerrarPanelCarrito}
+              >
+                Seguir comprando
+              </button>
+
+              <button
+                type="button"
+                style={{ ...styles.confirmBtn, marginTop: 0 }}
+                onClick={irAlCheckoutDesdePanel}
+                disabled={carrito.length === 0}
+              >
+                🔥 CONTINUAR PEDIDO
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {panelCarritoVista === "checkout" && (
+        <>
+          <div style={styles.globalCartBody}>
+            {mostrarPromptPerfil && !clienteSesion?.id && (
+              <div style={styles.checkoutGuestPromptBox}>
+                <div style={styles.checkoutGuestPromptTitle}>
+                  👤 ¿Quieres pedir más rápido?
+                </div>
+
+                <div style={styles.checkoutGuestPromptText}>
+                  Inicia sesión o crea tu perfil para llenar tus datos automáticamente.
+                </div>
+
+                <div style={styles.checkoutActionsRow}>
+                  <button
+                    type="button"
+                    style={styles.secondaryBtn}
+                    onClick={() => {
+                      cerrarPanelCarrito();
+                      setVista("cliente");
+                      setSeccionCliente("inicio");
+                      setClienteAuthModo("login");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                    Iniciar sesión
+                  </button>
+
+                  <button
+                    type="button"
+                    style={styles.secondaryBtn}
+                    onClick={() => {
+                      cerrarPanelCarrito();
+                      setVista("cliente");
+                      setSeccionCliente("inicio");
+                      setClienteAuthModo("registro");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  >
+                    Crear perfil
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {clienteSesion?.id && (
+              <div style={styles.checkoutProfileBox}>
+                <div style={styles.checkoutProfileTop}>
+                  <div>
+                    <div style={styles.checkoutProfileBadge}>👤 PERFIL ACTIVO</div>
+                    <div style={styles.checkoutProfileName}>
+                      {clienteSesion.nombre || cliente.nombre || "-"}
+                    </div>
+                  </div>
+
+                  <div style={styles.checkoutProfileStatus}>
+                    Listo para pedir
+                  </div>
+                </div>
+
+                <div style={styles.checkoutProfileDataGrid}>
+                  <div style={styles.checkoutProfileDataCard}>
+                    <div style={styles.checkoutProfileLabel}>Celular</div>
+                    <div style={styles.checkoutProfileValue}>
+                      {cliente.telefono || clienteSesion.telefono || "-"}
+                    </div>
+                  </div>
+
+                  <div style={styles.checkoutProfileDataCard}>
+                    <div style={styles.checkoutProfileLabel}>Entrega</div>
+                    <div style={styles.checkoutProfileValue}>
+                      {cliente.direccion || "Selecciona dirección"}
+                    </div>
+                  </div>
+                </div>
+
+                {direccionesCliente.length > 0 && !usarOtraDireccion && (
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={styles.label}>Dirección guardada</label>
+                    <select
+                      style={styles.input}
+                      value={direccionSeleccionadaId}
+                      onChange={(e) => usarDireccionGuardada(e.target.value)}
+                    >
+                      {direccionesCliente.map((direccion) => (
+                        <option key={direccion.id} value={direccion.id}>
+                          {direccion.alias} — {direccion.direccion}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div style={styles.checkoutActionsRow}>
+                  <button
+                    type="button"
+                    style={styles.secondaryBtn}
+                    onClick={() => setUsarOtraDireccion((prev) => !prev)}
+                  >
+                    {usarOtraDireccion
+                      ? "Usar dirección guardada"
+                      : "Usar otra dirección hoy"}
+                  </button>
+
+                  <button
+                    type="button"
+                    style={{
+                      ...styles.secondaryBtn,
+                      ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
+                    }}
+                    onClick={guardarDireccionActualCliente}
+                    disabled={guardandoDireccionCliente}
+                  >
+                    {guardandoDireccionCliente
+                      ? "Guardando..."
+                      : "Guardar dirección actual"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <Input
+              label="Nombre"
+              value={cliente.nombre}
+              onChange={(e) => actualizarCliente("nombre", e.target.value)}
+            />
+
+            <Input
+              label="Celular para contacto"
+              value={cliente.telefono}
+              onChange={(e) => actualizarCliente("telefono", e.target.value)}
+            />
+
+            <Input
+              label="Dirección de entrega"
+              value={cliente.direccion}
+              onChange={(e) => actualizarCliente("direccion", e.target.value)}
+              disabled={Boolean(
+                clienteSesion?.id &&
+                  direccionesCliente.length > 0 &&
+                  !usarOtraDireccion
+              )}
+            />
+
+            <Input
+              label="Referencia"
+              value={cliente.referencia}
+              onChange={(e) => actualizarCliente("referencia", e.target.value)}
+              disabled={Boolean(
+                clienteSesion?.id &&
+                  direccionesCliente.length > 0 &&
+                  !usarOtraDireccion
+              )}
+            />
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={styles.label}>Método de pago</label>
+
+              <div style={styles.paymentMethodGrid}>
+                <button
+                  type="button"
+                  style={{
+                    ...styles.paymentMethodCard,
+                    ...(cliente.pago === "Llave"
+                      ? styles.paymentMethodCardActive
+                      : {}),
+                  }}
+                  onClick={() => actualizarCliente("pago", "Llave")}
+                >
+                  <div style={styles.paymentMethodIcon}>🔑</div>
+                  <div style={styles.paymentMethodInfo}>
+                    <div style={styles.paymentMethodTitle}>Pago por Llave</div>
+                    <div style={styles.paymentMethodText}>3152487938</div>
+                    <div style={styles.paymentMethodHint}>
+                      Verificación manual del laboratorio
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  style={{
+                    ...styles.paymentMethodCard,
+                    ...(cliente.pago === "QR Nequi"
+                      ? styles.paymentMethodCardActive
+                      : {}),
+                  }}
+                  onClick={() => actualizarCliente("pago", "QR Nequi")}
+                >
+                  <div style={styles.paymentMethodIcon}>📱</div>
+                  <div style={styles.paymentMethodInfo}>
+                    <div style={styles.paymentMethodTitle}>QR Nequi</div>
+                    <div style={styles.paymentMethodText}>Pago escaneando QR</div>
+                    <div style={styles.paymentMethodHint}>
+                      Rápido y directo desde tu celular
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {cliente.pago === "Llave" && (
+              <div style={styles.paymentInfoBox}>
+                <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
+                <div style={styles.paymentInfoText}>Llave: 3152487938</div>
+                <div style={styles.paymentInfoText}>
+                  El pedido quedará pendiente de verificación.
+                </div>
+              </div>
+            )}
+
+            {cliente.pago === "QR Nequi" && (
+              <div style={styles.paymentInfoBox}>
+                <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
+                <div style={styles.paymentInfoText}>
+                  Escanea este QR para realizar el pago.
+                </div>
+
+                <div style={styles.qrWrap}>
+                  <img
+                    src="/qr-nequi.png"
+                    alt="QR Nequi Dr. Crispy Lab"
+                    style={styles.qrImage}
+                  />
+                </div>
+
+                <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
+                <div style={styles.paymentInfoText}>
+                  El pedido quedará pendiente de verificación.
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div style={styles.globalCartFooter}>
+            <div style={styles.checkoutMobileResumeCard}>
+              <div style={styles.checkoutMobileResumeRow}>
+                <span>Subtotal</span>
+                <strong>${subtotal.toLocaleString("es-CO")}</strong>
+              </div>
+
+              <div style={styles.checkoutMobileResumeRow}>
+                <span>Domicilio</span>
+                <strong style={{ color: "#ffd166" }}>Incluido</strong>
+              </div>
+
+              <div style={styles.checkoutMobileResumeTotal}>
+                <span>Total del pedido</span>
+                <span>${total.toLocaleString("es-CO")}</span>
+              </div>
+            </div>
+
+            <div style={styles.globalCartActions}>
+              <button
+                type="button"
+                style={styles.secondaryBtn}
+                onClick={() => setPanelCarritoVista("carrito")}
+              >
+                ← Volver
+              </button>
+
+              <button
+                style={{
+                  ...styles.confirmBtn,
+                  ...(cargandoPedido ? styles.disabledBtn : {}),
+                  marginTop: 0,
+                }}
+                onClick={confirmarPedido}
+                disabled={cargandoPedido}
+              >
+                {cargandoPedido ? "Activando pedido..." : "🔥 CONFIRMAR PEDIDO"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+)}
+
 
       <div style={styles.container}>
         <header
@@ -3995,119 +4464,137 @@ function renderCarritoDesktop() {
   </div>
 
   <div style={styles.navButtons}>
+  <button
+    style={{
+      ...styles.navBtn,
+      ...(vista === "cliente" ? styles.navBtnActive : {}),
+    }}
+    onClick={() => {
+      setVista("cliente");
+      setSeccionCliente("inicio");
+    }}
+  >
+    Inicio
+  </button>
+
+  {!clienteSesion?.id ? (
+    <>
+      <button
+        type="button"
+        style={{
+          ...styles.navBtn,
+          ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
+        }}
+        onClick={() => {
+          setVista("cliente");
+          setSeccionCliente("inicio");
+          setClienteAuthModo("login");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      >
+        Ingresar
+      </button>
+
+      <button
+        type="button"
+        style={{
+          ...styles.navBtn,
+          ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
+        }}
+        onClick={() => {
+          setVista("cliente");
+          setSeccionCliente("inicio");
+          setClienteAuthModo("registro");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      >
+        Crear perfil
+      </button>
+    </>
+  ) : (
+    <>
+      <div style={styles.userMiniPill}>
+        👤 {clienteSesion.nombre || "Cliente"}
+      </div>
+
+      <button
+        type="button"
+        style={{
+          ...styles.navBtn,
+          ...(clienteAuthModo === "perfil" ? styles.navBtnActive : {}),
+        }}
+        onClick={() => {
+          setVista("cliente");
+          setSeccionCliente("inicio");
+          setClienteAuthModo("perfil");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      >
+        Mi perfil
+      </button>
+
+      <button
+        type="button"
+        style={styles.navBtn}
+        onClick={cerrarSesionCliente}
+      >
+        Cerrar sesión
+      </button>
+    </>
+  )}
+
+  <button
+    style={{
+      ...styles.navBtn,
+      ...(vista === "seguimiento" ? styles.navBtnActive : {}),
+    }}
+    onClick={() => setVista("seguimiento")}
+  >
+    Seguimiento
+  </button>
+
+  <button
+    type="button"
+    style={{
+      ...styles.navBtn,
+      ...(panelCarritoAbierto ? styles.navBtnActive : {}),
+      position: "relative",
+    }}
+    onClick={() => {
+      setPanelCarritoVista("carrito");
+      setPanelCarritoAbierto(true);
+    }}
+  >
+    🛒 Carrito
+    {totalItemsCarrito > 0
+      ? ` (${totalItemsCarrito}) • $${total.toLocaleString("es-CO")}`
+      : ""}
+  </button>
+
+  {puedeVerAdmin && (
     <button
       style={{
         ...styles.navBtn,
-        ...(vista === "cliente" ? styles.navBtnActive : {}),
+        ...(vista === "admin" ? styles.navBtnActive : {}),
       }}
-      onClick={() => {
-        setVista("cliente");
-        setSeccionCliente("inicio");
-      }}
+      onClick={() => setVista("admin")}
     >
-      Inicio
+      Admin
     </button>
+  )}
 
-    {!clienteSesion?.id ? (
-      <>
-        <button
-          type="button"
-          style={{
-            ...styles.navBtn,
-            ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
-          }}
-          onClick={() => {
-            setVista("cliente");
-            setSeccionCliente("inicio");
-            setClienteAuthModo("login");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        >
-          Ingresar
-        </button>
-
-        <button
-          type="button"
-          style={{
-            ...styles.navBtn,
-            ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
-          }}
-          onClick={() => {
-            setVista("cliente");
-            setSeccionCliente("inicio");
-            setClienteAuthModo("registro");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        >
-          Crear perfil
-        </button>
-      </>
-    ) : (
-      <>
-        <div style={styles.userMiniPill}>
-          👤 {clienteSesion.nombre || "Cliente"}
-        </div>
-
-        <button
-          type="button"
-          style={{
-            ...styles.navBtn,
-            ...(clienteAuthModo === "perfil" ? styles.navBtnActive : {}),
-          }}
-          onClick={() => {
-            setVista("cliente");
-            setSeccionCliente("inicio");
-            setClienteAuthModo("perfil");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        >
-          Mi perfil
-        </button>
-
-        <button
-          type="button"
-          style={styles.navBtn}
-          onClick={cerrarSesionCliente}
-        >
-          Cerrar sesión
-        </button>
-      </>
-    )}
-
+  {puedeVerRepartidor && (
     <button
       style={{
         ...styles.navBtn,
-        ...(vista === "seguimiento" ? styles.navBtnActive : {}),
+        ...(vista === "repartidor" ? styles.navBtnActive : {}),
       }}
-      onClick={() => setVista("seguimiento")}
+      onClick={() => setVista("repartidor")}
     >
-      Seguimiento
+      Repartidor
     </button>
-
-    {puedeVerAdmin && (
-      <button
-        style={{
-          ...styles.navBtn,
-          ...(vista === "admin" ? styles.navBtnActive : {}),
-        }}
-        onClick={() => setVista("admin")}
-      >
-        Admin
-      </button>
-    )}
-
-    {puedeVerRepartidor && (
-      <button
-        style={{
-          ...styles.navBtn,
-          ...(vista === "repartidor" ? styles.navBtnActive : {}),
-        }}
-        onClick={() => setVista("repartidor")}
-      >
-        Repartidor
-      </button>
-    )}
-  </div>
+  )}
+</div>
 </header>
 
         {mensaje.texto && (
@@ -5399,6 +5886,87 @@ drawerFooter: {
     padding: 14,
     marginBottom: 16,
   },
+  
+  globalCartBackdrop: {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.58)",
+  backdropFilter: "blur(6px)",
+  zIndex: 120,
+  display: "flex",
+  justifyContent: "flex-end",
+},
+
+globalCartPanel: {
+  width: "100%",
+  maxWidth: 520,
+  height: "100vh",
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+  borderLeft: "1px solid rgba(255,255,255,0.08)",
+  boxShadow: "-20px 0 50px rgba(0,0,0,0.38)",
+  display: "flex",
+  flexDirection: "column",
+},
+
+globalCartHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 12,
+  padding: 20,
+  borderBottom: "1px solid rgba(255,255,255,0.06)",
+},
+
+globalCartTitle: {
+  margin: "8px 0 0 0",
+  fontSize: 38,
+  color: "#fff",
+  textTransform: "uppercase",
+  fontFamily: '"Bebas Neue", sans-serif',
+  letterSpacing: 1,
+  lineHeight: 0.95,
+},
+
+globalCartBody: {
+  flex: 1,
+  overflowY: "auto",
+  padding: 18,
+},
+
+globalCartFooter: {
+  borderTop: "1px solid rgba(255,255,255,0.08)",
+  padding: 18,
+  background:
+    "linear-gradient(180deg, rgba(12,12,12,0.96), rgba(8,8,8,1))",
+},
+
+globalCartActions: {
+  display: "grid",
+  gap: 10,
+},
+
+checkoutGuestPromptBox: {
+  background: "rgba(255,196,0,0.10)",
+  border: "1px solid rgba(255,196,0,0.18)",
+  color: "#ffd166",
+  borderRadius: 16,
+  padding: 16,
+  marginBottom: 16,
+},
+
+checkoutGuestPromptTitle: {
+  fontWeight: "bold",
+  fontSize: 16,
+  marginBottom: 8,
+},
+
+checkoutGuestPromptText: {
+  fontSize: 14,
+  lineHeight: 1.45,
+  marginBottom: 12,
+},
+  
 
   upsellTextWrap: {
     flex: 1,
