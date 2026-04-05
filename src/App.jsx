@@ -3428,7 +3428,7 @@ function renderCarritoDesktop() {
               <div style={styles.summaryRow}>
                 <span>{textoEntrega}</span>
                 <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                  Incluido
+                  {textoValorEntrega}
                 </span>
               </div>
 
@@ -4246,7 +4246,9 @@ function renderCarritoDesktop() {
 
               <div style={styles.checkoutMobileResumeRow}>
                 <span>{textoEntrega}</span>
-                <strong style={{ color: "#ffd166" }}>Incluido</strong>
+                <strong style={{ color: "#ffd166" }}>
+                  {textoValorEntrega}
+                </strong>
               </div>
 
               <div style={styles.checkoutMobileResumeTotal}>
