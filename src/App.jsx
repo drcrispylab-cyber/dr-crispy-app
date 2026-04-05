@@ -404,7 +404,10 @@ function App() {
   const audioRef = useRef(null);
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
-    const expressSectionRef = useRef(null);
+  const expressSectionRef = useRef(null);
+  
+  const LAB_DIRECCION = "Calle 52B # 24-95, Barrio Galan, Barrancabermeja";
+  const LAB_REFERENCIA = "Recogida en Dr. Crispy Lab";
 
   const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
@@ -2049,6 +2052,12 @@ function renderFranjaExpressActiva() {
         <div style={styles.expressActiveNoticeText}>
           Este pedido será para recoger en el lab. No se pedirá dirección ni referencia en el checkout.
         </div>
+        <div style={styles.expressActiveNoticeAddress}>
+          📍 {LAB_DIRECCION}
+        </div>
+        <div style={styles.expressActiveNoticeReference}>
+          {LAB_REFERENCIA}
+        </div>
       </div>
 
       <button
@@ -2853,6 +2862,24 @@ function renderCarritoDesktop() {
   );
 }
 
+function renderPickupInfoCard() {
+  if (tipoPedido !== "recoger") return null;
+
+  return (
+    <div style={styles.pickupInfoCard}>
+      <div style={styles.pickupInfoBadge}>⚡ RECOGIDA EN EL LAB</div>
+
+      <div style={styles.pickupInfoTitle}>
+        Recoge tu pedido en esta dirección
+      </div>
+
+      <div style={styles.pickupInfoAddress}>{LAB_DIRECCION}</div>
+
+      <div style={styles.pickupInfoReference}>{LAB_REFERENCIA}</div>
+    </div>
+  );
+}
+
   function renderCliente() {
   return (
     <>
@@ -3588,27 +3615,42 @@ function renderCarritoDesktop() {
                 onChange={(e) => actualizarCliente("telefono", e.target.value)}
               />
 
-              <Input
-                label="Dirección de entrega"
-                value={cliente.direccion}
-                onChange={(e) => actualizarCliente("direccion", e.target.value)}
-                disabled={Boolean(
-                  clienteSesion?.id &&
-                    direccionesCliente.length > 0 &&
-                    !usarOtraDireccion
-                )}
-              />
+              {tipoPedido === "domicilio" ? (
+  <>
+                <Input
+                  label="Dirección de entrega"
+                  value={cliente.direccion}
+                  onChange={(e) => actualizarCliente("direccion", e.target.value)}
+                  disabled={Boolean(
+                    clienteSesion?.id &&
+                      direccionesCliente.length > 0 &&
+                      !usarOtraDireccion
+                  )}
+                />
 
-              <Input
-                label="Referencia"
-                value={cliente.referencia}
-                onChange={(e) => actualizarCliente("referencia", e.target.value)}
-                disabled={Boolean(
-                  clienteSesion?.id &&
-                    direccionesCliente.length > 0 &&
-                    !usarOtraDireccion
-                )}
-              />
+                <Input
+                  label="Referencia"
+                  value={cliente.referencia}
+                  onChange={(e) => actualizarCliente("referencia", e.target.value)}
+                  disabled={Boolean(
+                    clienteSesion?.id &&
+                      direccionesCliente.length > 0 &&
+                      !usarOtraDireccion
+                  )}
+                />
+              </>
+            ) : (
+              <>
+                {renderPickupInfoCard()}
+
+                <Input
+                  label="Hora aproximada de recogida"
+                  value={horaRecogida}
+                  onChange={(e) => setHoraRecogida(e.target.value)}
+                  placeholder="Ej: 7:30 PM"
+                />
+              </>
+            )}
 
               <div style={{ marginBottom: 16 }}>
   <label style={styles.label}>Método de pago</label>
@@ -4126,37 +4168,42 @@ function renderCarritoDesktop() {
               onChange={(e) => actualizarCliente("telefono", e.target.value)}
             />
 
-                        {tipoPedido === "domicilio" ? (
+            {tipoPedido === "domicilio" ? (
               <>
-                <Input
-                  label="Dirección de entrega"
-                  value={cliente.direccion}
-                  onChange={(e) => actualizarCliente("direccion", e.target.value)}
-                  disabled={Boolean(
-                    clienteSesion?.id &&
-                      direccionesCliente.length > 0 &&
-                      !usarOtraDireccion
-                  )}
-                />
+              <Input
+                label="Dirección de entrega"
+                value={cliente.direccion}
+                onChange={(e) => actualizarCliente("direccion", e.target.value)}
+                disabled={Boolean(
+                  clienteSesion?.id &&
+                    direccionesCliente.length > 0 &&
+                    !usarOtraDireccion
+                )}
+              />
 
-                <Input
-                  label="Referencia"
-                  value={cliente.referencia}
-                  onChange={(e) => actualizarCliente("referencia", e.target.value)}
-                  disabled={Boolean(
-                    clienteSesion?.id &&
-                      direccionesCliente.length > 0 &&
-                      !usarOtraDireccion
-                  )}
-                />
-              </>
-            ) : (
+              <Input
+                label="Referencia"
+                value={cliente.referencia}
+                onChange={(e) => actualizarCliente("referencia", e.target.value)}
+                disabled={Boolean(
+                  clienteSesion?.id &&
+                    direccionesCliente.length > 0 &&
+                    !usarOtraDireccion
+                )}
+              />
+            </>
+          ) : (
+            <>
+              {renderPickupInfoCard()}
+
               <Input
                 label="Hora aproximada de recogida"
                 value={horaRecogida}
                 onChange={(e) => setHoraRecogida(e.target.value)}
+                placeholder="Ej: 7:30 PM"
               />
-            )}
+            </>
+          )}
 
             <div style={{ marginBottom: 16 }}>
               <label style={styles.label}>Método de pago</label>
@@ -7944,6 +7991,52 @@ kfcModalCloseBtn: {
   fontSize: 18,
   cursor: "pointer",
   flexShrink: 0,
+},
+
+pickupInfoCard: {
+  marginBottom: 16,
+  padding: 16,
+  borderRadius: 16,
+  background: "linear-gradient(180deg, rgba(255,209,102,0.14), rgba(255,209,102,0.06))",
+  border: "1px solid rgba(255,209,102,0.22)",
+  display: "grid",
+  gap: 6,
+},
+
+pickupInfoBadge: {
+  display: "inline-flex",
+  width: "fit-content",
+  padding: "6px 10px",
+  borderRadius: 999,
+  background: "rgba(17,17,17,0.9)",
+  color: "#ffd166",
+  fontWeight: "bold",
+  fontSize: 12,
+},
+
+pickupInfoTitle: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 16,
+},
+
+pickupInfoAddress: {
+  color: "#ffd166",
+  fontWeight: "bold",
+  lineHeight: 1.45,
+},
+
+pickupInfoReference: {
+  color: "#d8d8d8",
+  fontSize: 14,
+  lineHeight: 1.45,
+},
+
+expressActiveNoticeAddress: {
+  color: "#fff3c2",
+  fontWeight: "bold",
+  fontSize: 14,
+  lineHeight: 1.45,
 },
 
 kfcModalSection: {
