@@ -3479,6 +3479,12 @@ function renderPickupInfoCard() {
                 🔥 CONTINUAR PEDIDO
               </button>
 
+              {!laboratorioAbierto && (
+                <div style={styles.cartClosedHint}>
+                  🕒 Estamos fuera de horario. Puedes seguir armando tu pedido, pero solo podrás confirmarlo en horario de atención.
+                </div>
+              )}
+
             <div style={styles.cartTrustText}>
               ⚡ Recíbelo caliente. Domicilio incluido.
             </div>
@@ -3753,18 +3759,28 @@ function renderPickupInfoCard() {
   </div>
 
   <button
-    style={{
-      ...styles.confirmBtn,
-      ...(cargandoPedido ? styles.disabledBtn : {}),
-      marginTop: 0,
-    }}
-    onClick={async () => {
-      await confirmarPedido();
-    }}
-    disabled={cargandoPedido}
-  >
-    {cargandoPedido ? "Activando pedido..." : "🔥 CONFIRMAR PEDIDO"}
-  </button>
+  style={{
+    ...styles.confirmBtn,
+    ...((cargandoPedido || !laboratorioAbierto) ? styles.disabledBtn : {}),
+    marginTop: 0,
+  }}
+  onClick={async () => {
+    await confirmarPedido();
+  }}
+  disabled={cargandoPedido || !laboratorioAbierto}
+>
+  {!laboratorioAbierto
+    ? "🕒 FUERA DE HORARIO"
+    : cargandoPedido
+    ? "Activando pedido..."
+    : "🔥 CONFIRMAR PEDIDO"}
+</button>
+
+{!laboratorioAbierto && (
+  <div style={styles.checkoutClosedHint}>
+    Puedes dejar tu pedido listo, pero la confirmación se habilita en horario de atención.
+  </div>
+)}
 
   <div style={styles.checkoutTrustText}>
     ⚡ Pedido rápido, claro y listo para validar
@@ -3976,6 +3992,12 @@ function renderPickupInfoCard() {
                 🔥 CONTINUAR PEDIDO
               </button>
             </div>
+
+            {!laboratorioAbierto && (
+              <div style={styles.cartClosedHint}>
+                🕒 Estamos fuera de horario. Puedes seguir armando tu pedido, pero solo podrás confirmarlo en horario de atención.
+              </div>
+            )}
 
             <div style={styles.globalCartFooterHint}>
               {tipoPedido === "recoger"
@@ -4314,18 +4336,26 @@ function renderPickupInfoCard() {
               </button>
 
               <button
-                style={{
-                  ...styles.confirmBtn,
-                  ...(cargandoPedido ? styles.disabledBtn : {}),
-                  marginTop: 0,
-                }}
-                onClick={confirmarPedido}
-                disabled={cargandoPedido}
-              >
-                {cargandoPedido ? "Activando pedido..." : "🔥 CONFIRMAR PEDIDO"}
-              </button>
+  style={{
+    ...styles.confirmBtn,
+    ...((cargandoPedido || !laboratorioAbierto) ? styles.disabledBtn : {}),
+    marginTop: 0,
+  }}
+  onClick={confirmarPedido}
+  disabled={cargandoPedido || !laboratorioAbierto}
+>
+  {!laboratorioAbierto
+    ? "🕒 FUERA DE HORARIO"
+    : cargandoPedido
+    ? "Activando pedido..."
+    : "🔥 CONFIRMAR PEDIDO"}
+</button>
             </div>
-
+{!laboratorioAbierto && (
+  <div style={styles.checkoutClosedHint}>
+    Puedes dejar tu pedido listo, pero la confirmación se habilita en horario de atención.
+  </div>
+)}
                         <div style={styles.globalCartFooterHint}>
               {tipoPedido === "recoger"
                 ? "⚡ Recoge tu pedido directamente en el lab"
@@ -6271,7 +6301,30 @@ globalCartActions: {
   display: "grid",
   gap: 10,
 },
+cartClosedHint: {
+  marginTop: 12,
+  padding: 12,
+  borderRadius: 14,
+  background: "rgba(255, 209, 102, 0.10)",
+  border: "1px solid rgba(255, 209, 102, 0.22)",
+  color: "#ffd166",
+  fontSize: 13,
+  lineHeight: 1.45,
+  fontWeight: "bold",
+},
 
+checkoutClosedHint: {
+  marginTop: 12,
+  padding: 12,
+  borderRadius: 14,
+  background: "rgba(255, 80, 80, 0.10)",
+  border: "1px solid rgba(255, 80, 80, 0.22)",
+  color: "#ffb3b3",
+  fontSize: 13,
+  lineHeight: 1.45,
+  textAlign: "center",
+  fontWeight: "bold",
+},
 checkoutGuestPromptBox: {
   background: "rgba(255,196,0,0.10)",
   border: "1px solid rgba(255,196,0,0.18)",
