@@ -2047,16 +2047,13 @@ function renderFranjaExpressActiva() {
     >
       <div style={styles.expressActiveNoticeTextWrap}>
         <div style={styles.expressActiveNoticeTitle}>
-          ⚡ Estás en modo Express
+          ⚡ Modo Express activo
         </div>
         <div style={styles.expressActiveNoticeText}>
-          Este pedido será para recoger en el lab. No se pedirá dirección ni referencia en el checkout.
+          Este pedido será para recoger en el lab.
         </div>
         <div style={styles.expressActiveNoticeAddress}>
           📍 {LAB_DIRECCION}
-        </div>
-        <div style={styles.expressActiveNoticeReference}>
-          {LAB_REFERENCIA}
         </div>
       </div>
 
@@ -4389,12 +4386,6 @@ function renderPickupInfoCard() {
   )}
 </div>
 </header>
-        {vista === "cliente" && (
-          <>
-            {renderBarraModoPedido()}
-            {renderFranjaExpressActiva()}
-          </>
-        )}
         {mensaje.texto && (
           <div
             style={{
