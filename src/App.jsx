@@ -225,6 +225,31 @@ const ADICIONALES = [
   },
 ];
 
+const PROMOS_MIERCOLES = [
+  {
+    id: "miercoles-x6",
+    nombre: "Miércoles x6",
+    descripcion: "6 alitas + 1 porción de papas",
+    precio: 25900,
+    emoji: "🔥",
+    categoria: "promociones",
+    imagen: "/images/combo-individual.png",
+    badge: "SOLO MIÉRCOLES",
+    esPromo: true,
+  },
+  {
+    id: "miercoles-x12",
+    nombre: "Miércoles x12",
+    descripcion: "12 alitas + 2 porciones de papas",
+    precio: 44900,
+    emoji: "🚀",
+    categoria: "promociones",
+    imagen: "/images/combo-pareja.png",
+    badge: "SOLO MIÉRCOLES",
+    esPromo: true,
+  },
+];
+
 const SALSAS = [
   {
     nombre: "BBQ Reactor",
@@ -377,6 +402,7 @@ function App() {
   const audioRef = useRef(null);
   const pedidosInicialesCargadosRef = useRef(false);
   const toastTimerRef = useRef(null);
+    const expressSectionRef = useRef(null);
 
   const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
@@ -487,6 +513,14 @@ function App() {
   setPanelCarritoAbierto(false);
   setPanelCarritoVista("carrito");
 }
+  function abrirPanelAuth(modo = "login") {
+    setVista("cliente");
+    setSeccionCliente("inicio");
+    setClienteAuthModo(modo);
+    setMostrarPromptPerfil(false);
+    setPanelCarritoAbierto(true);
+    setPanelCarritoVista(modo === "registro" ? "auth_registro" : "auth_login");
+  }
 
 function irAlCheckoutDesdePanel() {
   if (!clienteSesion?.id) {
@@ -649,10 +683,7 @@ function irAlCheckoutDesdePanel() {
 }
 
   async function registrarCliente() {
-  console.log("🚀 ENTRÓ A registrarCliente");
-  console.log("📦 clienteRegistroData:", clienteRegistroData);
-  alert("Entró a registrarCliente");
-
+  
   try {
     if (
       !clienteRegistroData.nombre.trim() ||
@@ -825,160 +856,181 @@ function usarDireccionGuardada(direccionId) {
   });
 }
 
-  function agregarProducto(producto, target) {
-  const key = getCartKey(producto);
-  const existente = carrito.find((item) => item.cartKey === key);
+    function agregarProducto(producto, target) {
+    if (!laboratorioAbierto) {
+      mostrarMensaje(
+        "error",
+        `Ahora mismo estamos fuera de horario. Horario: ${horarioTexto}`
+      );
+    }
 
-  setBotonAnimando(key);
-  setCarritoAnimando(true);
-  setHeaderCartAnimando(true);
-  setPanelCarritoVista("carrito");
-  setPanelCarritoAbierto(true);
+    const key = getCartKey(producto);
+    const existente = carrito.find((item) => item.cartKey === key);
 
-  setTimeout(() => {
-    setBotonAnimando(null);
-  }, 220);
+    setBotonAnimando(key);
+    setCarritoAnimando(true);
+    setHeaderCartAnimando(true);
+    setPanelCarritoVista("carrito");
+    setPanelCarritoAbierto(true);
 
-  setTimeout(() => {
-    setCarritoAnimando(false);
-  }, 420);
+    setTimeout(() => {
+      setBotonAnimando(null);
+    }, 220);
 
-  setTimeout(() => {
-    setHeaderCartAnimando(false);
-  }, 520);
+    setTimeout(() => {
+      setCarritoAnimando(false);
+    }, 420);
 
-  if (existente) {
-    setCarrito((prev) =>
-      prev.map((item) =>
-        item.cartKey === key
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
-      )
-    );
+    setTimeout(() => {
+      setHeaderCartAnimando(false);
+    }, 520);
+
+    if (existente) {
+      setCarrito((prev) =>
+        prev.map((item) =>
+          item.cartKey === key
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        )
+      );
+
+      mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
+      return;
+    }
+
+    setCarrito((prev) => [
+      ...prev,
+      {
+        ...producto,
+        cantidad: 1,
+        cartKey: key,
+        experimento: producto.experimento || "Experimento 1",
+        categoriaExperimento:
+          producto.categoriaExperimento || "Alitas Crispy",
+        esPromo: Boolean(producto.esPromo),
+      },
+    ]);
 
     mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
-    return;
   }
 
-  setCarrito((prev) => [
-    ...prev,
-    {
+    function agregarProductoDirecto(producto, cantidad = 1, target = null) {
+    if (!laboratorioAbierto) {
+      mostrarMensaje(
+        "error",
+        `Ahora mismo estamos fuera de horario. Horario: ${horarioTexto}`
+      );
+    }
+
+    const nuevoProducto = {
       ...producto,
-      cantidad: 1,
-      cartKey: key,
+      cantidad,
+      cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
       experimento: producto.experimento || "Experimento 1",
       categoriaExperimento:
         producto.categoriaExperimento || "Alitas Crispy",
-    },
-  ]);
+      esPromo: Boolean(producto.esPromo),
+    };
 
-  mostrarToast(`✅ ${producto.nombre} agregado a tu pedido`, target);
-}
+    setPanelCarritoVista("carrito");
+    setPanelCarritoAbierto(true);
+    setCarritoAnimando(true);
+    setHeaderCartAnimando(true);
 
-  function agregarProductoDirecto(producto, cantidad = 1, target = null) {
-  const nuevoProducto = {
-    ...producto,
-    cantidad,
-    cartKey: `${producto.id}-${producto.salsa || "sin-salsa"}`,
-    experimento: producto.experimento || "Experimento 1",
-    categoriaExperimento:
-      producto.categoriaExperimento || "Alitas Crispy",
-  };
+    setTimeout(() => {
+      setCarritoAnimando(false);
+    }, 420);
 
-  setPanelCarritoVista("carrito");
-  setPanelCarritoAbierto(true);
-  setCarritoAnimando(true);
-  setHeaderCartAnimando(true);
+    setTimeout(() => {
+      setHeaderCartAnimando(false);
+    }, 520);
 
-  setTimeout(() => {
-    setCarritoAnimando(false);
-  }, 420);
-
-  setTimeout(() => {
-    setHeaderCartAnimando(false);
-  }, 520);
-
-  setCarrito((prev) => {
-    const existente = prev.find(
-      (item) => item.cartKey === nuevoProducto.cartKey
-    );
-
-    if (existente) {
-      return prev.map((item) =>
-        item.cartKey === nuevoProducto.cartKey
-          ? { ...item, cantidad: item.cantidad + cantidad }
-          : item
+    setCarrito((prev) => {
+      const existente = prev.find(
+        (item) => item.cartKey === nuevoProducto.cartKey
       );
+
+      if (existente) {
+        return prev.map((item) =>
+          item.cartKey === nuevoProducto.cartKey
+            ? { ...item, cantidad: item.cantidad + cantidad }
+            : item
+        );
+      }
+
+      return [...prev, nuevoProducto];
+    });
+
+    if (target) {
+      mostrarToast(`✅ ${producto.nombre} agregado`, target);
     }
-
-    return [...prev, nuevoProducto];
-  });
-
-  if (target) {
-    mostrarToast(`✅ ${producto.nombre} agregado`, target);
   }
-}
 
-  function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
-  const salsaFinal = salsaSeleccionada || "BBQ Reactor";
-  const cartKey = `${combo.id}-combo-${salsaFinal}`;
-
-  setPanelCarritoVista("carrito");
-  setPanelCarritoAbierto(true);
-  setHeaderCartAnimando(true);
-
-  setCarrito((prev) => {
-    const existente = prev.find((item) => item.cartKey === cartKey);
-
-    if (existente) {
-      return prev.map((item) =>
-        item.cartKey === cartKey
-          ? { ...item, cantidad: item.cantidad + 1 }
-          : item
+    function agregarCombo(combo, target = null, salsaSeleccionada = "BBQ Reactor") {
+    if (!laboratorioAbierto) {
+      mostrarMensaje(
+        "error",
+        `Ahora mismo estamos fuera de horario. Horario: ${horarioTexto}`
       );
     }
 
-    return [
-      ...prev,
-      {
-        id: combo.id,
-        nombre: combo.nombre,
-        descripcion: combo.descripcion,
-        precio: combo.precio,
-        cantidad: 1,
-        cartKey,
-        esCombo: true,
-        badge: combo.badge,
-        emoji: combo.emoji,
-        salsa: salsaFinal,
-        experimento: "Combos del Lab",
-        categoriaExperimento: "Combos del Lab",
-        detalleCombo: combo.itemsInternos.map((item) => {
-          if (item.nombre.toLowerCase().includes("alitas")) {
-            return {
-              ...item,
-              salsa: salsaFinal,
-            };
-          }
+    const salsaFinal = salsaSeleccionada || "BBQ Reactor";
+    const cartKey = `${combo.id}-combo-${salsaFinal}`;
 
-          return { ...item };
-        }),
-      },
-    ];
-  });
+    setPanelCarritoVista("carrito");
+    setPanelCarritoAbierto(true);
+    setHeaderCartAnimando(true);
 
-  setCarritoAnimando(true);
-  setTimeout(() => setCarritoAnimando(false), 650);
+    setCarrito((prev) => {
+      const existente = prev.find((item) => item.cartKey === cartKey);
 
-  setTimeout(() => {
-    setHeaderCartAnimando(false);
-  }, 520);
+      if (existente) {
+        return prev.map((item) =>
+          item.cartKey === cartKey
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
+      }
 
-  mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
-}
+      return [
+        ...prev,
+        {
+          id: combo.id,
+          nombre: combo.nombre,
+          descripcion: combo.descripcion,
+          precio: combo.precio,
+          cantidad: 1,
+          cartKey,
+          esCombo: true,
+          badge: combo.badge,
+          emoji: combo.emoji,
+          salsa: salsaFinal,
+          experimento: combo.experimento || "Combos del Lab",
+          categoriaExperimento:
+            combo.categoriaExperimento || "Combos del Lab",
+          detalleCombo: combo.itemsInternos.map((item) => {
+            if (item.nombre.toLowerCase().includes("alitas")) {
+              return {
+                ...item,
+                salsa: salsaFinal,
+              };
+            }
 
-  function prepararCombo(combo, target = null) {
-    setComboPendiente({ combo, target });
+            return { ...item };
+          }),
+          esPromo: Boolean(combo.esPromo),
+        },
+      ];
+    });
+
+    setCarritoAnimando(true);
+    setTimeout(() => setCarritoAnimando(false), 650);
+
+    setTimeout(() => {
+      setHeaderCartAnimando(false);
+    }, 520);
+
+    mostrarToast(`🔥 ${combo.nombre} agregado con ${salsaFinal}`, target);
   }
 
   function seleccionarSalsa(producto, salsa, target) {
@@ -1020,12 +1072,54 @@ function usarDireccionGuardada(direccionId) {
     return null;
   }
 
+   const ahoraBogota = useMemo(() => {
+    return new Date(
+      new Date().toLocaleString("en-US", { timeZone: "America/Bogota" })
+    );
+  }, []);
+
+  const diaSemana = ahoraBogota.getDay(); // 0 domingo, 1 lunes, 2 martes...
+  const horaActualMinutos =
+    ahoraBogota.getHours() * 60 + ahoraBogota.getMinutes();
+
+  const esMiercolesPromo = diaSemana === 3;
+
+  const horarioTexto =
+    "Martes a sábado: 4:00 PM a 9:00 PM • Domingos y lunes festivos: 12:00 PM a 9:00 PM";
+
+  const laboratorioAbierto = useMemo(() => {
+    const HORA_CIERRE = 21 * 60;
+
+    // Domingo
+    if (diaSemana === 0) {
+      return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
+    }
+
+    // Lunes
+    if (diaSemana === 1) {
+      return false;
+    }
+
+    // Martes a sábado
+    return horaActualMinutos >= 16 * 60 && horaActualMinutos < HORA_CIERRE;
+  }, [diaSemana, horaActualMinutos]);
+
   const subtotal = useMemo(() => {
     return carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
   }, [carrito]);
 
-  const domicilio = 0;
-  const total = subtotal;
+  const carritoTienePromos = useMemo(() => {
+    return carrito.some((item) => item.esPromo);
+  }, [carrito]);
+
+  const domicilio = useMemo(() => {
+    // Si hay promo en el carrito, NO aplica domicilio incluido
+    if (carritoTienePromos) return 5000;
+
+    return 0;
+  }, [carritoTienePromos]);
+
+  const total = subtotal + domicilio;
 
   const pedidosDelDia = useMemo(() => {
     const hoy = new Date().toLocaleDateString("es-CO");
@@ -1090,7 +1184,11 @@ function usarDireccionGuardada(direccionId) {
       ),
       "",
       `Subtotal: $${subtotal.toLocaleString("es-CO")}`,
-      "Domicilio: Incluido",
+            `Domicilio: ${
+        domicilio === 0
+          ? "Incluido"
+          : `$${domicilio.toLocaleString("es-CO")}`
+      }`,
       `Total: *$${total.toLocaleString("es-CO")}*`,
     ];
 
@@ -1174,7 +1272,15 @@ function usarDireccionGuardada(direccionId) {
     ventana.print();
   }
 
-  async function confirmarPedido() {
+    async function confirmarPedido() {
+    if (!laboratorioAbierto) {
+      mostrarMensaje(
+        "error",
+        `Estamos fuera de horario. ${horarioTexto}`
+      );
+      return;
+    }
+
     const errorValidacion = validarCliente();
 
     if (errorValidacion) {
@@ -1990,6 +2096,43 @@ function renderCatalogCard({
   );
 }
 
+  function renderMiercolesPromoSection() {
+    if (!esMiercolesPromo) return null;
+
+    return (
+      <section style={styles.panel}>
+        <div style={styles.catalogHeader}>
+          <div style={styles.menuInteractiveBadge}>🔥 SOLO HOY</div>
+          <h2 style={styles.catalogTitle}>MIÉRCOLES DE PROMOCIÓN</h2>
+          <p style={styles.catalogText}>
+            Promos activas del laboratorio solo por hoy. En promociones no aplica domicilio incluido.
+          </p>
+        </div>
+
+        <div
+          style={{
+            ...styles.comboGrid,
+            gridTemplateColumns: esMovil
+              ? "1fr"
+              : "repeat(2, minmax(0, 1fr))",
+          }}
+        >
+          {PROMOS_MIERCOLES.map((promo) =>
+            renderCatalogCard({
+              id: `promo-${promo.id}`,
+              nombre: promo.nombre,
+              descripcion: promo.descripcion,
+              precio: promo.precio,
+              imagen: promo.imagen,
+              badge: promo.badge || "PROMO",
+              onAgregar: (e) => agregarProductoDirecto(promo, 1, e.currentTarget),
+            })
+          )}
+        </div>
+      </section>
+    );
+  }
+
 function renderCategoriasVisuales() {
   const categorias = [
     {
@@ -2618,10 +2761,13 @@ function renderCarritoDesktop() {
       </section>
 
       {/* 🔥 BLOQUE CORRECTO */}
-      {seccionCliente === "inicio" && (
+            {seccionCliente === "inicio" && (
         <>
           {renderHeroInicio()}
-          {renderExpressSection()}
+          <div ref={expressSectionRef}>
+            {renderExpressSection()}
+          </div>
+          {renderMiercolesPromoSection()}
           {renderCategoriasVisuales()}
           {renderCatalogoExperimentos()}
         </>
@@ -3963,10 +4109,12 @@ function renderCarritoDesktop() {
 
           <div style={styles.globalCartFooterPro}>
             <div style={styles.globalCartActions}>
-              <button
+                            <button
                 type="button"
                 style={styles.secondaryBtn}
-                onClick={() => setPanelCarritoVista("checkout")}
+                onClick={() =>
+                  setPanelCarritoVista(carrito.length > 0 ? "checkout" : "carrito")
+                }
               >
                 ← Volver
               </button>
@@ -4076,10 +4224,12 @@ function renderCarritoDesktop() {
 
           <div style={styles.globalCartFooterPro}>
             <div style={styles.globalCartActions}>
-              <button
+                            <button
                 type="button"
                 style={styles.secondaryBtn}
-                onClick={() => setPanelCarritoVista("checkout")}
+                onClick={() =>
+                  setPanelCarritoVista(carrito.length > 0 ? "checkout" : "carrito")
+                }
               >
                 ← Volver
               </button>
@@ -4147,33 +4297,35 @@ function renderCarritoDesktop() {
   </div>
 
   <div style={styles.navButtons}>
-  <button
+    <button
     style={{
       ...styles.navBtn,
-      ...(vista === "cliente" ? styles.navBtnActive : {}),
+      ...(vista === "cliente" && seccionCliente === "inicio"
+        ? styles.navBtnActive
+        : {}),
     }}
     onClick={() => {
       setVista("cliente");
       setSeccionCliente("inicio");
+      setPanelCarritoAbierto(false);
+      setPanelCarritoVista("carrito");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }}
   >
     Inicio
   </button>
 
-  {!clienteSesion?.id ? (
+    {!clienteSesion?.id ? (
     <>
       <button
         type="button"
         style={{
           ...styles.navBtn,
-          ...(clienteAuthModo === "login" ? styles.navBtnActive : {}),
+          ...(panelCarritoAbierto && panelCarritoVista === "auth_login"
+            ? styles.navBtnActive
+            : {}),
         }}
-        onClick={() => {
-          setVista("cliente");
-          setSeccionCliente("inicio");
-          setClienteAuthModo("login");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
+        onClick={() => abrirPanelAuth("login")}
       >
         Ingresar
       </button>
@@ -4182,14 +4334,11 @@ function renderCarritoDesktop() {
         type="button"
         style={{
           ...styles.navBtn,
-          ...(clienteAuthModo === "registro" ? styles.navBtnActive : {}),
+          ...(panelCarritoAbierto && panelCarritoVista === "auth_registro"
+            ? styles.navBtnActive
+            : {}),
         }}
-        onClick={() => {
-          setVista("cliente");
-          setSeccionCliente("inicio");
-          setClienteAuthModo("registro");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
+        onClick={() => abrirPanelAuth("registro")}
       >
         Crear perfil
       </button>
@@ -4200,17 +4349,20 @@ function renderCarritoDesktop() {
         👤 {clienteSesion.nombre || "Cliente"}
       </div>
 
-      <button
+            <button
         type="button"
         style={{
           ...styles.navBtn,
-          ...(clienteAuthModo === "perfil" ? styles.navBtnActive : {}),
+          ...(panelCarritoAbierto && panelCarritoVista === "checkout"
+            ? styles.navBtnActive
+            : {}),
         }}
         onClick={() => {
           setVista("cliente");
           setSeccionCliente("inicio");
-          setClienteAuthModo("perfil");
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          setMostrarPromptPerfil(false);
+          setPanelCarritoAbierto(true);
+          setPanelCarritoVista("checkout");
         }}
       >
         Mi perfil
