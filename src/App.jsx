@@ -1082,7 +1082,7 @@ function usarDireccionGuardada(direccionId) {
   const horaActualMinutos =
     ahoraBogota.getHours() * 60 + ahoraBogota.getMinutes();
 
-  const esMiercolesPromo = diaSemana === 3;
+  const esMiercolesPromo = true;
 
   const horarioTexto =
     "Martes a sábado: 4:00 PM a 9:00 PM • Domingos y lunes festivos: 12:00 PM a 9:00 PM";
