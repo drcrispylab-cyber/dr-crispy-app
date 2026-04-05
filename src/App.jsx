@@ -319,6 +319,8 @@ function App() {
     referencia: "",
     pago: "Llave",
   });
+  const [tipoPedido, setTipoPedido] = useState("domicilio");
+  const [horaRecogida, setHoraRecogida] = useState("");
 
   const [clienteSesion, setClienteSesion] = useState(() => {
     try {
@@ -1061,13 +1063,21 @@ function usarDireccionGuardada(direccionId) {
     setCliente((prev) => ({ ...prev, [campo]: valor }));
   }
 
-  function validarCliente() {
+    function validarCliente() {
     if (!cliente.nombre.trim()) return "Completa el nombre.";
     if (!cliente.telefono.trim()) return "Completa el teléfono.";
     if (!/^[0-9+\-\s]{7,20}$/.test(cliente.telefono.trim())) {
       return "El teléfono no parece válido.";
     }
-    if (!cliente.direccion.trim()) return "Completa la dirección.";
+
+    if (tipoPedido === "domicilio" && !cliente.direccion.trim()) {
+      return "Completa la dirección.";
+    }
+
+    if (tipoPedido === "recoger" && !horaRecogida.trim()) {
+      return "Indica la hora aproximada de recogida.";
+    }
+
     if (carrito.length === 0) return "Agrega al menos un producto.";
     return null;
   }
@@ -1112,14 +1122,24 @@ function usarDireccionGuardada(direccionId) {
     return carrito.some((item) => item.esPromo);
   }, [carrito]);
 
-  const domicilio = useMemo(() => {
+    const domicilio = useMemo(() => {
+    if (tipoPedido === "recoger") return 0;
+
     // Si hay promo en el carrito, NO aplica domicilio incluido
     if (carritoTienePromos) return 5000;
 
     return 0;
-  }, [carritoTienePromos]);
+  }, [carritoTienePromos, tipoPedido]);
 
   const total = subtotal + domicilio;
+  const textoEntrega = tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio";
+
+  const textoValorEntrega =
+    tipoPedido === "recoger"
+      ? "Sin costo"
+      : domicilio === 0
+      ? "Incluido"
+      : `$${domicilio.toLocaleString("es-CO")}`;
 
   const pedidosDelDia = useMemo(() => {
     const hoy = new Date().toLocaleDateString("es-CO");
@@ -1164,13 +1184,18 @@ function usarDireccionGuardada(direccionId) {
   }, [pedidos]);
 
   function construirTextoWhatsApp() {
-    const lineas = [
+        const lineas = [
       "🔥 *QUIERO ACTIVAR ESTE EXPERIMENTO*",
       "",
       `👤 Cliente: ${cliente.nombre || "-"}`,
       `📞 Teléfono: ${cliente.telefono || "-"}`,
-      `📍 Dirección: ${cliente.direccion || "-"}`,
-      `📝 Referencia: ${cliente.referencia || "-"}`,
+      `🛍️ Tipo de pedido: ${textoEntrega}`,
+      ...(tipoPedido === "domicilio"
+        ? [
+            `📍 Dirección: ${cliente.direccion || "-"}`,
+            `📝 Referencia: ${cliente.referencia || "-"}`,
+          ]
+        : [`⏰ Hora de recogida: ${horaRecogida || "-"}`]),
       `💳 Pago: ${cliente.pago || "-"}`,
       "",
       "*Productos:*",
@@ -1184,11 +1209,7 @@ function usarDireccionGuardada(direccionId) {
       ),
       "",
       `Subtotal: $${subtotal.toLocaleString("es-CO")}`,
-            `Domicilio: ${
-        domicilio === 0
-          ? "Incluido"
-          : `$${domicilio.toLocaleString("es-CO")}`
-      }`,
+      `${textoEntrega}: ${textoValorEntrega}`,
       `Total: *$${total.toLocaleString("es-CO")}*`,
     ];
 
@@ -1291,12 +1312,12 @@ function usarDireccionGuardada(direccionId) {
     try {
       setCargandoPedido(true);
 
-      const clienteLimpio = {
+            const clienteLimpio = {
         ...cliente,
         nombre: cliente.nombre.trim(),
         telefono: cliente.telefono.trim(),
-        direccion: cliente.direccion.trim(),
-        referencia: cliente.referencia.trim(),
+        direccion: tipoPedido === "domicilio" ? cliente.direccion.trim() : "Recoge en el lab",
+        referencia: tipoPedido === "domicilio" ? cliente.referencia.trim() : `Hora de recogida: ${horaRecogida}`,
       };
 
       const response = await fetch(`${API_URL}/pedidos`, {
@@ -1317,6 +1338,8 @@ function usarDireccionGuardada(direccionId) {
           domicilio,
           total,
           metodoPago: cliente.pago,
+          tipoPedido,
+          horaRecogida,
         }),
       });
 
@@ -1967,9 +1990,12 @@ function renderCatalogCard({
         </div>
 
         <div style={styles.heroActionRow}>
-          <button
+                    <button
             style={styles.heroPrimaryBtn}
-            onClick={() => entrarExperimento1()}
+            onClick={() => {
+              setTipoPedido("domicilio");
+              entrarExperimento1();
+            }}
           >
             Pedir ahora
           </button>
@@ -2048,53 +2074,71 @@ function renderCatalogCard({
   );
 }
 
-  function renderExpressSection() {
-  return (
-    <section style={styles.expressSection}>
-      <div style={styles.expressInner}>
-        <div style={styles.expressBadge}>⚡ DR. CRISPY LAB EXPRESS</div>
+    function renderExpressSection() {
+    return (
+      <section style={styles.expressSection}>
+        <div style={styles.expressInner}>
+          <div style={styles.expressBadge}>⚡ DR. CRISPY LAB EXPRESS</div>
 
-        <div
-          style={{
-            ...styles.expressContent,
-            gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
-          }}
-        >
-          <div style={styles.expressTextBlock}>
-            <h2 style={styles.expressTitle}>PIDE Y RECOGE EN EL LAB</h2>
-            <p style={styles.expressText}>
-              Haz tu pedido, pasa por él y recógelo en aproximadamente 40 minutos.
-            </p>
+          <div
+            style={{
+              ...styles.expressContent,
+              gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
+            }}
+          >
+            <div style={styles.expressTextBlock}>
+              <h2 style={styles.expressTitle}>PIDE Y RECOGE EN EL LAB</h2>
+              <p style={styles.expressText}>
+                Haz tu pedido y recógelo directamente en el laboratorio. Ideal
+                para quienes quieren pasar por él sin esperar domicilio.
+              </p>
 
-            <div style={styles.expressPills}>
-              <div style={styles.expressPill}>⏱️ Listo en 40 min</div>
-              <div style={styles.expressPill}>📍 Recoge en punto</div>
-              <div style={styles.expressPill}>🔥 Más rápido</div>
+              <div style={styles.expressPills}>
+                <div style={styles.expressPill}>⏱️ Más rápido</div>
+                <div style={styles.expressPill}>📍 Recoge en el lab</div>
+                <div style={styles.expressPill}>🔥 Flujo express</div>
+              </div>
+
+              <div style={styles.heroActionRow}>
+                <button
+                  style={styles.heroPrimaryBtn}
+                  onClick={() => {
+                    setTipoPedido("recoger");
+                    setHoraRecogida("");
+                    setPanelCarritoAbierto(true);
+                    setPanelCarritoVista("checkout");
+                    setMostrarPromptPerfil(!clienteSesion?.id);
+                  }}
+                >
+                  Pedir para recoger
+                </button>
+
+                <button
+                  style={styles.heroSecondaryBtn}
+                  onClick={() => {
+                    setTipoPedido("recoger");
+                    setPanelCarritoAbierto(true);
+                    setPanelCarritoVista("checkout");
+                    setMostrarPromptPerfil(!clienteSesion?.id);
+                  }}
+                >
+                  Elegir hora
+                </button>
+              </div>
             </div>
 
-            <div style={styles.heroActionRow}>
-              <button style={styles.heroPrimaryBtn}>
-                Pedir para recoger
-              </button>
-
-              <button style={styles.heroSecondaryBtn}>
-                Elegir hora
-              </button>
+            <div style={styles.expressVisual}>
+              <img
+                src="/images/categoria-express.png"
+                alt="Dr Crispy Lab Express"
+                style={styles.expressImage}
+              />
             </div>
-          </div>
-
-          <div style={styles.expressVisual}>
-            <img
-              src="/images/categoria-express.png"
-              alt="Dr Crispy Lab Express"
-              style={styles.expressImage}
-            />
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
+    );
+  }
 
   function renderMiercolesPromoSection() {
     if (!esMiercolesPromo) return null;
@@ -3542,9 +3586,9 @@ function renderCarritoDesktop() {
     </div>
 
     <div style={styles.checkoutMobileResumeRow}>
-      <span>Domicilio</span>
-      <strong style={{ color: "#ffd166" }}>Incluido</strong>
-    </div>
+  <span>{textoEntrega}</span>
+  <strong style={{ color: "#ffd166" }}>{textoValorEntrega}</strong>
+</div>
 
     <div style={styles.checkoutMobileResumeTotal}>
       <span>Total del pedido</span>
@@ -3746,9 +3790,9 @@ function renderCarritoDesktop() {
               </div>
 
               <div style={styles.summaryRow}>
-                <span>Domicilio</span>
+                <span>{textoEntrega}</span>
                 <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                  Incluido
+                  {textoValorEntrega}
                 </span>
               </div>
 
@@ -3787,6 +3831,51 @@ function renderCarritoDesktop() {
       {panelCarritoVista === "checkout" && (
         <>
           <div style={styles.globalCartBody}>
+                        <div style={{ marginBottom: 16 }}>
+              <label style={styles.label}>Tipo de pedido</label>
+
+              <div style={styles.paymentMethodGrid}>
+                <button
+                  type="button"
+                  style={{
+                    ...styles.paymentMethodCard,
+                    ...(tipoPedido === "domicilio"
+                      ? styles.paymentMethodCardActive
+                      : {}),
+                  }}
+                  onClick={() => setTipoPedido("domicilio")}
+                >
+                  <div style={styles.paymentMethodIcon}>🚚</div>
+                  <div style={styles.paymentMethodInfo}>
+                    <div style={styles.paymentMethodTitle}>Domicilio</div>
+                    <div style={styles.paymentMethodText}>Entrega a tu dirección</div>
+                    <div style={styles.paymentMethodHint}>
+                      Incluido excepto promociones
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  style={{
+                    ...styles.paymentMethodCard,
+                    ...(tipoPedido === "recoger"
+                      ? styles.paymentMethodCardActive
+                      : {}),
+                  }}
+                  onClick={() => setTipoPedido("recoger")}
+                >
+                  <div style={styles.paymentMethodIcon}>📍</div>
+                  <div style={styles.paymentMethodInfo}>
+                    <div style={styles.paymentMethodTitle}>Recoger en el lab</div>
+                    <div style={styles.paymentMethodText}>Pasa por tu pedido</div>
+                    <div style={styles.paymentMethodHint}>
+                      Más rápido y sin domicilio
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
             {mostrarPromptPerfil && !clienteSesion?.id && (
               <div style={styles.checkoutGuestPromptBox}>
                 <div style={styles.checkoutGuestPromptTitle}>
@@ -3921,27 +4010,37 @@ function renderCarritoDesktop() {
               onChange={(e) => actualizarCliente("telefono", e.target.value)}
             />
 
-            <Input
-              label="Dirección de entrega"
-              value={cliente.direccion}
-              onChange={(e) => actualizarCliente("direccion", e.target.value)}
-              disabled={Boolean(
-                clienteSesion?.id &&
-                  direccionesCliente.length > 0 &&
-                  !usarOtraDireccion
-              )}
-            />
+                        {tipoPedido === "domicilio" ? (
+              <>
+                <Input
+                  label="Dirección de entrega"
+                  value={cliente.direccion}
+                  onChange={(e) => actualizarCliente("direccion", e.target.value)}
+                  disabled={Boolean(
+                    clienteSesion?.id &&
+                      direccionesCliente.length > 0 &&
+                      !usarOtraDireccion
+                  )}
+                />
 
-            <Input
-              label="Referencia"
-              value={cliente.referencia}
-              onChange={(e) => actualizarCliente("referencia", e.target.value)}
-              disabled={Boolean(
-                clienteSesion?.id &&
-                  direccionesCliente.length > 0 &&
-                  !usarOtraDireccion
-              )}
-            />
+                <Input
+                  label="Referencia"
+                  value={cliente.referencia}
+                  onChange={(e) => actualizarCliente("referencia", e.target.value)}
+                  disabled={Boolean(
+                    clienteSesion?.id &&
+                      direccionesCliente.length > 0 &&
+                      !usarOtraDireccion
+                  )}
+                />
+              </>
+            ) : (
+              <Input
+                label="Hora aproximada de recogida"
+                value={horaRecogida}
+                onChange={(e) => setHoraRecogida(e.target.value)}
+              />
+            )}
 
             <div style={{ marginBottom: 16 }}>
               <label style={styles.label}>Método de pago</label>
@@ -4062,8 +4161,10 @@ function renderCarritoDesktop() {
               </button>
             </div>
 
-            <div style={styles.globalCartFooterHint}>
-              ⚡ Estás a un paso de confirmar tu experimento
+                        <div style={styles.globalCartFooterHint}>
+              {tipoPedido === "recoger"
+                ? "⚡ Recoge tu pedido directamente en el lab"
+                : "⚡ Estás a un paso de confirmar tu experimento"}
             </div>
           </div>
         </>
