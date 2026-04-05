@@ -2190,76 +2190,78 @@ function renderFranjaExpressActiva() {
 }
 
     function renderExpressSection() {
-    return (
-      <section style={styles.expressSection}>
-        <div style={styles.expressInner}>
-          <div style={styles.expressBadge}>⚡ DR. CRISPY LAB EXPRESS</div>
+  return (
+    <section style={styles.expressSection}>
+      <div style={styles.expressInner}>
+        <div style={styles.expressBadge}>⚡ DR. CRISPY LAB EXPRESS</div>
 
-          <div
-            style={{
-              ...styles.expressContent,
-              gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
-            }}
-          >
-            <div style={styles.expressTextBlock}>
-              <h2 style={styles.expressTitle}>PIDE Y RECOGE EN EL LAB</h2>
-              <p style={styles.expressText}>
-                Haz tu pedido y recógelo directamente en el laboratorio. Ideal
-                para quienes quieren pasar por él sin esperar domicilio.
-              </p>
+        <div
+          style={{
+            ...styles.expressContent,
+            gridTemplateColumns: esMovil ? "1fr" : "1.1fr 0.9fr",
+          }}
+        >
+          <div style={styles.expressTextBlock}>
+            <h2 style={styles.expressTitle}>PIDE Y RECOGE EN EL LAB</h2>
 
-              <div style={styles.expressPills}>
-                <div style={styles.expressPill}>⏱️ Más rápido</div>
-                <div style={styles.expressPill}>📍 Recoge en el lab</div>
-                <div style={styles.expressPill}>🔥 Flujo express</div>
-              </div>
+            <p style={styles.expressText}>
+              Haz tu pedido y recógelo directamente en el laboratorio. Ideal
+              para quienes quieren pasar por él sin esperar domicilio.
+            </p>
 
-              <div style={styles.heroActionRow}>
-                <button
-                  style={styles.heroPrimaryBtn}
-                  onClick={() => {
-                    activarModoPedido("recoger");
-                    setPanelCarritoAbierto(false);
-                    setDrawerCarritoAbierto(false);
-                    setCheckoutMovilAbierto(false);
-                    setPanelCarritoVista("carrito");
-                    setVista("cliente");
-                    setSeccionCliente("combos");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  Pedir para recoger
-                </button>
+            <div style={styles.expressPills}>
+              <div style={styles.expressPill}>⏱️ Más rápido</div>
+              <div style={styles.expressPill}>📍 Recoge en el lab</div>
+              <div style={styles.expressPill}>🔥 Flujo express</div>
+            </div>
 
-                <button
-                  style={styles.heroSecondaryBtn}
-                  onClick={() => {
-                    activarModoPedido("recoger");
-                    setPanelCarritoAbierto(false);
-                    setDrawerCarritoAbierto(false);
-                    setCheckoutMovilAbierto(false);
-                    setPanelCarritoVista("carrito");
-                    setVista("cliente");
-                    setSeccionCliente("combos");
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                >
-                  Elegir hora
-                </button>
-              </div>
+            <div style={styles.heroActionRow}>
+              <button
+                style={styles.heroPrimaryBtn}
+                onClick={() => {
+                  activarModoPedido("recoger");
+                  setPanelCarritoAbierto(false);
+                  setDrawerCarritoAbierto(false);
+                  setCheckoutMovilAbierto(false);
+                  setPanelCarritoVista("carrito");
+                  setVista("cliente");
+                  setSeccionCliente("combos");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Pedir para recoger
+              </button>
 
-            <div style={styles.expressVisual}>
-              <img
-                src="/images/categoria-express.png"
-                alt="Dr Crispy Lab Express"
-                style={styles.expressImage}
-              />
+              <button
+                style={styles.heroSecondaryBtn}
+                onClick={() => {
+                  activarModoPedido("recoger");
+                  setPanelCarritoAbierto(false);
+                  setDrawerCarritoAbierto(false);
+                  setCheckoutMovilAbierto(false);
+                  setPanelCarritoVista("carrito");
+                  setVista("cliente");
+                  setSeccionCliente("combos");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              >
+                Elegir hora
+              </button>
             </div>
           </div>
+
+          <div style={styles.expressVisual}>
+            <img
+              src="/images/categoria-express.png"
+              alt="Dr Crispy Lab Express"
+              style={styles.expressImage}
+            />
+          </div>
         </div>
-      </section>
-    );
-  }
+      </div>
+    </section>
+  );
+}
 
   function renderMiercolesPromoSection() {
     if (!esMiercolesPromo) return null;
@@ -3978,403 +3980,47 @@ function renderPickupInfoCard() {
             </div>
 
             <div style={styles.globalCartActions}>
-  <button
-    type="button"
-    style={styles.secondaryBtn}
-    onClick={cerrarPanelCarrito}
-  >
-    Seguir comprando
-  </button>
-
-  <button
-    type="button"
-    style={{ ...styles.confirmBtn, marginTop: 0 }}
-    onClick={irAlCheckoutDesdePanel}
-    disabled={carrito.length === 0}
-  >
-    🔥 CONTINUAR PEDIDO
-  </button>
-</div>
-
-<div
-  style={{
-    ...styles.cartStatusBar,
-    ...(laboratorioAbierto
-      ? styles.cartStatusBarOpen
-      : styles.cartStatusBarClosed),
-  }}
->
-  {laboratorioAbierto ? (
-    <span>🟢 Estamos atendiendo. Tu pedido se preparará de inmediato.</span>
-  ) : (
-    <span>
-      🕒 Estamos fuera de horario. Puedes armar tu pedido, pero solo podrás
-      confirmarlo en horario de atención.
-    </span>
-  )}
-</div>
-
-<div style={styles.globalCartFooterHint}>
-  {tipoPedido === "recoger"
-    ? "⚡ Express activado para recoger en el lab"
-    : "⚡ Pedido rápido, claro y listo para continuar"}
-</div>
-          </div>
-        </>
-      )}
-
-      {panelCarritoVista === "checkout" && (
-        <>
-          <div style={styles.globalCartBody}>
-                        <div style={{ marginBottom: 16 }}>
-              <label style={styles.label}>Tipo de pedido</label>
-
-              <div style={styles.paymentMethodGrid}>
-                <button
-                  type="button"
-                  style={{
-                    ...styles.paymentMethodCard,
-                    ...(tipoPedido === "domicilio"
-                      ? styles.paymentMethodCardActive
-                      : {}),
-                  }}
-                  onClick={() => activarModoPedido("domicilio")}
-                >
-                  <div style={styles.paymentMethodIcon}>🚚</div>
-                  <div style={styles.paymentMethodInfo}>
-                    <div style={styles.paymentMethodTitle}>Domicilio</div>
-                    <div style={styles.paymentMethodText}>Entrega a tu dirección</div>
-                    <div style={styles.paymentMethodHint}>
-                      Incluido excepto promociones
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  style={{
-                    ...styles.paymentMethodCard,
-                    ...(tipoPedido === "recoger"
-                      ? styles.paymentMethodCardActive
-                      : {}),
-                  }}
-                  onClick={() => activarModoPedido("recoger")}
-                >
-                  <div style={styles.paymentMethodIcon}>📍</div>
-                  <div style={styles.paymentMethodInfo}>
-                    <div style={styles.paymentMethodTitle}>Recoger en el lab</div>
-                    <div style={styles.paymentMethodText}>Pasa por tu pedido</div>
-                    <div style={styles.paymentMethodHint}>
-                      Más rápido y sin domicilio
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </div>
-            {mostrarPromptPerfil && !clienteSesion?.id && (
-              <div style={styles.checkoutGuestPromptBox}>
-                <div style={styles.checkoutGuestPromptTitle}>
-                  👤 ¿Quieres pedir más rápido?
-                </div>
-
-                <div style={styles.checkoutGuestPromptText}>
-                  Inicia sesión o crea tu perfil para llenar tus datos automáticamente.
-                </div>
-
-                <div style={styles.checkoutActionsRow}>
-                  <button
-                    type="button"
-                    style={styles.secondaryBtn}
-                    onClick={() => {
-                      setClienteAuthModo("login");
-                      setPanelCarritoVista("auth_login");
-                    }}
-                  >
-                    Iniciar sesión
-                  </button>
-
-                  <button
-                    type="button"
-                    style={styles.secondaryBtn}
-                    onClick={() => {
-                      setClienteAuthModo("registro");
-                      setPanelCarritoVista("auth_registro");
-                    }}
-                  >
-                    Crear perfil
-                  </button>
-
-                  <button
-                    type="button"
-                    style={styles.secondaryBtn}
-                    onClick={() => {
-                      setMostrarPromptPerfil(false);
-                    }}
-                  >
-                    Continuar como invitado
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {clienteSesion?.id && (
-              <div style={styles.checkoutProfileBox}>
-                <div style={styles.checkoutProfileTop}>
-                  <div>
-                    <div style={styles.checkoutProfileBadge}>👤 PERFIL ACTIVO</div>
-                    <div style={styles.checkoutProfileName}>
-                      {clienteSesion.nombre || cliente.nombre || "-"}
-                    </div>
-                  </div>
-
-                  <div style={styles.checkoutProfileStatus}>
-                    Listo para pedir
-                  </div>
-                </div>
-
-                <div style={styles.checkoutProfileDataGrid}>
-                  <div style={styles.checkoutProfileDataCard}>
-                    <div style={styles.checkoutProfileLabel}>Celular</div>
-                    <div style={styles.checkoutProfileValue}>
-                      {cliente.telefono || clienteSesion.telefono || "-"}
-                    </div>
-                  </div>
-
-                  <div style={styles.checkoutProfileDataCard}>
-                    <div style={styles.checkoutProfileLabel}>Entrega</div>
-                    <div style={styles.checkoutProfileValue}>
-                      {cliente.direccion || "Selecciona dirección"}
-                    </div>
-                  </div>
-                </div>
-
-                {direccionesCliente.length > 0 && !usarOtraDireccion && (
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={styles.label}>Dirección guardada</label>
-                    <select
-                      style={styles.input}
-                      value={direccionSeleccionadaId}
-                      onChange={(e) => usarDireccionGuardada(e.target.value)}
-                    >
-                      {direccionesCliente.map((direccion) => (
-                        <option key={direccion.id} value={direccion.id}>
-                          {direccion.alias} — {direccion.direccion}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div style={styles.checkoutActionsRow}>
-                  <button
-                    type="button"
-                    style={styles.secondaryBtn}
-                    onClick={() => setUsarOtraDireccion((prev) => !prev)}
-                  >
-                    {usarOtraDireccion
-                      ? "Usar dirección guardada"
-                      : "Usar otra dirección hoy"}
-                  </button>
-
-                  <button
-                    type="button"
-                    style={{
-                      ...styles.secondaryBtn,
-                      ...(guardandoDireccionCliente ? styles.disabledBtn : {}),
-                    }}
-                    onClick={guardarDireccionActualCliente}
-                    disabled={guardandoDireccionCliente}
-                  >
-                    {guardandoDireccionCliente
-                      ? "Guardando..."
-                      : "Guardar dirección actual"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <Input
-              label="Nombre"
-              value={cliente.nombre}
-              onChange={(e) => actualizarCliente("nombre", e.target.value)}
-            />
-
-            <Input
-              label="Celular para contacto"
-              value={cliente.telefono}
-              onChange={(e) => actualizarCliente("telefono", e.target.value)}
-            />
-
-            {tipoPedido === "domicilio" ? (
-              <>
-              <Input
-                label="Dirección de entrega"
-                value={cliente.direccion}
-                onChange={(e) => actualizarCliente("direccion", e.target.value)}
-                disabled={Boolean(
-                  clienteSesion?.id &&
-                    direccionesCliente.length > 0 &&
-                    !usarOtraDireccion
-                )}
-              />
-
-              <Input
-                label="Referencia"
-                value={cliente.referencia}
-                onChange={(e) => actualizarCliente("referencia", e.target.value)}
-                disabled={Boolean(
-                  clienteSesion?.id &&
-                    direccionesCliente.length > 0 &&
-                    !usarOtraDireccion
-                )}
-              />
-            </>
-          ) : (
-            <>
-              {renderPickupInfoCard()}
-
-              <Input
-                label="Hora aproximada de recogida"
-                value={horaRecogida}
-                onChange={(e) => setHoraRecogida(e.target.value)}
-                placeholder="Ej: 7:30 PM"
-              />
-            </>
-          )}
-
-            <div style={{ marginBottom: 16 }}>
-              <label style={styles.label}>Método de pago</label>
-
-              <div style={styles.paymentMethodGrid}>
-                <button
-                  type="button"
-                  style={{
-                    ...styles.paymentMethodCard,
-                    ...(cliente.pago === "Llave"
-                      ? styles.paymentMethodCardActive
-                      : {}),
-                  }}
-                  onClick={() => actualizarCliente("pago", "Llave")}
-                >
-                  <div style={styles.paymentMethodIcon}>🔑</div>
-                  <div style={styles.paymentMethodInfo}>
-                    <div style={styles.paymentMethodTitle}>Pago por Llave</div>
-                    <div style={styles.paymentMethodText}>3152487938</div>
-                    <div style={styles.paymentMethodHint}>
-                      Verificación manual del laboratorio
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  style={{
-                    ...styles.paymentMethodCard,
-                    ...(cliente.pago === "QR Nequi"
-                      ? styles.paymentMethodCardActive
-                      : {}),
-                  }}
-                  onClick={() => actualizarCliente("pago", "QR Nequi")}
-                >
-                  <div style={styles.paymentMethodIcon}>📱</div>
-                  <div style={styles.paymentMethodInfo}>
-                    <div style={styles.paymentMethodTitle}>QR Nequi</div>
-                    <div style={styles.paymentMethodText}>Pago escaneando QR</div>
-                    <div style={styles.paymentMethodHint}>
-                      Rápido y directo desde tu celular
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {cliente.pago === "Llave" && (
-              <div style={styles.paymentInfoBox}>
-                <div style={styles.paymentInfoTitle}>🔑 Pago por Llave</div>
-                <div style={styles.paymentInfoText}>Llave: 3152487938</div>
-                <div style={styles.paymentInfoText}>
-                  El pedido quedará pendiente de verificación.
-                </div>
-              </div>
-            )}
-
-            {cliente.pago === "QR Nequi" && (
-              <div style={styles.paymentInfoBox}>
-                <div style={styles.paymentInfoTitle}>📱 Pago con QR Nequi</div>
-                <div style={styles.paymentInfoText}>
-                  Escanea este QR para realizar el pago.
-                </div>
-
-                <div style={styles.qrWrap}>
-                  <img
-                    src="/qr-nequi.png"
-                    alt="QR Nequi Dr. Crispy Lab"
-                    style={styles.qrImage}
-                  />
-                </div>
-
-                <div style={styles.paymentInfoText}>Nequi: 3152487938</div>
-                <div style={styles.paymentInfoText}>
-                  El pedido quedará pendiente de verificación.
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div style={styles.globalCartFooterPro}>
-            <div style={styles.checkoutMobileResumeCard}>
-              <div style={styles.checkoutMobileResumeRow}>
-                <span>Subtotal</span>
-                <strong>${subtotal.toLocaleString("es-CO")}</strong>
-              </div>
-
-              <div style={styles.checkoutMobileResumeRow}>
-                <span>{textoEntrega}</span>
-                <strong style={{ color: "#ffd166" }}>
-                  {textoValorEntrega}
-                </strong>
-              </div>
-
-              <div style={styles.checkoutMobileResumeTotal}>
-                <span>Total del pedido</span>
-                <span>${total.toLocaleString("es-CO")}</span>
-              </div>
-            </div>
-
-            <div style={styles.globalCartActions}>
               <button
                 type="button"
                 style={styles.secondaryBtn}
-                onClick={() => setPanelCarritoVista("carrito")}
+                onClick={cerrarPanelCarrito}
               >
-                ← Volver
+                Seguir comprando
               </button>
 
               <button
-  style={{
-    ...styles.confirmBtn,
-    ...((cargandoPedido || !laboratorioAbierto) ? styles.disabledBtn : {}),
-    marginTop: 0,
-  }}
-  onClick={confirmarPedido}
-  disabled={cargandoPedido || !laboratorioAbierto}
->
-  {!laboratorioAbierto
-    ? "🕒 FUERA DE HORARIO"
-    : cargandoPedido
-    ? "Activando pedido..."
-    : "🔥 CONFIRMAR PEDIDO"}
-</button>
+                type="button"
+                style={{ ...styles.confirmBtn, marginTop: 0 }}
+                onClick={irAlCheckoutDesdePanel}
+                disabled={carrito.length === 0}
+              >
+                🔥 CONTINUAR PEDIDO
+              </button>
             </div>
-{!laboratorioAbierto && (
-  <div style={styles.checkoutClosedHint}>
-    Puedes dejar tu pedido listo, pero la confirmación se habilita en horario de atención.
-  </div>
-)}
-                        <div style={styles.globalCartFooterHint}>
+
+            {/* 🔥 AQUÍ ESTÁ LA SOLUCIÓN REAL */}
+            <div
+              style={{
+                ...styles.cartStatusBar,
+                ...(laboratorioAbierto
+                  ? styles.cartStatusBarOpen
+                  : styles.cartStatusBarClosed),
+              }}
+            >
+              {laboratorioAbierto ? (
+                <span>🟢 Estamos atendiendo. Tu pedido se preparará de inmediato.</span>
+              ) : (
+                <span>
+                  🕒 Estamos fuera de horario. Puedes armar tu pedido, pero solo podrás
+                  confirmarlo en horario de atención.
+                </span>
+              )}
+            </div>
+
+            <div style={styles.globalCartFooterHint}>
               {tipoPedido === "recoger"
-                ? "⚡ Recoge tu pedido directamente en el lab"
-                : "⚡ Estás a un paso de confirmar tu experimento"}
+                ? "⚡ Express activado para recoger en el lab"
+                : "⚡ Pedido rápido, claro y listo para continuar"}
             </div>
           </div>
         </>
