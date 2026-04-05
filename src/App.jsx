@@ -1067,23 +1067,36 @@ function usarDireccionGuardada(direccionId) {
   }
 
     function activarModoPedido(modo) {
-    if (modo === "recoger") {
-      activarModoPedido("recoger");
-      setHoraRecogida("");
-      mostrarMensaje(
-        "ok",
-        "⚡ Estás en modo Express. Este pedido será para recoger en el lab."
-      );
-      return;
-    }
+  setTipoPedido(modo);
+  setHoraRecogida("");
 
-    activarModoPedido("domicilio");
-    setHoraRecogida("");
+  if (modo === "recoger") {
+    setCliente((prev) => ({
+      ...prev,
+      direccion: LAB_DIRECCION,
+      referencia: LAB_REFERENCIA,
+    }));
+
     mostrarMensaje(
       "ok",
-      "🚚 Modo domicilio activado. Tu pedido será enviado a tu dirección."
+      "⚡ Estás en modo Express. Este pedido será para recoger en el lab."
     );
+    return;
   }
+
+  setCliente((prev) => ({
+    ...prev,
+    direccion:
+      prev.direccion === LAB_DIRECCION ? "" : prev.direccion,
+    referencia:
+      prev.referencia === LAB_REFERENCIA ? "" : prev.referencia,
+  }));
+
+  mostrarMensaje(
+    "ok",
+    "🚚 Modo domicilio activado. Tu pedido será enviado a tu dirección."
+  );
+}
 
     function validarCliente() {
     if (!cliente.nombre.trim()) return "Completa el nombre.";
