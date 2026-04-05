@@ -2105,9 +2105,17 @@ function renderCatalogCard({
                   onClick={() => {
                     setTipoPedido("recoger");
                     setHoraRecogida("");
-                    setPanelCarritoAbierto(true);
-                    setPanelCarritoVista("checkout");
-                    setMostrarPromptPerfil(!clienteSesion?.id);
+                    setPanelCarritoAbierto(false);
+                    setDrawerCarritoAbierto(false);
+                    setCheckoutMovilAbierto(false);
+                    setPanelCarritoVista("carrito");
+                    setVista("cliente");
+                    setSeccionCliente("combos");
+                    mostrarMensaje(
+                      "ok",
+                      "Modo Express activado. Elige tus productos para recoger en el lab."
+                    );
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
                   Pedir para recoger
@@ -2117,9 +2125,18 @@ function renderCatalogCard({
                   style={styles.heroSecondaryBtn}
                   onClick={() => {
                     setTipoPedido("recoger");
-                    setPanelCarritoAbierto(true);
-                    setPanelCarritoVista("checkout");
-                    setMostrarPromptPerfil(!clienteSesion?.id);
+                    setHoraRecogida("");
+                    setPanelCarritoAbierto(false);
+                    setDrawerCarritoAbierto(false);
+                    setCheckoutMovilAbierto(false);
+                    setPanelCarritoVista("carrito");
+                    setVista("cliente");
+                    setSeccionCliente("combos");
+                    mostrarMensaje(
+                      "ok",
+                      "Modo Express activado. Agrega productos y luego define la hora de recogida."
+                    );
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
                   Elegir hora
@@ -3822,7 +3839,9 @@ function renderCarritoDesktop() {
             </div>
 
             <div style={styles.globalCartFooterHint}>
-              ⚡ Pedido rápido, claro y listo para continuar
+              {tipoPedido === "recoger"
+                ? "⚡ Express activado para recoger en el lab"
+                : "⚡ Pedido rápido, claro y listo para continuar"}
             </div>
           </div>
         </>
