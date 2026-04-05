@@ -3445,58 +3445,61 @@ function renderPickupInfoCard() {
         </div>
 
         {carrito.length > 0 && (
-          <div style={styles.drawerFooter}>
-            <div style={styles.summaryBox}>
-              <div style={styles.summaryRow}>
-                <span>Subtotal</span>
-                <span>${subtotal.toLocaleString("es-CO")}</span>
-              </div>
+  <div style={styles.drawerFooter}>
+    <div style={styles.summaryBox}>
+      <div style={styles.summaryRow}>
+        <span>Subtotal</span>
+        <span>${subtotal.toLocaleString("es-CO")}</span>
+      </div>
 
-              <div style={styles.summaryRow}>
-                <span>{textoEntrega}</span>
-                <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-                  {textoValorEntrega}
-                </span>
-              </div>
+      <div style={styles.summaryRow}>
+        <span>{textoEntrega}</span>
+        <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+          {textoValorEntrega}
+        </span>
+      </div>
 
-              <div style={styles.summaryTotal}>
-                <span>Total</span>
-                <span>${total.toLocaleString("es-CO")}</span>
-              </div>
-            </div>
+      <div style={styles.summaryTotal}>
+        <span>Total</span>
+        <span>${total.toLocaleString("es-CO")}</span>
+      </div>
+    </div>
 
-            <button
-                style={{
-                  ...styles.confirmBtn,
-                  marginTop: 0,
-                }}
-                onClick={() => {
-                  setDrawerCarritoAbierto(false);
-                  setPanelCarritoAbierto(true);
-                  setPanelCarritoVista("checkout");
-                }}
-              >
-                🔥 CONTINUAR PEDIDO
-              </button>
+    <button
+      style={{
+        ...styles.confirmBtn,
+        marginTop: 0,
+      }}
+      onClick={() => {
+        setDrawerCarritoAbierto(false);
+        setPanelCarritoAbierto(true);
+        setPanelCarritoVista("checkout");
+      }}
+    >
+      🔥 CONTINUAR PEDIDO
+    </button>
 
-              {!laboratorioAbierto && (
-                <div style={styles.cartClosedHint}>
-                  🕒 Estamos fuera de horario. Puedes seguir armando tu pedido, pero solo podrás confirmarlo en horario de atención.
-                </div>
-              )}
+    {!laboratorioAbierto && (
+      <div style={styles.cartClosedHint}>
+        🕒 Estamos fuera de horario. Puedes seguir armando tu pedido, pero
+        solo podrás confirmarlo en horario de atención.
+      </div>
+    )}
 
-            <div style={styles.cartTrustText}>
-              ⚡ Recíbelo caliente. Domicilio incluido.
-            </div>
+    <div style={styles.cartTrustText}>
+      {tipoPedido === "recoger"
+        ? "⚡ Recógelo caliente en el lab. Sin costo de entrega."
+        : "⚡ Recíbelo caliente. Domicilio incluido."}
+    </div>
 
-            <button
-              style={styles.whatsappBtn}
-              onClick={abrirWhatsAppPedido}
-            >
-              Enviar pedido por WhatsApp
-            </button>
-          </div>
-        )}
+    <button
+      style={styles.whatsappBtn}
+      onClick={abrirWhatsAppPedido}
+    >
+      Enviar pedido por WhatsApp
+    </button>
+  </div>
+)}
       </div>
     </div>
   </div>
@@ -3975,35 +3978,35 @@ function renderPickupInfoCard() {
             </div>
 
             <div style={styles.globalCartActions}>
-              <button
-                type="button"
-                style={styles.secondaryBtn}
-                onClick={cerrarPanelCarrito}
-              >
-                Seguir comprando
-              </button>
+  <button
+    type="button"
+    style={styles.secondaryBtn}
+    onClick={cerrarPanelCarrito}
+  >
+    Seguir comprando
+  </button>
 
-              <button
-                type="button"
-                style={{ ...styles.confirmBtn, marginTop: 0 }}
-                onClick={irAlCheckoutDesdePanel}
-                disabled={carrito.length === 0}
-              >
-                🔥 CONTINUAR PEDIDO
-              </button>
-            </div>
+  <button
+    type="button"
+    style={{ ...styles.confirmBtn, marginTop: 0 }}
+    onClick={irAlCheckoutDesdePanel}
+    disabled={carrito.length === 0}
+  >
+    🔥 CONTINUAR PEDIDO
+  </button>
+</div>
 
-            {!laboratorioAbierto && (
-              <div style={styles.cartClosedHint}>
-                🕒 Estamos fuera de horario. Puedes seguir armando tu pedido, pero solo podrás confirmarlo en horario de atención.
-              </div>
-            )}
+{!laboratorioAbierto && (
+  <div style={styles.cartClosedHint}>
+    🕒 Estamos fuera de horario. Puedes seguir armando tu pedido, pero solo podrás confirmarlo en horario de atención.
+  </div>
+)}
 
-            <div style={styles.globalCartFooterHint}>
-              {tipoPedido === "recoger"
-                ? "⚡ Express activado para recoger en el lab"
-                : "⚡ Pedido rápido, claro y listo para continuar"}
-            </div>
+<div style={styles.globalCartFooterHint}>
+  {tipoPedido === "recoger"
+    ? "⚡ Express activado para recoger en el lab"
+    : "⚡ Pedido rápido, claro y listo para continuar"}
+</div>
           </div>
         </>
       )}
