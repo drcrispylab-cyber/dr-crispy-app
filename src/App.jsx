@@ -3996,11 +3996,23 @@ function renderPickupInfoCard() {
   </button>
 </div>
 
-{!laboratorioAbierto && (
-  <div style={styles.cartClosedHint}>
-    🕒 Estamos fuera de horario. Puedes seguir armando tu pedido, pero solo podrás confirmarlo en horario de atención.
-  </div>
-)}
+<div
+  style={{
+    ...styles.cartStatusBar,
+    ...(laboratorioAbierto
+      ? styles.cartStatusBarOpen
+      : styles.cartStatusBarClosed),
+  }}
+>
+  {laboratorioAbierto ? (
+    <span>🟢 Estamos atendiendo. Tu pedido se preparará de inmediato.</span>
+  ) : (
+    <span>
+      🕒 Estamos fuera de horario. Puedes armar tu pedido, pero solo podrás
+      confirmarlo en horario de atención.
+    </span>
+  )}
+</div>
 
 <div style={styles.globalCartFooterHint}>
   {tipoPedido === "recoger"
@@ -8522,6 +8534,26 @@ kfcCardBtn: {
     boxShadow: "0 30px 80px rgba(0,0,0,0.50)",
     textAlign: "center",
   },
+  cartStatusBar: {
+  marginTop: 12,
+  padding: 12,
+  borderRadius: 14,
+  fontSize: 13,
+  lineHeight: 1.45,
+  fontWeight: "bold",
+},
+
+cartStatusBarOpen: {
+  background: "rgba(0, 200, 0, 0.10)",
+  border: "1px solid rgba(0, 200, 0, 0.25)",
+  color: "#aaffaa",
+},
+
+cartStatusBarClosed: {
+  background: "rgba(255, 209, 102, 0.10)",
+  border: "1px solid rgba(255, 209, 102, 0.25)",
+  color: "#ffd166",
+},
   successEmoji: {
     fontSize: 42,
     marginBottom: 10,
