@@ -1063,6 +1063,25 @@ function usarDireccionGuardada(direccionId) {
     setCliente((prev) => ({ ...prev, [campo]: valor }));
   }
 
+    function activarModoPedido(modo) {
+    if (modo === "recoger") {
+      activarModoPedido("recoger");
+      setHoraRecogida("");
+      mostrarMensaje(
+        "ok",
+        "⚡ Estás en modo Express. Este pedido será para recoger en el lab."
+      );
+      return;
+    }
+
+    activarModoPedido("domicilio");
+    setHoraRecogida("");
+    mostrarMensaje(
+      "ok",
+      "🚚 Modo domicilio activado. Tu pedido será enviado a tu dirección."
+    );
+  }
+
     function validarCliente() {
     if (!cliente.nombre.trim()) return "Completa el nombre.";
     if (!cliente.telefono.trim()) return "Completa el teléfono.";
@@ -1278,7 +1297,14 @@ function usarDireccionGuardada(direccionId) {
           </ul>
           <div class="linea"></div>
           <p>Subtotal: $${pedido.subtotal.toLocaleString("es-CO")}</p>
-          <p>Domicilio: Incluido</p>
+          <p><strong>Tipo de pedido:</strong> ${pedido.tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}</p>
+<p><strong>${pedido.tipoPedido === "recoger" ? "Recogida" : "Domicilio"}:</strong> ${
+  pedido.tipoPedido === "recoger"
+    ? "Sin costo"
+    : pedido.domicilio === 0
+    ? "Incluido"
+    : `$${Number(pedido.domicilio || 0).toLocaleString("es-CO")}`
+}</p>
           <p class="big">Total: $${pedido.total.toLocaleString("es-CO")}</p>
         </body>
       </html>
@@ -1955,6 +1981,86 @@ function renderCatalogCard({
     },
   });
 }
+function renderBarraModoPedido() {
+  return (
+    <section
+      style={{
+        ...styles.modoPedidoBar,
+        flexDirection: esMovil ? "column" : "row",
+        alignItems: esMovil ? "stretch" : "center",
+      }}
+    >
+      <div style={styles.modoPedidoBarInfo}>
+        <div style={styles.modoPedidoBarLabel}>MODO DE PEDIDO</div>
+
+        <div style={styles.modoPedidoBarButtons}>
+          <button
+            type="button"
+            style={{
+              ...styles.modoPedidoBtn,
+              ...(tipoPedido === "domicilio"
+                ? styles.modoPedidoBtnActiveDomicilio
+                : {}),
+            }}
+            onClick={() => activarModoPedido("domicilio")}
+          >
+            🚚 Domicilio
+          </button>
+
+          <button
+            type="button"
+            style={{
+              ...styles.modoPedidoBtn,
+              ...(tipoPedido === "recoger"
+                ? styles.modoPedidoBtnActiveExpress
+                : {}),
+            }}
+            onClick={() => activarModoPedido("recoger")}
+          >
+            ⚡ Recoger en el lab
+          </button>
+        </div>
+      </div>
+
+      <div style={styles.modoPedidoBarStatus}>
+        {tipoPedido === "recoger"
+          ? "Express activo"
+          : "Domicilio activo"}
+      </div>
+    </section>
+  );
+}
+
+function renderFranjaExpressActiva() {
+  if (tipoPedido !== "recoger") return null;
+
+  return (
+    <section
+      style={{
+        ...styles.expressActiveNotice,
+        flexDirection: esMovil ? "column" : "row",
+        alignItems: esMovil ? "stretch" : "center",
+      }}
+    >
+      <div style={styles.expressActiveNoticeTextWrap}>
+        <div style={styles.expressActiveNoticeTitle}>
+          ⚡ Estás en modo Express
+        </div>
+        <div style={styles.expressActiveNoticeText}>
+          Este pedido será para recoger en el lab. No se pedirá dirección ni referencia en el checkout.
+        </div>
+      </div>
+
+      <button
+        type="button"
+        style={styles.expressBackBtn}
+        onClick={() => activarModoPedido("domicilio")}
+      >
+        Volver a domicilio
+      </button>
+    </section>
+  );
+}
 
   function renderHeroInicio() {
   return (
@@ -1993,7 +2099,7 @@ function renderCatalogCard({
                     <button
             style={styles.heroPrimaryBtn}
             onClick={() => {
-              setTipoPedido("domicilio");
+              activarModoPedido("domicilio");
               entrarExperimento1();
             }}
           >
@@ -2103,18 +2209,13 @@ function renderCatalogCard({
                 <button
                   style={styles.heroPrimaryBtn}
                   onClick={() => {
-                    setTipoPedido("recoger");
-                    setHoraRecogida("");
+                    activarModoPedido("recoger");
                     setPanelCarritoAbierto(false);
                     setDrawerCarritoAbierto(false);
                     setCheckoutMovilAbierto(false);
                     setPanelCarritoVista("carrito");
                     setVista("cliente");
                     setSeccionCliente("combos");
-                    mostrarMensaje(
-                      "ok",
-                      "Modo Express activado. Elige tus productos para recoger en el lab."
-                    );
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
@@ -2124,25 +2225,19 @@ function renderCatalogCard({
                 <button
                   style={styles.heroSecondaryBtn}
                   onClick={() => {
-                    setTipoPedido("recoger");
-                    setHoraRecogida("");
+                    activarModoPedido("recoger");
                     setPanelCarritoAbierto(false);
                     setDrawerCarritoAbierto(false);
                     setCheckoutMovilAbierto(false);
                     setPanelCarritoVista("carrito");
                     setVista("cliente");
                     setSeccionCliente("combos");
-                    mostrarMensaje(
-                      "ok",
-                      "Modo Express activado. Agrega productos y luego define la hora de recogida."
-                    );
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 >
                   Elegir hora
                 </button>
               </div>
-            </div>
 
             <div style={styles.expressVisual}>
               <img
@@ -2695,11 +2790,11 @@ function renderCarritoDesktop() {
           </div>
 
           <div style={styles.summaryRow}>
-            <span>Domicilio</span>
-            <span style={{ color: "#ffd166", fontWeight: "bold" }}>
-              Incluido
-            </span>
-          </div>
+  <span>{textoEntrega}</span>
+  <span style={{ color: "#ffd166", fontWeight: "bold" }}>
+    {textoValorEntrega}
+  </span>
+</div>
 
           <div style={styles.summaryTotal}>
             <span>Total</span>
@@ -2719,7 +2814,9 @@ function renderCarritoDesktop() {
         </button>
 
         <div style={styles.cartTrustText}>
-          ⚡ Recíbelo caliente. Domicilio incluido.
+          {tipoPedido === "recoger"
+            ? "⚡ Recógelo caliente en el lab. Sin costo de entrega."
+            : "⚡ Recíbelo caliente. Domicilio incluido."}
         </div>
 
         <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
@@ -3329,7 +3426,7 @@ function renderCarritoDesktop() {
               </div>
 
               <div style={styles.summaryRow}>
-                <span>Domicilio</span>
+                <span>{textoEntrega}</span>
                 <span style={{ color: "#ffd166", fontWeight: "bold" }}>
                   Incluido
                 </span>
@@ -3862,7 +3959,7 @@ function renderCarritoDesktop() {
                       ? styles.paymentMethodCardActive
                       : {}),
                   }}
-                  onClick={() => setTipoPedido("domicilio")}
+                  onClick={() => activarModoPedido("domicilio")}
                 >
                   <div style={styles.paymentMethodIcon}>🚚</div>
                   <div style={styles.paymentMethodInfo}>
@@ -3882,7 +3979,7 @@ function renderCarritoDesktop() {
                       ? styles.paymentMethodCardActive
                       : {}),
                   }}
-                  onClick={() => setTipoPedido("recoger")}
+                  onClick={() => activarModoPedido("recoger")}
                 >
                   <div style={styles.paymentMethodIcon}>📍</div>
                   <div style={styles.paymentMethodInfo}>
@@ -4148,7 +4245,7 @@ function renderCarritoDesktop() {
               </div>
 
               <div style={styles.checkoutMobileResumeRow}>
-                <span>Domicilio</span>
+                <span>{textoEntrega}</span>
                 <strong style={{ color: "#ffd166" }}>Incluido</strong>
               </div>
 
@@ -4552,7 +4649,12 @@ function renderCarritoDesktop() {
   )}
 </div>
 </header>
-
+        {vista === "cliente" && (
+          <>
+            {renderBarraModoPedido()}
+            {renderFranjaExpressActiva()}
+          </>
+        )}
         {mensaje.texto && (
           <div
             style={{
