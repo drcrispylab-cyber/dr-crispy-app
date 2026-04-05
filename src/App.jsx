@@ -1985,53 +1985,7 @@ function renderCatalogCard({
   });
 }
 function renderBarraModoPedido() {
-  return (
-    <section
-      style={{
-        ...styles.modoPedidoBar,
-        flexDirection: esMovil ? "column" : "row",
-        alignItems: esMovil ? "stretch" : "center",
-      }}
-    >
-      <div style={styles.modoPedidoBarInfo}>
-        <div style={styles.modoPedidoBarLabel}>MODO DE PEDIDO</div>
-
-        <div style={styles.modoPedidoBarButtons}>
-          <button
-            type="button"
-            style={{
-              ...styles.modoPedidoBtn,
-              ...(tipoPedido === "domicilio"
-                ? styles.modoPedidoBtnActiveDomicilio
-                : {}),
-            }}
-            onClick={() => activarModoPedido("domicilio")}
-          >
-            🚚 Domicilio
-          </button>
-
-          <button
-            type="button"
-            style={{
-              ...styles.modoPedidoBtn,
-              ...(tipoPedido === "recoger"
-                ? styles.modoPedidoBtnActiveExpress
-                : {}),
-            }}
-            onClick={() => activarModoPedido("recoger")}
-          >
-            ⚡ Recoger en el lab
-          </button>
-        </div>
-      </div>
-
-      <div style={styles.modoPedidoBarStatus}>
-        {tipoPedido === "recoger"
-          ? "Express activo"
-          : "Domicilio activo"}
-      </div>
-    </section>
-  );
+  return null;
 }
 
 function renderFranjaExpressActiva() {
@@ -4386,6 +4340,7 @@ function renderPickupInfoCard() {
   )}
 </div>
 </header>
+ {vista === "cliente" && renderFranjaExpressActiva()}
         {mensaje.texto && (
           <div
             style={{
