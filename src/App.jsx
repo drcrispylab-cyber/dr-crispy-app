@@ -2130,7 +2130,8 @@ function renderFranjaExpressActiva() {
         <h2
           style={{
             ...styles.labHeroTitle,
-            fontSize: esMovil ? 52 : 92,
+            fontSize: esMovil ? 40 : 92,
+            lineHeight: esMovil ? 0.95 : 0.9,
           }}
         >
           NO ES POLLO. <br />
@@ -2170,7 +2171,14 @@ function renderFranjaExpressActiva() {
           </button>
         </div>
 
-        <div style={styles.heroInfoStrip}>
+        <div
+  style={{
+    ...styles.heroInfoStrip,
+    gridTemplateColumns: esMovil
+      ? "1fr"
+      : "repeat(auto-fit, minmax(160px, 1fr))",
+  }}
+>
           <div style={styles.heroInfoCard}>
             <div style={styles.heroInfoValue}>+ Más pedido</div>
             <div style={styles.heroInfoLabel}>Combo Pareja y Experimento 01</div>
@@ -4529,6 +4537,8 @@ function renderPickupInfoCard() {
     ...styles.header,
     flexDirection: esMovil ? "column" : "row",
     alignItems: esMovil ? "flex-start" : "center",
+    padding: esMovil ? 18 : 24,
+    gap: esMovil ? 16 : 24,
   }}
 >
   <div style={styles.headerBrandBlock}>
@@ -5572,20 +5582,21 @@ drawerContent: {
 },
 
   clientNavWrap: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-    marginBottom: 20,
-  },
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  marginBottom: 16,
+},
   clientNavBtn: {
-    background: "rgba(17,17,17,0.9)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    color: "#fff",
-    padding: "10px 14px",
-    borderRadius: 12,
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
+  background: "rgba(17,17,17,0.9)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#fff",
+  padding: "9px 12px",
+  borderRadius: 12,
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: 13,
+},
   clientNavBtnActive: {
     background: "linear-gradient(135deg, #ff0000, #b30000)",
     border: "1px solid #ff0000",
@@ -5639,14 +5650,16 @@ drawerContent: {
     marginTop: 18,
   },
   heroUrgencyPill: {
-    background: "rgba(255,255,255,0.05)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    color: "#ffd8d8",
-    padding: "9px 12px",
-    borderRadius: 999,
-    fontWeight: "bold",
-    fontSize: 13,
-  },
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.10)",
+  color: "#ffe0e0",
+  padding: "8px 12px",
+  borderRadius: 999,
+  fontWeight: "bold",
+  fontSize: 12,
+  letterSpacing: 0.2,
+  boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
+},
   heroActionRow: {
     display: "flex",
     gap: 14,
@@ -5657,11 +5670,11 @@ drawerContent: {
   background: "linear-gradient(135deg, #ff0000, #b30000)",
   color: "#fff",
   border: "none",
-  padding: "15px 22px",
+  padding: "14px 18px",
   borderRadius: 14,
   cursor: "pointer",
   fontWeight: "bold",
-  fontSize: 15,
+  fontSize: 14,
   boxShadow: "0 14px 28px rgba(255,0,0,0.20)",
   transition: "transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease",
 },
@@ -5694,11 +5707,11 @@ comboIncludePill: {
   background: "rgba(255,255,255,0.04)",
   color: "#fff",
   border: "1px solid rgba(255,255,255,0.10)",
-  padding: "15px 22px",
+  padding: "14px 18px",
   borderRadius: 14,
   cursor: "pointer",
   fontWeight: "bold",
-  fontSize: 15,
+  fontSize: 14,
   transition: "transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease",
 },
   labHeroVisual: {
@@ -5907,12 +5920,12 @@ comboIncludePill: {
   borderRadius: 18,
   background: "linear-gradient(135deg, #ff1200, #b30000)",
   color: "#fff",
-  padding: "15px 18px",
+  padding: "14px 16px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   fontWeight: "bold",
-  fontSize: 15,
+  fontSize: 14,
   boxShadow: "0 18px 36px rgba(255,0,0,0.28)",
 },
 
@@ -8647,12 +8660,12 @@ categoriaVisualCard: {
   background:
     "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03))",
   border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 20,
-  padding: 14,
+  borderRadius: 18,
+  padding: 12,
   cursor: "pointer",
   display: "flex",
   flexDirection: "column",
-  gap: 12,
+  gap: 10,
   alignItems: "center",
   textAlign: "center",
   boxShadow: "0 14px 30px rgba(0,0,0,0.14)",
@@ -8677,9 +8690,9 @@ categoriaVisualImage: {
 
 categoriaVisualTitle: {
   fontWeight: "bold",
-  fontSize: 14,
+  fontSize: 13,
   color: "#fff",
-  lineHeight: 1.25,
+  lineHeight: 1.2,
 },
 
 heroInfoStrip: {
