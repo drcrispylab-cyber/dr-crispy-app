@@ -3182,15 +3182,21 @@ function renderPickupInfoCard() {
     onClick={() => setFormulaSeleccionada(null)}
   >
     <div
-      style={styles.kfcModalCard}
-      onClick={(e) => e.stopPropagation()}
-    >
+  style={{
+    ...styles.kfcModalCard,
+    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
+    borderRadius: esMovil ? 18 : 22,
+    margin: esMovil ? "12px 0" : 0,
+  }}
+  onClick={(e) => e.stopPropagation()}
+>
       <div
-        style={{
-          ...styles.kfcModalLayout,
-          gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-        }}
-      >
+  style={{
+    ...styles.kfcModalLayout,
+    gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
+    minHeight: esMovil ? "auto" : 560,
+  }}
+>
         <div style={styles.kfcModalImageWrap}>
           <img
             src={
@@ -3201,7 +3207,12 @@ function renderPickupInfoCard() {
           />
         </div>
 
-        <div style={styles.kfcModalContent}>
+        <div style={{
+    ...styles.kfcModalContent,
+    minHeight: esMovil ? "auto" : 560,
+    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
+    padding: esMovil ? 16 : 24,
+  }}>
           <div style={styles.kfcModalTopBar}>
             <div>
               <div style={styles.kfcModalMiniBadge}>
@@ -3241,7 +3252,13 @@ function renderPickupInfoCard() {
               <div style={styles.kfcStepBubble}>1 / 1</div>
             </div>
 
-            <div style={styles.kfcOptionList}>
+            <div style={{
+    ...styles.kfcOptionList,
+    maxHeight: esMovil ? "40dvh" : "none",
+    overflowY: esMovil ? "auto" : "visible",
+    paddingRight: esMovil ? 4 : 0,
+    WebkitOverflowScrolling: "touch",
+  }}>
               {SALSAS.map((salsa) => (
                 <button
                   key={salsa.nombre}
@@ -3286,7 +3303,12 @@ function renderPickupInfoCard() {
 
       {comboPendiente && (
   <div
-    style={styles.kfcModalBackdrop}
+    style={{
+    ...styles.kfcModalCard,
+    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
+    borderRadius: esMovil ? 18 : 22,
+    margin: esMovil ? "12px 0" : 0,
+  }}
     onClick={() => setComboPendiente(null)}
   >
     <div
@@ -3295,9 +3317,10 @@ function renderPickupInfoCard() {
     >
       <div
         style={{
-          ...styles.kfcModalLayout,
-          gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-        }}
+    ...styles.kfcModalLayout,
+    gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
+    minHeight: esMovil ? "auto" : 560,
+  }}
       >
         <div style={styles.kfcModalImageWrap}>
           <img
@@ -3309,7 +3332,12 @@ function renderPickupInfoCard() {
           />
         </div>
 
-        <div style={styles.kfcModalContent}>
+        <div style={{
+    ...styles.kfcModalContent,
+    minHeight: esMovil ? "auto" : 560,
+    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
+    padding: esMovil ? 16 : 24,
+  }}>
           <div style={styles.kfcModalTopBar}>
             <div>
               <div style={styles.kfcModalMiniBadge}>
@@ -3363,7 +3391,13 @@ function renderPickupInfoCard() {
               <div style={styles.kfcStepBubble}>1 / 1</div>
             </div>
 
-            <div style={styles.kfcOptionList}>
+            <div style={{
+    ...styles.kfcOptionList,
+    maxHeight: esMovil ? "40dvh" : "none",
+    overflowY: esMovil ? "auto" : "visible",
+    paddingRight: esMovil ? 4 : 0,
+    WebkitOverflowScrolling: "touch",
+  }}>
               {SALSAS.map((salsa) => (
                 <button
                   key={salsa.nombre}
@@ -3909,7 +3943,12 @@ function renderPickupInfoCard() {
       style={styles.globalCartPanel}
       onClick={(e) => e.stopPropagation()}
     >
-      <div style={styles.globalCartHeaderPro}>
+      <div
+  style={{
+    ...styles.globalCartHeaderPro,
+    padding: esMovil ? "14px 14px 12px" : styles.globalCartHeaderPro.padding,
+  }}
+>
         <div style={styles.globalCartHeaderLeft}>
           <div style={styles.globalCartTopRow}>
             <div style={styles.globalCartMiniPill}>
@@ -4057,7 +4096,14 @@ function renderPickupInfoCard() {
             )}
           </div>
 
-          <div style={styles.globalCartFooterPro}>
+          <div
+  style={{
+    ...styles.globalCartFooterPro,
+    padding: esMovil
+      ? "14px 14px calc(14px + env(safe-area-inset-bottom))"
+      : styles.globalCartFooterPro.padding,
+  }}
+>
             <div style={styles.cartSummaryCardPro}>
               <div style={styles.summaryRow}>
                 <span>Subtotal</span>
@@ -4289,7 +4335,14 @@ function renderPickupInfoCard() {
       </div>
     </div>
 
-    <div style={styles.globalCartFooterPro}>
+    <div
+  style={{
+    ...styles.globalCartFooterPro,
+    padding: esMovil
+      ? "14px 14px calc(14px + env(safe-area-inset-bottom))"
+      : styles.globalCartFooterPro.padding,
+  }}
+>
       <div style={styles.globalCartActions}>
         <button
           type="button"
@@ -7414,12 +7467,14 @@ floatingCartBtnPulse: {
   modalBackdrop: {
   position: "fixed",
   inset: 0,
-  background: "rgba(0,0,0,0.66)",
-  zIndex: 9999,
+  background: "rgba(0,0,0,0.72)",
+  zIndex: 9998,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   padding: 12,
+  overflowY: "auto",
+  WebkitOverflowScrolling: "touch",
 },
   modalCard: {
     width: "100%",
@@ -7915,7 +7970,9 @@ checkoutTrustText: {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  padding: 20,
+  padding: 12,
+  overflowY: "auto",
+  WebkitOverflowScrolling: "touch",
 },
 
 kfcModalCard: {
@@ -8111,7 +8168,8 @@ kfcStepBubble: {
 
 kfcOptionList: {
   display: "grid",
-  gap: 12,
+  gap: 10,
+  marginTop: 8,
 },
 
 kfcOptionCard: {
@@ -9204,25 +9262,26 @@ comboModalFooter: {
   borderTop: "1px solid rgba(255,255,255,0.08)",
 },
 checkoutMobileCard: {
-  width: "min(100%, 560px)",
-  maxHeight: "92dvh",
-  margin: "auto",
+  width: "100%",
+  maxWidth: 520,
+  maxHeight: "calc(100dvh - 24px)",
   background:
     "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
   border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 24,
-  boxShadow: "0 30px 90px rgba(0,0,0,0.56)",
+  borderRadius: 20,
+  boxShadow: "0 24px 50px rgba(0,0,0,0.40)",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
 },
 
 checkoutMobileHeader: {
-  padding: "18px 18px 14px",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
   display: "flex",
   justifyContent: "space-between",
   gap: 12,
+  alignItems: "flex-start",
+  padding: "16px 16px 12px",
+  borderBottom: "1px solid rgba(255,255,255,0.08)",
   flexShrink: 0,
 },
 
@@ -9248,13 +9307,15 @@ checkoutMobileBody: {
   flex: 1,
   minHeight: 0,
   overflowY: "auto",
-  padding: 18,
+  padding: 16,
+  paddingBottom: 120,
   WebkitOverflowScrolling: "touch",
+  overscrollBehavior: "contain",
 },
 
 checkoutMobileFooter: {
   borderTop: "1px solid rgba(255,255,255,0.08)",
-  padding: "16px 18px calc(16px + env(safe-area-inset-bottom))",
+  padding: "14px 16px calc(14px + env(safe-area-inset-bottom))",
   background: "rgba(10,10,10,0.96)",
   flexShrink: 0,
 },
