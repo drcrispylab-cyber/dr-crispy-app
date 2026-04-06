@@ -5553,7 +5553,7 @@ drawerContent: {
   borderRadius: 14,
   cursor: "pointer",
   fontWeight: "bold",
-  transition: "all 0.2s ease",
+  transition: "all 0.18s ease",
 },
   navBtnActive: {
   background: "linear-gradient(135deg, #ff0000, #b30000)",
@@ -5654,16 +5654,17 @@ drawerContent: {
     marginTop: 26,
   },
   heroPrimaryBtn: {
-    background: "linear-gradient(135deg, #ff0000, #b30000)",
-    color: "#fff",
-    border: "none",
-    padding: "15px 20px",
-    borderRadius: 12,
-    cursor: "pointer",
-    fontWeight: "bold",
-    fontSize: 15,
-    boxShadow: "0 12px 24px rgba(255,0,0,0.18)",
-  },
+  background: "linear-gradient(135deg, #ff0000, #b30000)",
+  color: "#fff",
+  border: "none",
+  padding: "15px 22px",
+  borderRadius: 14,
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: 15,
+  boxShadow: "0 14px 28px rgba(255,0,0,0.20)",
+  transition: "transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease",
+},
 
   comboCardFeaturedPro: {
   border: "1px solid rgba(255,0,0,0.28)",
@@ -5690,15 +5691,16 @@ comboIncludePill: {
   fontWeight: "bold",
 },
   heroSecondaryBtn: {
-    background: "#151515",
-    color: "#fff",
-    border: "1px solid #2f2f2f",
-    padding: "15px 22px",
-    borderRadius: 12,
-    cursor: "pointer",
-    fontWeight: "bold",
-    fontSize: 15,
-  },
+  background: "rgba(255,255,255,0.04)",
+  color: "#fff",
+  border: "1px solid rgba(255,255,255,0.10)",
+  padding: "15px 22px",
+  borderRadius: 14,
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: 15,
+  transition: "transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease",
+},
   labHeroVisual: {
     display: "flex",
     alignItems: "center",
@@ -5938,7 +5940,8 @@ drawerCart: {
 },
 
   drawerHeader: {
-  padding: "18px 18px 14px",
+  padding: 24,
+  boxShadow: "0 18px 40px rgba(0,0,0,0.18)",
   borderBottom: "1px solid rgba(255,255,255,0.08)",
   display: "flex",
   justifyContent: "space-between",
@@ -8550,23 +8553,24 @@ cartStatusBarClosed: {
 
 expressInner: {
   background:
-    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.98), rgba(8,8,8,1))",
+    "radial-gradient(circle at top right, rgba(255,0,0,0.12), transparent 26%), linear-gradient(180deg, rgba(18,18,18,0.98), rgba(10,10,10,1))",
   border: "1px solid rgba(255,255,255,0.06)",
   borderRadius: 24,
-  padding: 26,
-  boxShadow: "0 16px 34px rgba(0,0,0,0.22)",
+  padding: 28,
+  boxShadow: "0 18px 40px rgba(255,0,0,0.08)",
 },
 
 expressBadge: {
-  display: "inline-block",
-  background: "rgba(255,196,0,0.12)",
-  border: "1px solid rgba(255,196,0,0.24)",
-  color: "#ffd166",
+  display: "inline-flex",
+  alignItems: "center",
+  background: "rgba(255,0,0,0.12)",
+  border: "1px solid rgba(255,0,0,0.24)",
+  color: "#ffb0b0",
   padding: "8px 14px",
   borderRadius: 999,
   fontWeight: "bold",
   fontSize: 12,
-  letterSpacing: 1,
+  letterSpacing: 0.8,
   marginBottom: 14,
 },
 
@@ -8584,13 +8588,13 @@ expressTextBlock: {
 },
 
 expressTitle: {
-  margin: "0 0 10px 0",
-  fontSize: 54,
+  margin: 0,
+  fontSize: 56,
   lineHeight: 0.95,
-  color: "#fff",
   textTransform: "uppercase",
   fontFamily: '"Bebas Neue", sans-serif',
   letterSpacing: 1,
+  color: "#fff",
 },
 
 expressText: {
@@ -8641,19 +8645,27 @@ categoriasVisualesGrid: {
 
 categoriaVisualCard: {
   background:
-    "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(10,10,10,1))",
-  border: "1px solid rgba(255,255,255,0.07)",
-  borderRadius: 18,
-  overflow: "hidden",
-  boxShadow: "0 12px 24px rgba(0,0,0,0.18)",
+    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03))",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 20,
+  padding: 14,
   cursor: "pointer",
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+  alignItems: "center",
+  textAlign: "center",
+  boxShadow: "0 14px 30px rgba(0,0,0,0.14)",
+  transition: "transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease",
 },
 
 categoriaVisualImageWrap: {
   width: "100%",
-  height: 130,
+  aspectRatio: "1 / 1",
+  borderRadius: 16,
   overflow: "hidden",
   background: "#111",
+  border: "1px solid rgba(255,255,255,0.06)",
 },
 
 categoriaVisualImage: {
@@ -8664,33 +8676,34 @@ categoriaVisualImage: {
 },
 
 categoriaVisualTitle: {
-  padding: "14px 12px",
-  textAlign: "center",
   fontWeight: "bold",
-  color: "#fff",
   fontSize: 14,
+  color: "#fff",
+  lineHeight: 1.25,
 },
 
 heroInfoStrip: {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
   gap: 12,
-  marginTop: 26,
+  marginTop: 24,
 },
 
 heroInfoCard: {
-  background: "rgba(255,255,255,0.04)",
+  background:
+    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03))",
   border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 16,
-  padding: "14px 14px",
-  boxShadow: "0 10px 24px rgba(0,0,0,0.14)",
+  borderRadius: 18,
+  padding: "16px 16px",
+  boxShadow: "0 12px 28px rgba(0,0,0,0.14)",
 },
 
 heroInfoValue: {
-  color: "#fff",
+  fontSize: 22,
   fontWeight: "bold",
-  fontSize: 20,
+  color: "#fff",
   marginBottom: 6,
+  lineHeight: 1.1,
 },
 
 heroInfoLabel: {
