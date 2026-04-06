@@ -266,6 +266,11 @@ const SALSAS = [
     descripcion: "Aceite picante Nashville",
     emoji: "🌶️",
   },
+  {
+    nombre: "Teriyaki Lab",
+    descripcion: "Glaseado teriyaki dulce con toque caramelizado",
+    emoji: "🧪",
+  }
 ];
 
 const EXPERIMENTOS = [
