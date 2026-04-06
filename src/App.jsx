@@ -278,7 +278,7 @@ const EXPERIMENTOS = [
     id: "exp1",
     titulo: "Experimento 01",
     subtitulo: "Alitas Crispy",
-    descripcion: "Fuego Atómico, Honey Mutante y BBQ Reactor",
+    descripcion: "Fuego Atómico, Honey Mutante, BBQ Reactor y Teriyaki Lab",
     estado: "activo",
     imagen: alitasBg,
     badge: "ACTIVO",
@@ -414,6 +414,19 @@ function App() {
   const LAB_DIRECCION = "Calle 52B # 24-95, Barrio Galan, Barrancabermeja";
   const LAB_REFERENCIA = "Recogida en Dr. Crispy Lab";
 
+  const FESTIVOS_MANUALES = [
+  // Formato YYYY-MM-DD
+  // Ejemplo:
+  // "2026-01-12",
+  // "2026-03-23",
+];
+function formatearFechaBogota(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
   const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
   const [panelCarritoAbierto, setPanelCarritoAbierto] = useState(false);
@@ -426,6 +439,7 @@ function App() {
 
   const [salsaSeleccionAnimando, setSalsaSeleccionAnimando] = useState("");
   const [carritoAnimando, setCarritoAnimando] = useState(false);
+  const [ahoraSistema, setAhoraSistema] = useState(Date.now());
 
   const esMovil = ancho < 900;
 
@@ -435,6 +449,14 @@ function App() {
 
   const puedeVerAdmin = rutaPrivada === "admin";
   const puedeVerRepartidor = rutaPrivada === "repartidor";
+  
+  useEffect(() => {
+  const timer = setInterval(() => {
+    setAhoraSistema(Date.now());
+  }, 60000);
+
+  return () => clearInterval(timer);
+}, []);
 
   useEffect(() => {
   if (panelCarritoAbierto) {
@@ -1121,14 +1143,22 @@ function usarDireccionGuardada(direccionId) {
   }
 
    const ahoraBogota = useMemo(() => {
-    return new Date(
-      new Date().toLocaleString("en-US", { timeZone: "America/Bogota" })
-    );
-  }, []);
+  return new Date(
+    new Date(ahoraSistema).toLocaleString("en-US", {
+      timeZone: "America/Bogota",
+    })
+  );
+}, [ahoraSistema]);
 
   const diaSemana = ahoraBogota.getDay(); // 0 domingo, 1 lunes, 2 martes...
   const horaActualMinutos =
     ahoraBogota.getHours() * 60 + ahoraBogota.getMinutes();
+  const fechaBogotaISO = formatearFechaBogota(ahoraBogota);
+
+  const esLunesFestivo = useMemo(() => {
+  return diaSemana === 1 && FESTIVOS_MANUALES.includes(fechaBogotaISO);
+}, [diaSemana, fechaBogotaISO]);
+
 
   const esMiercolesPromo = diaSemana === 3;
 
@@ -1136,21 +1166,26 @@ function usarDireccionGuardada(direccionId) {
     "Martes a sábado: 4:00 PM a 9:00 PM • Domingos y lunes festivos: 12:00 PM a 9:00 PM";
 
   const laboratorioAbierto = useMemo(() => {
-    const HORA_CIERRE = 21 * 60;
+  const HORA_CIERRE = 21 * 60;
 
-    // Domingo
-    if (diaSemana === 0) {
-      return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
-    }
+  // Domingo
+  if (diaSemana === 0) {
+    return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
+  }
 
-    // Lunes
-    if (diaSemana === 1) {
-      return false;
-    }
+  // Lunes festivo
+  if (diaSemana === 1 && esLunesFestivo) {
+    return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
+  }
 
-    // Martes a sábado
-    return horaActualMinutos >= 16 * 60 && horaActualMinutos < HORA_CIERRE;
-  }, [diaSemana, horaActualMinutos]);
+  // Lunes normal
+  if (diaSemana === 1) {
+    return false;
+  }
+
+  // Martes a sábado
+  return horaActualMinutos >= 16 * 60 && horaActualMinutos < HORA_CIERRE;
+}, [diaSemana, horaActualMinutos, esLunesFestivo]);
 
   const subtotal = useMemo(() => {
     return carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
@@ -2073,14 +2108,16 @@ function renderFranjaExpressActiva() {
 
         <div style={styles.heroActionRow}>
                     <button
-            style={styles.heroPrimaryBtn}
-            onClick={() => {
-              activarModoPedido("domicilio");
-              entrarExperimento1();
-            }}
-          >
-            Pedir ahora
-          </button>
+  style={styles.heroPrimaryBtn}
+  onClick={() => {
+    activarModoPedido("domicilio");
+    setVista("cliente");
+    setSeccionCliente("combos");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }}
+>
+  Pedir ahora
+</button>
 
           <button
             style={styles.heroSecondaryBtn}
@@ -2102,9 +2139,11 @@ function renderFranjaExpressActiva() {
           </div>
 
           <div style={styles.heroInfoCard}>
-            <div style={styles.heroInfoValue}>3 fórmulas</div>
-            <div style={styles.heroInfoLabel}>BBQ, Honey y Fuego Atómico</div>
-          </div>
+  <div style={styles.heroInfoValue}>4 fórmulas</div>
+  <div style={styles.heroInfoLabel}>
+    BBQ, Honey, Fuego Atómico y Teriyaki Lab
+  </div>
+</div>
         </div>
       </div>
 
@@ -2172,9 +2211,9 @@ function renderFranjaExpressActiva() {
             <h2 style={styles.expressTitle}>PIDE Y RECOGE EN EL LAB</h2>
 
             <p style={styles.expressText}>
-              Haz tu pedido y recógelo directamente en el laboratorio. Ideal
-              para quienes quieren pasar por él sin esperar domicilio.
-            </p>
+  Haz tu pedido, elige tu hora aproximada y recógelo directamente en el lab.
+  Ideal para quienes quieren más rapidez y cero costo de entrega.
+</p>
 
             <div style={styles.expressPills}>
               <div style={styles.expressPill}>⏱️ Más rápido</div>
@@ -2540,8 +2579,8 @@ function renderBebidasScreen() {
               </div>
               <h2 style={styles.experimentScreenTitle}>ALITAS CRISPY</h2>
               <p style={styles.experimentScreenText}>
-                Fuego Atómico, Honey Mutante y BBQ Reactor.
-              </p>
+  Fuego Atómico, Honey Mutante, BBQ Reactor y Teriyaki Lab.
+</p>
             </div>
 
             <button
@@ -4118,14 +4157,14 @@ function renderPickupInfoCard() {
         <div style={{ marginBottom: 14 }}>
           <label style={styles.label}>Método de pago</label>
           <select
-            style={styles.input}
-            value={cliente.pago}
-            onChange={(e) => actualizarCliente("pago", e.target.value)}
-          >
-            <option value="Llave">Llave</option>
-            <option value="Nequi">Nequi</option>
-            <option value="Efectivo">Efectivo</option>
-          </select>
+  style={styles.input}
+  value={cliente.pago}
+  onChange={(e) => actualizarCliente("pago", e.target.value)}
+>
+  <option value="Llave">Llave</option>
+  <option value="QR Nequi">QR Nequi</option>
+  <option value="Efectivo">Efectivo</option>
+</select>
         </div>
 
         <div style={styles.summaryBox}>
@@ -4497,8 +4536,8 @@ function renderPickupInfoCard() {
           setPanelCarritoVista("checkout");
         }}
       >
-        Mi perfil
-      </button>
+  Mis datos
+</button>
 
       <button
         type="button"
