@@ -83,35 +83,35 @@ const COMBOS = [
     ],
   },
   {
-    id: "combo2",
-    nombre: "Combo Pareja",
-    descripcion: "12 alitas + 2 porciones de papas + 2 Coca-Cola 400 ml",
-    precio: 55900,
-    emoji: "⭐",
-    badge: "MÁS PEDIDO",
-    imagen: "/images/combo-pareja.png",
-    itemsInternos: [
-      {
-        id: "combo2-alitas",
-        nombre: "Alitas x12",
-        precio: 48900,
-        cantidad: 1,
-        salsa: "BBQ Reactor",
-      },
-      {
-        id: "combo2-papas",
-        nombre: "Papas fritas",
-        precio: 5000,
-        cantidad: 2,
-      },
-      {
-        id: "combo2-bebida",
-        nombre: "Coca-Cola PET 400",
-        precio: 4500,
-        cantidad: 2,
-      },
-    ],
-  },
+  id: "combo2",
+  nombre: "Combo Pareja",
+  descripcion: "12 alitas + 2 porciones de papas + 2 Coca-Cola 400 ml. El combo más pedido del laboratorio para compartir.",
+  precio: 55900,
+  emoji: "⭐",
+  badge: "HÉROE DEL LAB",
+  imagen: "/images/combo-pareja.png",
+  itemsInternos: [
+    {
+      id: "combo2-alitas",
+      nombre: "Alitas x12",
+      precio: 48900,
+      cantidad: 1,
+      salsa: "BBQ Reactor",
+    },
+    {
+      id: "combo2-papas",
+      nombre: "Papas fritas",
+      precio: 5000,
+      cantidad: 2,
+    },
+    {
+      id: "combo2-bebida",
+      nombre: "Coca-Cola PET 400",
+      precio: 4500,
+      cantidad: 2,
+    },
+  ],
+},
   {
     id: "combo3",
     nombre: "Combo Pro",
@@ -426,6 +426,11 @@ function formatearFechaBogota(date) {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+
+const combosDestacados = [
+  COMBOS.find((combo) => combo.id === "combo2"),
+  COMBOS.find((combo) => combo.id === "combo1"),
+].filter(Boolean);
 
   const [headerCartAnimando, setHeaderCartAnimando] = useState(false);
   
@@ -2263,7 +2268,46 @@ function renderFranjaExpressActiva() {
     </section>
   );
 }
+function renderCombosDestacadosHome() {
+  const combosDestacados = COMBOS.slice(0, 2);
 
+  return (
+    <section style={styles.panel}>
+      <div style={styles.catalogHeader}>
+        <div style={styles.menuInteractiveBadge}>🔥 MÁS PEDIDOS</div>
+        <h2 style={styles.catalogTitle}>COMBOS DESTACADOS</h2>
+        <p style={styles.catalogText}>
+          La forma más rápida de pedir en Dr. Crispy Lab.
+        </p>
+      </div>
+
+      <div
+        style={{
+          ...styles.comboGrid,
+          gridTemplateColumns: esMovil
+            ? "1fr"
+            : "repeat(2, minmax(0, 1fr))",
+        }}
+      >
+        {combosDestacados.map(renderComboCard)}
+      </div>
+
+      <div style={{ marginTop: 18 }}>
+        <button
+          type="button"
+          style={styles.heroPrimaryBtn}
+          onClick={() => {
+            setVista("cliente");
+            setSeccionCliente("combos");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
+          Ver todos los combos
+        </button>
+      </div>
+    </section>
+  );
+}
   function renderMiercolesPromoSection() {
     if (!esMiercolesPromo) return null;
 
@@ -2336,8 +2380,8 @@ function renderCategoriasVisuales() {
         <div style={styles.menuInteractiveBadge}>🍗 EXPLORA RÁPIDO</div>
         <h2 style={styles.catalogTitle}>ELIGE TU RUTA EN EL LAB</h2>
         <p style={styles.catalogText}>
-          Toca y entra directo a lo que quieres pedir.
-        </p>
+  Entra directo a combos, bebidas, adicionales o tu ruta express.
+</p>
       </div>
 
       <div
@@ -2495,8 +2539,8 @@ function renderCategoriasVisuales() {
             <div style={styles.menuInteractiveBadge}>🔥 COMBOS ACTIVADOS</div>
             <h2 style={styles.experimentScreenTitle}>COMBOS DEL LAB</h2>
             <p style={styles.experimentScreenText}>
-              Los más pedidos del laboratorio. Más rápidos de elegir, más fáciles de vender.
-            </p>
+  Los combos más pedidos del laboratorio. Elige uno, selecciona tu salsa y pide en minutos.
+</p>
           </div>
 
           <button
@@ -2802,7 +2846,9 @@ function renderCarritoDesktop() {
           </div>
 
           <div style={styles.summaryRow}>
-  <span>{textoEntrega}</span>
+  <span>
+  {tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}
+</span>
   <span style={{ color: "#ffd166", fontWeight: "bold" }}>
     {textoValorEntrega}
   </span>
@@ -2947,19 +2993,20 @@ function renderPickupInfoCard() {
           Bebidas
         </button>
       </section>
-
+{renderBarraModoPedido()}
       {/* 🔥 BLOQUE CORRECTO */}
             {seccionCliente === "inicio" && (
-        <>
-          {renderHeroInicio()}
-          <div ref={expressSectionRef}>
-            {renderExpressSection()}
-          </div>
-          {renderMiercolesPromoSection()}
-          {renderCategoriasVisuales()}
-          {renderCatalogoExperimentos()}
-        </>
-      )}
+  <>
+    {renderHeroInicio()}
+    <div ref={expressSectionRef}>
+      {renderExpressSection()}
+    </div>
+    {renderCombosDestacadosHome()}
+    {renderMiercolesPromoSection()}
+    {renderCategoriasVisuales()}
+    {renderCatalogoExperimentos()}
+  </>
+)}
 
       {seccionCliente === "catalogo" && renderCatalogoExperimentos()}
       {seccionCliente === "combos" && renderCombosScreen()}
@@ -3456,7 +3503,9 @@ function renderPickupInfoCard() {
       </div>
 
       <div style={styles.summaryRow}>
-        <span>{textoEntrega}</span>
+        <span>
+  {tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}
+</span>
         <span style={{ color: "#ffd166", fontWeight: "bold" }}>
           {textoValorEntrega}
         </span>
@@ -3754,7 +3803,9 @@ function renderPickupInfoCard() {
     </div>
 
     <div style={styles.checkoutMobileResumeRow}>
-  <span>{textoEntrega}</span>
+  <span>
+    {tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}
+  </span>
   <strong style={{ color: "#ffd166" }}>{textoValorEntrega}</strong>
 </div>
 
@@ -3779,12 +3830,12 @@ function renderPickupInfoCard() {
     ? "🕒 FUERA DE HORARIO"
     : cargandoPedido
     ? "Activando pedido..."
-    : "🔥 CONFIRMAR PEDIDO"}
+    : "🔥 FINALIZAR PEDIDO"}
 </button>
 
 {!laboratorioAbierto && (
   <div style={styles.checkoutClosedHint}>
-    Puedes dejar tu pedido listo, pero la confirmación se habilita en horario de atención.
+    Puedes dejar tu pedido listo, pero solo se confirmará en horario de atención.
   </div>
 )}
 
@@ -3968,7 +4019,9 @@ function renderPickupInfoCard() {
               </div>
 
               <div style={styles.summaryRow}>
-                <span>{textoEntrega}</span>
+                <span>
+  {tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}
+</span>
                 <span style={{ color: "#ffd166", fontWeight: "bold" }}>
                   {textoValorEntrega}
                 </span>
@@ -4020,7 +4073,7 @@ function renderPickupInfoCard() {
 
             <div style={styles.globalCartFooterHint}>
               {tipoPedido === "recoger"
-                ? "⚡ Express activado para recoger en el lab"
+                ? "⚡ ⚡ Estás en modo Express. Recoges en el lab sin costo de domicilio."
                 : "⚡ Pedido rápido, claro y listo para continuar"}
             </div>
           </div>
@@ -4174,7 +4227,9 @@ function renderPickupInfoCard() {
           </div>
 
           <div style={styles.summaryRow}>
-            <span>{textoEntrega}</span>
+            <span>
+  {tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}
+</span>
             <span style={{ color: "#ffd166", fontWeight: "bold" }}>
               {textoValorEntrega}
             </span>
@@ -4214,7 +4269,7 @@ function renderPickupInfoCard() {
             ? "🕒 FUERA DE HORARIO"
             : cargandoPedido
             ? "Activando pedido..."
-            : "🔥 CONFIRMAR PEDIDO"}
+            : "🔥 FINALIZAR PEDIDO"}
         </button>
       </div>
 
