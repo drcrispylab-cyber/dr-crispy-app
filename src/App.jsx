@@ -1267,7 +1267,7 @@ function usarDireccionGuardada(direccionId) {
       "",
       `👤 Cliente: ${cliente.nombre || "-"}`,
       `📞 Teléfono: ${cliente.telefono || "-"}`,
-      `🛍️ Tipo de pedido: ${textoEntrega}`,
+      `🛍️ Tipo de activación: ${tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}`,
       ...(tipoPedido === "domicilio"
         ? [
             `📍 Dirección: ${cliente.direccion || "-"}`,
@@ -1276,7 +1276,7 @@ function usarDireccionGuardada(direccionId) {
         : [`⏰ Hora de recogida: ${horaRecogida || "-"}`]),
       `💳 Pago: ${cliente.pago || "-"}`,
       "",
-      "*Productos:*",
+      "*Fórmulas activadas:*",
       ...carrito.map(
         (item) =>
           `- ${item.experimento || "Experimento 1"} | ${item.nombre} x${
@@ -1454,8 +1454,8 @@ function usarDireccionGuardada(direccionId) {
       });
 
      setModalPedidoAbierto(true);
-mostrarMensaje("ok", `Pedido creado correctamente: ${nuevoId}`);
-mostrarToast("🎉 Tu pedido fue confirmado correctamente");
+mostrarMensaje("ok", `🧪 Pedido activado en el laboratorio: ${nuevoId}`);
+mostrarToast("🧪 Tu experimento fue activado correctamente");
 
 // 🔥 cerrar todos los carritos / paneles
 setCheckoutMovilAbierto(false);
@@ -1960,7 +1960,36 @@ function renderCatalogCard({
   onAgregar,
 }) {
   const cardKey = `catalog-${id}`;
-
+const badgeStyle =
+  badge === "MÁS PEDIDO"
+    ? {
+        background: "linear-gradient(135deg, #ff0000, #ff4d4d)",
+        border: "1px solid rgba(255,0,0,0.35)",
+        color: "#fff",
+      }
+    : badge === "RECOMENDADO"
+    ? {
+        background: "linear-gradient(135deg, #ffd166, #ffb703)",
+        border: "1px solid rgba(255,209,102,0.35)",
+        color: "#1a1a1a",
+      }
+    : badge === "NUEVO"
+    ? {
+        background: "linear-gradient(135deg, #7b2ff7, #f107a3)",
+        border: "1px solid rgba(123,47,247,0.35)",
+        color: "#fff",
+      }
+    : badge === "RÁPIDO"
+    ? {
+        background: "linear-gradient(135deg, #ffd166, #ffb703)",
+        border: "1px solid rgba(255,209,102,0.35)",
+        color: "#1a1a1a",
+      }
+    : {
+        background: "rgba(255,255,255,0.1)",
+        border: "1px solid rgba(255,255,255,0.12)",
+        color: "#fff",
+      };
   return (
     <div
       key={id}
@@ -1986,7 +2015,16 @@ function renderCatalogCard({
 
         <p style={styles.kfcCardDesc}>{descripcion}</p>
 
-        {badge ? <div style={styles.kfcCardBadge}>{badge}</div> : null}
+        {badge ? (
+  <div
+    style={{
+      ...styles.kfcCardBadge,
+      ...badgeStyle,
+    }}
+  >
+    {badge}
+  </div>
+) : null}
 
         <button
           type="button"
@@ -2102,7 +2140,7 @@ function renderFranjaExpressActiva() {
         <p style={styles.labHeroText}>
           Crujiente calibrado, combos activados y pedido rápido.
           <br />
-          Dr. Crispy Lab no vende pollo común: activa antojos.
+          Dr. Crispy Lab no vende pollo común: activa fórmulas con sabor de laboratorio.
         </p>
 
         <div style={styles.heroUrgencyWrap}>
@@ -2216,8 +2254,8 @@ function renderFranjaExpressActiva() {
             <h2 style={styles.expressTitle}>PIDE Y RECOGE EN EL LAB</h2>
 
             <p style={styles.expressText}>
-  Haz tu pedido, elige tu hora aproximada y recógelo directamente en el lab.
-  Ideal para quienes quieren más rapidez y cero costo de entrega.
+  Activa tu pedido, elige tu hora aproximada y recógelo directamente en el lab.
+Ideal para quienes quieren más rapidez y cero costo de entrega.
 </p>
 
             <div style={styles.expressPills}>
@@ -2317,7 +2355,7 @@ function renderCombosDestacadosHome() {
           <div style={styles.menuInteractiveBadge}>🔥 SOLO HOY</div>
           <h2 style={styles.catalogTitle}>MIÉRCOLES DE PROMOCIÓN</h2>
           <p style={styles.catalogText}>
-            Promos activas del laboratorio solo por hoy. En promociones no aplica domicilio incluido.
+            Promociones activas solo por hoy. Aprovecha precios especiales del laboratorio. En promos no aplica domicilio incluido.
           </p>
         </div>
 
@@ -3079,13 +3117,13 @@ function renderPickupInfoCard() {
             <h2 style={styles.successTitle}>Experimento confirmado</h2>
 
             <p style={styles.successText}>
-              Tu pedido fue recibido correctamente en el laboratorio.
+              Tu pedido fue activado correctamente en el laboratorio.
             </p>
 
             {pedidoConfirmadoInfo && (
               <div style={styles.successDataBox}>
                 <div style={styles.successDataRow}>
-                  <span>Pedido</span>
+                  <span>Experimento</span>
                   <strong>{pedidoConfirmadoInfo.id}</strong>
                 </div>
 
@@ -3123,7 +3161,7 @@ function renderPickupInfoCard() {
                 style={styles.heroPrimaryBtn}
                 onClick={() => setModalPedidoAbierto(false)}
               >
-                Entendido
+                Volver al laboratorio
               </button>
             </div>
           </div>
@@ -3393,7 +3431,7 @@ function renderPickupInfoCard() {
           <div style={styles.drawerHeaderContent}>
             <div style={styles.drawerMini}>🛒 TU PEDIDO</div>
 
-            <h2 style={styles.drawerTitle}>Tu pedido del laboratorio</h2>
+            <h2 style={styles.drawerTitle}>Tu pedido activado</h2>
 
             <div style={styles.drawerHeaderMeta}>
               <span style={styles.drawerMetaPill}>
@@ -3570,7 +3608,7 @@ function renderPickupInfoCard() {
                 <div style={styles.menuInteractiveBadge}>📦 FINALIZAR PEDIDO</div>
                 <h2 style={styles.checkoutMobileTitle}>Checkout del laboratorio</h2>
                 <p style={styles.checkoutMobileSubtitle}>
-                  Confirma tus datos de entrega y método de pago.
+                  Confirma tus datos, define tu entrega y activa tu pedido.
                 </p>
               </div>
 
@@ -4138,7 +4176,7 @@ function renderPickupInfoCard() {
         <div style={styles.menuInteractiveBadge}>📦 DATOS DEL PEDIDO</div>
         <h2 style={styles.panelTitle}>FINALIZAR PEDIDO</h2>
         <p style={styles.loginHint}>
-          Confirma tus datos de entrega y método de pago.
+          Confirma tus datos, define tu entrega y activa tu pedido.
         </p>
 
         <Input
@@ -6328,7 +6366,8 @@ checkoutGuestPromptText: {
   },
   catalogTitle: {
     margin: "0 0 10px 0",
-    fontSize: 64,
+    fontSize: 26,
+    fontWeight: 800,
     textTransform: "uppercase",
     fontFamily: '"Bebas Neue", sans-serif',
     letterSpacing: 1.2,
@@ -7802,12 +7841,13 @@ checkoutMobileResumeTotal: {
 },
 
 checkoutTrustText: {
-  marginTop: 10,
+  marginTop: 12,
   marginBottom: 10,
   textAlign: "center",
-  color: "#ffd1d1",
+  color: "#d7d7d7",
   fontWeight: "bold",
   fontSize: 13,
+  lineHeight: 1.45,
 },
 
   sauceVisualName: {
@@ -8272,12 +8312,13 @@ kfcCard: {
   padding: 14,
   boxShadow: "0 10px 24px rgba(0,0,0,0.20)",
   transition: "transform 0.22s ease, box-shadow 0.22s ease, border 0.22s ease",
+  willChange: "transform",
 },
 
 kfcCardHover: {
-  transform: "translateY(-4px)",
-  border: "1px solid rgba(255,0,0,0.20)",
-  boxShadow: "0 18px 34px rgba(255,0,0,0.10)",
+  transform: "translateY(-6px) scale(1.01)",
+  boxShadow: "0 22px 42px rgba(255,0,0,0.16)",
+  border: "1px solid rgba(255,0,0,0.22)",
 },
 
 kfcCardImageWrap: {
