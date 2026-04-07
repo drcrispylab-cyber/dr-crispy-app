@@ -3493,69 +3493,91 @@ function renderPickupInfoCard() {
           ) : (
             <div style={styles.drawerItemsWrap}>
               {carrito.map((item) => (
-                <div key={item.cartKey} style={styles.cartItem}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <strong style={{ display: "block", marginBottom: 4 }}>
-                      {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
-                    </strong>
+  <div key={item.cartKey} style={styles.cartItem}>
+    
+    <div style={{ flex: 1, minWidth: 0 }}>
+      
+      <strong
+        style={{
+          display: "block",
+          marginBottom: 4,
+          color: "#fff",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+      </strong>
 
-                    <div style={styles.cartSub}>
-                      {item.experimento || "Experimento 1"}
-                    </div>
+      <div style={styles.cartSub}>
+        {item.experimento || "Experimento 1"}
+      </div>
 
-                    {item.salsa && (
-                      <div
-                        style={{
-                          ...styles.cartSub,
-                          color: "#ffd166",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Sabor: {item.salsa}
-                      </div>
-                    )}
+      {item.salsa && (
+        <div
+          style={{
+            ...styles.cartSub,
+            color: "#ffd166",
+            fontWeight: "bold",
+          }}
+        >
+          Sabor: {item.salsa}
+        </div>
+      )}
 
-                    {item.esCombo && Array.isArray(item.detalleCombo) && (
-                      <div style={{ marginTop: 8 }}>
-                        {formatearDetalleCombo(item.detalleCombo).map(
-                          (detalle, idx) => (
-                            <div key={idx} style={styles.cartSub}>
-                              • {detalle}
-                            </div>
-                          )
-                        )}
-                      </div>
-                    )}
+      {item.esCombo && Array.isArray(item.detalleCombo) && (
+        <div style={{ marginTop: 6 }}>
+          {formatearDetalleCombo(item.detalleCombo)
+            .slice(0, 2) // 🔥 muestra máximo 2 líneas para no saturar móvil
+            .map((detalle, idx) => (
+              <div key={idx} style={styles.cartSub}>
+                • {detalle}
+              </div>
+            ))}
 
-                    <div
-                      style={{
-                        ...styles.cartSub,
-                        marginTop: 8,
-                        fontWeight: "bold",
-                        color: "#fff",
-                      }}
-                    >
-                      ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
-                    </div>
-                  </div>
+          {item.detalleCombo.length > 2 && (
+            <div style={{ ...styles.cartSub, opacity: 0.7 }}>
+              + más...
+            </div>
+          )}
+        </div>
+      )}
 
-                  <div style={styles.qtyBox}>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => cambiarCantidad(item.cartKey, -1)}
-                    >
-                      -
-                    </button>
-                    <span>{item.cantidad}</span>
-                    <button
-                      style={styles.qtyBtn}
-                      onClick={() => cambiarCantidad(item.cartKey, 1)}
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ))}
+      <div
+        style={{
+          ...styles.cartSub,
+          marginTop: 6,
+          fontWeight: "bold",
+          color: "#fff",
+        }}
+      >
+        ${item.precio.toLocaleString("es-CO")} × {item.cantidad}
+      </div>
+    </div>
+
+    <div style={styles.qtyBox}>
+      <button
+        style={styles.qtyBtn}
+        onClick={() => cambiarCantidad(item.cartKey, -1)}
+      >
+        −
+      </button>
+
+      <span style={{ minWidth: 20, textAlign: "center" }}>
+        {item.cantidad}
+      </span>
+
+      <button
+        style={styles.qtyBtn}
+        onClick={() => cambiarCantidad(item.cartKey, 1)}
+      >
+        +
+      </button>
+    </div>
+
+  </div>
+))}
             </div>
           )}
         </div>
@@ -3968,7 +3990,15 @@ function renderPickupInfoCard() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gap: 10 }}>
+         <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "stretch",
+              gap: esMovil ? 10 : 12,
+              flexShrink: 0,
+            }}
+          >
           <div style={styles.globalCartTopTotalCard}>
             <div style={styles.globalCartTopTotalLabel}>Total</div>
             <div style={styles.globalCartTopTotalValue}>
@@ -6006,15 +6036,16 @@ drawerCart: {
   },
 
   drawerCloseBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.12)",
-    background: "rgba(255,255,255,0.04)",
-    color: "#fff",
-    fontSize: 18,
-    cursor: "pointer",
-  },
+  width: esMovil ? 58 : 72,
+  height: esMovil ? 58 : 72,
+  borderRadius: esMovil ? 18 : 22,
+  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.03)",
+  color: "#fff",
+  fontSize: esMovil ? 24 : 28,
+  cursor: "pointer",
+  alignSelf: "flex-end",
+},
   
   loginHint: {
   color: "#cfcfcf",
@@ -6089,23 +6120,25 @@ globalCartBody: {
   flex: 1,
   minHeight: 0,
   overflowY: "auto",
-  padding: 18,
-  paddingBottom: 120,
+  padding: esMovil ? 14 : 18,
+  paddingBottom: esMovil ? 110 : 120,
   WebkitOverflowScrolling: "touch",
 },
+
 globalCartHeaderPro: {
-  padding: "18px 18px 14px",
+  padding: esMovil ? "14px 14px 10px" : "18px 18px 14px",
   borderBottom: "1px solid rgba(255,255,255,0.08)",
   display: "flex",
   justifyContent: "space-between",
-  gap: 12,
+  gap: esMovil ? 10 : 12,
   flexShrink: 0,
 },
 
-globalCartHeaderLeft: {
+globalCartTopRow: {
   display: "flex",
-  flexDirection: "column",
+  alignItems: "center",
   gap: 8,
+  flexWrap: "wrap",
 },
 
 globalCartTopRow: {
@@ -6122,10 +6155,10 @@ globalCartMiniPill: {
   background: "rgba(255,0,0,0.12)",
   border: "1px solid rgba(255,0,0,0.22)",
   color: "#ffb0b0",
-  padding: "7px 12px",
+  padding: esMovil ? "6px 10px" : "7px 12px",
   borderRadius: 999,
   fontWeight: "bold",
-  fontSize: 12,
+  fontSize: esMovil ? 11 : 12,
 },
 
 globalCartCountPill: {
@@ -6134,53 +6167,54 @@ globalCartCountPill: {
   background: "rgba(255,255,255,0.05)",
   border: "1px solid rgba(255,255,255,0.08)",
   color: "#fff",
-  padding: "7px 12px",
+  padding: esMovil ? "6px 10px" : "7px 12px",
   borderRadius: 999,
   fontWeight: "bold",
-  fontSize: 12,
+  fontSize: esMovil ? 11 : 12,
 },
 
 globalCartTitlePro: {
   margin: 0,
-  fontSize: 40,
   color: "#fff",
   textTransform: "uppercase",
   fontFamily: '"Bebas Neue", sans-serif',
   letterSpacing: 1,
-  lineHeight: 0.95,
+  lineHeight: 0.94,
+  fontSize: esMovil ? 34 : 52,
 },
 
 globalCartSubPro: {
   margin: 0,
-  color: "#c9c9c9",
-  fontSize: 14,
-  lineHeight: 1.45,
+  color: "#c8c8c8",
+  fontSize: esMovil ? 14 : 16,
+  lineHeight: 1.35,
+  maxWidth: esMovil ? "100%" : 420,
 },
 
 globalCartTopTotalCard: {
-  minWidth: 120,
+  minWidth: esMovil ? 128 : 156,
+  padding: esMovil ? "12px 12px" : "16px 16px",
+  borderRadius: esMovil ? 20 : 24,
   background:
-    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03))",
+    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
   border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 16,
-  padding: "12px 14px",
   textAlign: "right",
 },
 
 globalCartTopTotalLabel: {
-  color: "#a7a7a7",
-  fontSize: 12,
-  marginBottom: 4,
+  color: "#bcbcbc",
+  fontSize: esMovil ? 11 : 13,
   fontWeight: "bold",
   textTransform: "uppercase",
-  letterSpacing: 0.5,
+  letterSpacing: 0.8,
 },
 
 globalCartTopTotalValue: {
   color: "#fff",
-  fontSize: 24,
   fontWeight: "bold",
+  fontSize: esMovil ? 28 : 36,
   lineHeight: 1,
+  marginTop: 6,
 },
 
 cartItemPro: {
@@ -6638,19 +6672,18 @@ checkoutGuestPromptText: {
     color: "#bbb",
   },
   cartItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 12,
-    background:
-      "radial-gradient(circle at top right, rgba(255,0,0,0.06), transparent 30%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(18,18,18,0.98))",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 18,
-    padding: 16,
-    marginBottom: 12,
-    flexWrap: "nowrap",
-    boxShadow: "0 10px 22px rgba(0,0,0,0.16)",
-  },
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: esMovil ? 10 : 12,
+  background:
+    "radial-gradient(circle at top right, rgba(255,0,0,0.06), transparent 30%), linear-gradient(180deg, rgba(28,28,28,0.98), rgba(18,18,18,0.98))",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: esMovil ? 16 : 18,
+  padding: esMovil ? 12 : 16,
+  marginBottom: 10,
+  boxShadow: "0 10px 22px rgba(0,0,0,0.16)",
+},
   cartSub: {
     color: "#bdbdbd",
     marginTop: 4,
@@ -6662,15 +6695,16 @@ checkoutGuestPromptText: {
     gap: 8,
   },
   qtyBtn: {
-    width: 32,
-    height: 32,
-    background: "#ff0000",
-    border: "none",
-    color: "#fff",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontWeight: "bold",
-  },
+  width: esMovil ? 30 : 32,
+  height: esMovil ? 30 : 32,
+  background: "#ff0000",
+  border: "none",
+  color: "#fff",
+  borderRadius: 999,
+  cursor: "pointer",
+  fontWeight: "bold",
+  fontSize: esMovil ? 18 : 18,
+},
   summaryBox: {
     borderTop: "1px solid rgba(255,255,255,0.08)",
     marginTop: 20,
