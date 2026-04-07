@@ -456,6 +456,18 @@ const combosDestacados = [
   const puedeVerRepartidor = rutaPrivada === "repartidor";
   
   useEffect(() => {
+  if (formulaSeleccionada || comboPendiente) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [formulaSeleccionada, comboPendiente]);
+
+  useEffect(() => {
   const timer = setInterval(() => {
     setAhoraSistema(Date.now());
   }, 60000);
@@ -3176,18 +3188,18 @@ function renderPickupInfoCard() {
   >
     <div
       style={{
-  ...styles.kfcModalCard,
-  maxWidth: esMovil ? "96vw" : 980,
-  maxHeight: esMovil ? "90dvh" : "92dvh",
-}}
+        ...styles.kfcModalCard,
+        maxWidth: esMovil ? "96vw" : 980,
+        maxHeight: esMovil ? "90dvh" : "92dvh",
+      }}
       onClick={(e) => e.stopPropagation()}
     >
       <div
         style={{
-  ...styles.kfcModalLayout,
-  gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-  gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
-}}
+          ...styles.kfcModalLayout,
+          gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
+          gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
+        }}
       >
         <div style={styles.kfcModalImageWrap}>
           <img
@@ -3240,11 +3252,11 @@ function renderPickupInfoCard() {
             </div>
 
             <div
-  style={{
-    ...styles.kfcOptionList,
-    maxHeight: esMovil ? "100%" : "none",
-  }}
->
+              style={{
+                ...styles.kfcOptionList,
+                maxHeight: esMovil ? "100%" : "none",
+              }}
+            >
               {SALSAS.map((salsa) => (
                 <button
                   key={salsa.nombre}
@@ -3294,18 +3306,18 @@ function renderPickupInfoCard() {
   >
     <div
       style={{
-  ...styles.kfcModalCard,
-  maxWidth: esMovil ? "96vw" : 980,
-  maxHeight: esMovil ? "90dvh" : "92dvh",
-}}
+        ...styles.kfcModalCard,
+        maxWidth: esMovil ? "96vw" : 980,
+        maxHeight: esMovil ? "90dvh" : "92dvh",
+      }}
       onClick={(e) => e.stopPropagation()}
     >
       <div
         style={{
-  ...styles.kfcModalLayout,
-  gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-  gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
-}}
+          ...styles.kfcModalLayout,
+          gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
+          gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
+        }}
       >
         <div style={styles.kfcModalImageWrap}>
           <img
@@ -3372,11 +3384,11 @@ function renderPickupInfoCard() {
             </div>
 
             <div
-  style={{
-    ...styles.kfcOptionList,
-    maxHeight: esMovil ? "100%" : "none",
-  }}
->
+              style={{
+                ...styles.kfcOptionList,
+                maxHeight: esMovil ? "100%" : "none",
+              }}
+            >
               {SALSAS.map((salsa) => (
                 <button
                   key={salsa.nombre}
@@ -3408,13 +3420,8 @@ function renderPickupInfoCard() {
             </div>
           </div>
 
-          <div style={styles.kfcStickyFooter}>
-            <div style={styles.kfcStickyFooterPrice}>
-              Total: ${comboPendiente.combo.precio.toLocaleString("es-CO")}
-            </div>
-            <div style={styles.kfcModalFooterNote}>
-              Selecciona una salsa para continuar.
-            </div>
+          <div style={styles.kfcModalFooterNote}>
+            Selecciona una salsa para continuar.
           </div>
         </div>
       </div>
@@ -7922,7 +7929,7 @@ checkoutTrustText: {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  padding: 16,
+  padding: 12,
 },
 
 kfcModalCard: {
@@ -7943,6 +7950,7 @@ kfcModalLayout: {
   display: "grid",
   flex: 1,
   minHeight: 0,
+  height: "100%",
 },
 
 kfcModalImageWrap: {
@@ -7965,7 +7973,7 @@ kfcModalContent: {
   flexDirection: "column",
   minHeight: 0,
   overflow: "hidden",
-  padding: 20,
+  padding: 18,
 },
 
 kfcModalContentOnly: {
@@ -7979,7 +7987,7 @@ kfcModalTopBar: {
   justifyContent: "space-between",
   alignItems: "flex-start",
   gap: 12,
-  marginBottom: 16,
+  marginBottom: 14,
   flexShrink: 0,
 },
 
@@ -8090,10 +8098,10 @@ kfcModalSection: {
 kfcModalSectionHeader: {
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "center",
-  gap: 14,
-  marginBottom: 14,
-  flexWrap: "wrap",
+  alignItems: "flex-start",
+  gap: 10,
+  marginBottom: 12,
+  flexShrink: 0,
 },
 
 kfcModalSectionTitle: {
@@ -8123,9 +8131,12 @@ kfcOptionList: {
   display: "grid",
   gap: 12,
   minHeight: 0,
+  flex: 1,
   overflowY: "auto",
-  paddingRight: 4,
+  overscrollBehavior: "contain",
   WebkitOverflowScrolling: "touch",
+  paddingRight: 4,
+  paddingBottom: 10,
 },
 
 kfcOptionCard: {
@@ -8202,11 +8213,7 @@ kfcRadioDot: {
 },
 
 kfcComboSummaryBox: {
-  background: "rgba(255,255,255,0.03)",
-  border: "1px solid rgba(255,255,255,0.06)",
-  borderRadius: 16,
-  padding: 16,
-  marginBottom: 18,
+  flexShrink: 0,
 },
 
 kfcComboSummaryTitle: {
@@ -8242,6 +8249,8 @@ kfcStickyFooterPrice: {
 },
 
 kfcModalFooterNote: {
+  marginTop: 12,
+  flexShrink: 0,
   color: "#bdbdbd",
   fontSize: 13,
   lineHeight: 1.45,
