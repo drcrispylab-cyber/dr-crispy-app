@@ -6136,11 +6136,12 @@ function renderPickupInfoCard() {
     </button>
 
     <button
-      style={styles.statusBtn}
-      onClick={() => cambiarEstado(pedido.id, "En cocina")}
-    >
-      En cocina
-    </button>
+  onClick={() =>
+    cambiarEstadoYNotificar(pedido, "En cocina", "en_cocina")
+  }
+>
+  En cocina 🔔
+</button>
 
     <button
       style={styles.whatsappQuickBtn}
@@ -6250,17 +6251,12 @@ function renderPickupInfoCard() {
     </button>
 
     <button
-      style={styles.whatsappQuickBtn}
-      onClick={() =>
-        actualizarPagoYNotificar(
-          pedido,
-          "Pagado",
-          "pago_verificado"
-        )
-      }
-    >
-      Pago verificado + avisar
-    </button>
+  onClick={() =>
+    actualizarPagoYNotificar(pedido, "Pagado", "pago_verificado")
+  }
+>
+  Pagado 🔔
+</button>
 
     <button
       style={styles.statusBtn}
