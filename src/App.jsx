@@ -2171,14 +2171,7 @@ function renderFranjaExpressActiva() {
           </button>
         </div>
 
-        <div
-  style={{
-    ...styles.heroInfoStrip,
-    gridTemplateColumns: esMovil
-      ? "1fr"
-      : "repeat(auto-fit, minmax(160px, 1fr))",
-  }}
->
+        <div style={styles.heroInfoStrip}>
           <div style={styles.heroInfoCard}>
             <div style={styles.heroInfoValue}>+ Más pedido</div>
             <div style={styles.heroInfoLabel}>Combo Pareja y Experimento 01</div>
@@ -3182,21 +3175,20 @@ function renderPickupInfoCard() {
     onClick={() => setFormulaSeleccionada(null)}
   >
     <div
-  style={{
-    ...styles.kfcModalCard,
-    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
-    borderRadius: esMovil ? 18 : 22,
-    margin: esMovil ? "12px 0" : 0,
-  }}
-  onClick={(e) => e.stopPropagation()}
->
+      style={{
+  ...styles.kfcModalCard,
+  maxWidth: esMovil ? "96vw" : 980,
+  maxHeight: esMovil ? "90dvh" : "92dvh",
+}}
+      onClick={(e) => e.stopPropagation()}
+    >
       <div
-  style={{
-    ...styles.kfcModalLayout,
-    gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-    minHeight: esMovil ? "auto" : 560,
-  }}
->
+        style={{
+  ...styles.kfcModalLayout,
+  gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
+  gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
+}}
+      >
         <div style={styles.kfcModalImageWrap}>
           <img
             src={
@@ -3207,12 +3199,7 @@ function renderPickupInfoCard() {
           />
         </div>
 
-        <div style={{
-    ...styles.kfcModalContent,
-    minHeight: esMovil ? "auto" : 560,
-    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
-    padding: esMovil ? 16 : 24,
-  }}>
+        <div style={styles.kfcModalContent}>
           <div style={styles.kfcModalTopBar}>
             <div>
               <div style={styles.kfcModalMiniBadge}>
@@ -3252,13 +3239,12 @@ function renderPickupInfoCard() {
               <div style={styles.kfcStepBubble}>1 / 1</div>
             </div>
 
-            <div style={{
+            <div
+  style={{
     ...styles.kfcOptionList,
-    maxHeight: esMovil ? "40dvh" : "none",
-    overflowY: esMovil ? "auto" : "visible",
-    paddingRight: esMovil ? 4 : 0,
-    WebkitOverflowScrolling: "touch",
-  }}>
+    maxHeight: esMovil ? "100%" : "none",
+  }}
+>
               {SALSAS.map((salsa) => (
                 <button
                   key={salsa.nombre}
@@ -3303,24 +3289,23 @@ function renderPickupInfoCard() {
 
       {comboPendiente && (
   <div
-    style={{
-    ...styles.kfcModalCard,
-    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
-    borderRadius: esMovil ? 18 : 22,
-    margin: esMovil ? "12px 0" : 0,
-  }}
+    style={styles.kfcModalBackdrop}
     onClick={() => setComboPendiente(null)}
   >
     <div
-      style={styles.kfcModalCard}
+      style={{
+  ...styles.kfcModalCard,
+  maxWidth: esMovil ? "96vw" : 980,
+  maxHeight: esMovil ? "90dvh" : "92dvh",
+}}
       onClick={(e) => e.stopPropagation()}
     >
       <div
         style={{
-    ...styles.kfcModalLayout,
-    gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-    minHeight: esMovil ? "auto" : 560,
-  }}
+  ...styles.kfcModalLayout,
+  gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
+  gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
+}}
       >
         <div style={styles.kfcModalImageWrap}>
           <img
@@ -3332,12 +3317,7 @@ function renderPickupInfoCard() {
           />
         </div>
 
-        <div style={{
-    ...styles.kfcModalContent,
-    minHeight: esMovil ? "auto" : 560,
-    maxHeight: esMovil ? "calc(100dvh - 24px)" : "92vh",
-    padding: esMovil ? 16 : 24,
-  }}>
+        <div style={styles.kfcModalContent}>
           <div style={styles.kfcModalTopBar}>
             <div>
               <div style={styles.kfcModalMiniBadge}>
@@ -3391,13 +3371,12 @@ function renderPickupInfoCard() {
               <div style={styles.kfcStepBubble}>1 / 1</div>
             </div>
 
-            <div style={{
+            <div
+  style={{
     ...styles.kfcOptionList,
-    maxHeight: esMovil ? "40dvh" : "none",
-    overflowY: esMovil ? "auto" : "visible",
-    paddingRight: esMovil ? 4 : 0,
-    WebkitOverflowScrolling: "touch",
-  }}>
+    maxHeight: esMovil ? "100%" : "none",
+  }}
+>
               {SALSAS.map((salsa) => (
                 <button
                   key={salsa.nombre}
@@ -3943,12 +3922,7 @@ function renderPickupInfoCard() {
       style={styles.globalCartPanel}
       onClick={(e) => e.stopPropagation()}
     >
-      <div
-  style={{
-    ...styles.globalCartHeaderPro,
-    padding: esMovil ? "14px 14px 12px" : styles.globalCartHeaderPro.padding,
-  }}
->
+      <div style={styles.globalCartHeaderPro}>
         <div style={styles.globalCartHeaderLeft}>
           <div style={styles.globalCartTopRow}>
             <div style={styles.globalCartMiniPill}>
@@ -4096,14 +4070,7 @@ function renderPickupInfoCard() {
             )}
           </div>
 
-          <div
-  style={{
-    ...styles.globalCartFooterPro,
-    padding: esMovil
-      ? "14px 14px calc(14px + env(safe-area-inset-bottom))"
-      : styles.globalCartFooterPro.padding,
-  }}
->
+          <div style={styles.globalCartFooterPro}>
             <div style={styles.cartSummaryCardPro}>
               <div style={styles.summaryRow}>
                 <span>Subtotal</span>
@@ -4335,14 +4302,7 @@ function renderPickupInfoCard() {
       </div>
     </div>
 
-    <div
-  style={{
-    ...styles.globalCartFooterPro,
-    padding: esMovil
-      ? "14px 14px calc(14px + env(safe-area-inset-bottom))"
-      : styles.globalCartFooterPro.padding,
-  }}
->
+    <div style={styles.globalCartFooterPro}>
       <div style={styles.globalCartActions}>
         <button
           type="button"
@@ -4590,8 +4550,6 @@ function renderPickupInfoCard() {
     ...styles.header,
     flexDirection: esMovil ? "column" : "row",
     alignItems: esMovil ? "flex-start" : "center",
-    padding: esMovil ? 18 : 24,
-    gap: esMovil ? 16 : 24,
   }}
 >
   <div style={styles.headerBrandBlock}>
@@ -5635,21 +5593,20 @@ drawerContent: {
 },
 
   clientNavWrap: {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
-  marginBottom: 16,
-},
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap",
+    marginBottom: 20,
+  },
   clientNavBtn: {
-  background: "rgba(17,17,17,0.9)",
-  border: "1px solid rgba(255,255,255,0.08)",
-  color: "#fff",
-  padding: "9px 12px",
-  borderRadius: 12,
-  cursor: "pointer",
-  fontWeight: "bold",
-  fontSize: 13,
-},
+    background: "rgba(17,17,17,0.9)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    color: "#fff",
+    padding: "10px 14px",
+    borderRadius: 12,
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
   clientNavBtnActive: {
     background: "linear-gradient(135deg, #ff0000, #b30000)",
     border: "1px solid #ff0000",
@@ -5703,16 +5660,14 @@ drawerContent: {
     marginTop: 18,
   },
   heroUrgencyPill: {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.10)",
-  color: "#ffe0e0",
-  padding: "8px 12px",
-  borderRadius: 999,
-  fontWeight: "bold",
-  fontSize: 12,
-  letterSpacing: 0.2,
-  boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
-},
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    color: "#ffd8d8",
+    padding: "9px 12px",
+    borderRadius: 999,
+    fontWeight: "bold",
+    fontSize: 13,
+  },
   heroActionRow: {
     display: "flex",
     gap: 14,
@@ -5723,11 +5678,11 @@ drawerContent: {
   background: "linear-gradient(135deg, #ff0000, #b30000)",
   color: "#fff",
   border: "none",
-  padding: "14px 18px",
+  padding: "15px 22px",
   borderRadius: 14,
   cursor: "pointer",
   fontWeight: "bold",
-  fontSize: 14,
+  fontSize: 15,
   boxShadow: "0 14px 28px rgba(255,0,0,0.20)",
   transition: "transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease",
 },
@@ -5760,11 +5715,11 @@ comboIncludePill: {
   background: "rgba(255,255,255,0.04)",
   color: "#fff",
   border: "1px solid rgba(255,255,255,0.10)",
-  padding: "14px 18px",
+  padding: "15px 22px",
   borderRadius: 14,
   cursor: "pointer",
   fontWeight: "bold",
-  fontSize: 14,
+  fontSize: 15,
   transition: "transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease",
 },
   labHeroVisual: {
@@ -5973,12 +5928,12 @@ comboIncludePill: {
   borderRadius: 18,
   background: "linear-gradient(135deg, #ff1200, #b30000)",
   color: "#fff",
-  padding: "14px 16px",
+  padding: "15px 18px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   fontWeight: "bold",
-  fontSize: 14,
+  fontSize: 15,
   boxShadow: "0 18px 36px rgba(255,0,0,0.28)",
 },
 
@@ -7467,14 +7422,12 @@ floatingCartBtnPulse: {
   modalBackdrop: {
   position: "fixed",
   inset: 0,
-  background: "rgba(0,0,0,0.72)",
-  zIndex: 9998,
+  background: "rgba(0,0,0,0.66)",
+  zIndex: 9999,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   padding: 12,
-  overflowY: "auto",
-  WebkitOverflowScrolling: "touch",
 },
   modalCard: {
     width: "100%",
@@ -7964,48 +7917,45 @@ checkoutTrustText: {
   kfcModalBackdrop: {
   position: "fixed",
   inset: 0,
-  background: "rgba(0,0,0,0.78)",
-  backdropFilter: "blur(8px)",
-  zIndex: 200,
+  background: "rgba(0,0,0,0.72)",
+  zIndex: 10000,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  padding: 12,
-  overflowY: "auto",
-  WebkitOverflowScrolling: "touch",
+  padding: 16,
 },
 
 kfcModalCard: {
   width: "100%",
-  maxWidth: 1120,
-  maxHeight: "92vh",
-  overflow: "hidden",
-  borderRadius: 22,
+  maxWidth: 980,
+  maxHeight: "92dvh",
   background:
-    "linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
+    "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
   border: "1px solid rgba(255,255,255,0.08)",
-  boxShadow: "0 24px 60px rgba(0,0,0,0.45)",
+  borderRadius: 24,
+  overflow: "hidden",
+  boxShadow: "0 24px 60px rgba(0,0,0,0.42)",
+  display: "flex",
+  flexDirection: "column",
 },
 
 kfcModalLayout: {
   display: "grid",
-  minHeight: 560,
+  flex: 1,
+  minHeight: 0,
 },
 
 kfcModalImageWrap: {
-  background:
-    "radial-gradient(circle at center, rgba(255,0,0,0.18), transparent 38%), #101010",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 22,
-  borderRight: "1px solid rgba(255,255,255,0.06)",
+  width: "100%",
+  height: "100%",
+  minHeight: 0,
+  overflow: "hidden",
+  background: "#111",
 },
 
 kfcModalImage: {
   width: "100%",
-  maxWidth: 280,
-  borderRadius: 18,
+  height: "100%",
   objectFit: "cover",
   display: "block",
 },
@@ -8013,10 +7963,9 @@ kfcModalImage: {
 kfcModalContent: {
   display: "flex",
   flexDirection: "column",
-  minHeight: 560,
-  maxHeight: "92vh",
-  overflowY: "auto",
-  padding: 24,
+  minHeight: 0,
+  overflow: "hidden",
+  padding: 20,
 },
 
 kfcModalContentOnly: {
@@ -8029,8 +7978,9 @@ kfcModalTopBar: {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "flex-start",
-  gap: 16,
-  marginBottom: 22,
+  gap: 12,
+  marginBottom: 16,
+  flexShrink: 0,
 },
 
 kfcModalMiniBadge: {
@@ -8131,7 +8081,10 @@ expressActiveNoticeAddress: {
 },
 
 kfcModalSection: {
-  marginTop: 6,
+  display: "flex",
+  flexDirection: "column",
+  minHeight: 0,
+  flex: 1,
 },
 
 kfcModalSectionHeader: {
@@ -8168,8 +8121,11 @@ kfcStepBubble: {
 
 kfcOptionList: {
   display: "grid",
-  gap: 10,
-  marginTop: 8,
+  gap: 12,
+  minHeight: 0,
+  overflowY: "auto",
+  paddingRight: 4,
+  WebkitOverflowScrolling: "touch",
 },
 
 kfcOptionCard: {
@@ -8186,6 +8142,7 @@ kfcOptionCard: {
   alignItems: "center",
   gap: 16,
   textAlign: "left",
+  flexShrink: 0,
 },
 
 kfcOptionCardActive: {
@@ -8718,12 +8675,12 @@ categoriaVisualCard: {
   background:
     "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03))",
   border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 18,
-  padding: 12,
+  borderRadius: 20,
+  padding: 14,
   cursor: "pointer",
   display: "flex",
   flexDirection: "column",
-  gap: 10,
+  gap: 12,
   alignItems: "center",
   textAlign: "center",
   boxShadow: "0 14px 30px rgba(0,0,0,0.14)",
@@ -8748,9 +8705,9 @@ categoriaVisualImage: {
 
 categoriaVisualTitle: {
   fontWeight: "bold",
-  fontSize: 13,
+  fontSize: 14,
   color: "#fff",
-  lineHeight: 1.2,
+  lineHeight: 1.25,
 },
 
 heroInfoStrip: {
@@ -9262,26 +9219,25 @@ comboModalFooter: {
   borderTop: "1px solid rgba(255,255,255,0.08)",
 },
 checkoutMobileCard: {
-  width: "100%",
-  maxWidth: 520,
-  maxHeight: "calc(100dvh - 24px)",
+  width: "min(100%, 560px)",
+  maxHeight: "92dvh",
+  margin: "auto",
   background:
     "radial-gradient(circle at top right, rgba(255,0,0,0.10), transparent 24%), linear-gradient(180deg, rgba(18,18,18,0.99), rgba(8,8,8,1))",
   border: "1px solid rgba(255,255,255,0.08)",
-  borderRadius: 20,
-  boxShadow: "0 24px 50px rgba(0,0,0,0.40)",
+  borderRadius: 24,
+  boxShadow: "0 30px 90px rgba(0,0,0,0.56)",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
 },
 
 checkoutMobileHeader: {
+  padding: "18px 18px 14px",
+  borderBottom: "1px solid rgba(255,255,255,0.08)",
   display: "flex",
   justifyContent: "space-between",
   gap: 12,
-  alignItems: "flex-start",
-  padding: "16px 16px 12px",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
   flexShrink: 0,
 },
 
@@ -9307,15 +9263,13 @@ checkoutMobileBody: {
   flex: 1,
   minHeight: 0,
   overflowY: "auto",
-  padding: 16,
-  paddingBottom: 120,
+  padding: 18,
   WebkitOverflowScrolling: "touch",
-  overscrollBehavior: "contain",
 },
 
 checkoutMobileFooter: {
   borderTop: "1px solid rgba(255,255,255,0.08)",
-  padding: "14px 16px calc(14px + env(safe-area-inset-bottom))",
+  padding: "16px 18px calc(16px + env(safe-area-inset-bottom))",
   background: "rgba(10,10,10,0.96)",
   flexShrink: 0,
 },
