@@ -3198,7 +3198,7 @@ function renderPickupInfoCard() {
         style={{
           ...styles.kfcModalLayout,
           gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-          gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
+          gridTemplateRows: esMovil ? "132px minmax(0, 1fr)" : "1fr",
         }}
       >
         <div style={styles.kfcModalImageWrap}>
@@ -3217,10 +3217,20 @@ function renderPickupInfoCard() {
               <div style={styles.kfcModalMiniBadge}>
                 🧪 PERSONALIZA TU PEDIDO
               </div>
-              <h2 style={styles.kfcModalTitle}>
+              <h2
+  style={{
+    ...styles.kfcModalTitle,
+    ...(esMovil ? { fontSize: 34 } : {}),
+  }}
+>
                 {formulaSeleccionada.nombre}
               </h2>
-              <div style={styles.kfcModalPrice}>
+              <div
+  style={{
+    ...styles.kfcModalPrice,
+    ...(esMovil ? { fontSize: 24, marginTop: 8 } : {}),
+  }}
+>
                 ${formulaSeleccionada.precio.toLocaleString("es-CO")}
               </div>
               <p style={styles.kfcModalDesc}>
@@ -3261,7 +3271,16 @@ function renderPickupInfoCard() {
                 <button
                   key={salsa.nombre}
                   type="button"
-                  style={styles.kfcOptionCard}
+                  style={{
+  ...styles.kfcOptionCard,
+  ...(esMovil
+    ? {
+        padding: "12px 12px",
+        borderRadius: 16,
+        gap: 10,
+      }
+    : {}),
+}}
                   onClick={() => {
                     agregarProducto(
                       {
@@ -3274,17 +3293,32 @@ function renderPickupInfoCard() {
                     setFormulaSeleccionada(null);
                   }}
                 >
-                  <div style={styles.kfcOptionLeft}>
-                    <div style={styles.kfcOptionEmoji}>{salsa.emoji}</div>
+                  <div style={{
+  ...styles.kfcOptionLeft,
+  ...(esMovil ? { gap: 10, flex: 1 } : {}),
+}}>
+                    <div style={{
+  ...styles.kfcOptionEmoji,
+  ...(esMovil ? { fontSize: 22 } : {}),
+}}>{salsa.emoji}</div>
                     <div>
-                      <div style={styles.kfcOptionTitle}>{salsa.nombre}</div>
-                      <div style={styles.kfcOptionText}>
+                      <div style={{
+  ...styles.kfcOptionTitle,
+  ...(esMovil ? { fontSize: 15, marginBottom: 2 } : {}),
+}}>{salsa.nombre}</div>
+                      <div style={{
+  ...styles.kfcOptionText,
+  ...(esMovil ? { fontSize: 12, lineHeight: 1.35 } : {}),
+}}>
                         {salsa.descripcion}
                       </div>
                     </div>
                   </div>
 
-                  <div style={styles.kfcOptionAction}>Elegir</div>
+                  <div style={{
+  ...styles.kfcOptionAction,
+  ...(esMovil ? { padding: "9px 12px", fontSize: 12 } : {}),
+}}>Elegir</div>
                 </button>
               ))}
             </div>
@@ -3316,7 +3350,7 @@ function renderPickupInfoCard() {
         style={{
           ...styles.kfcModalLayout,
           gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-          gridTemplateRows: esMovil ? "180px minmax(0, 1fr)" : "1fr",
+          gridTemplateRows: esMovil ? "132px minmax(0, 1fr)" : "1fr",
         }}
       >
         <div style={styles.kfcModalImageWrap}>
@@ -3338,10 +3372,29 @@ function renderPickupInfoCard() {
               <h2 style={styles.kfcModalTitle}>
                 {comboPendiente.combo.nombre}
               </h2>
-              <div style={styles.kfcModalPrice}>
+              <div
+  style={{
+    ...styles.kfcModalPrice,
+    ...(esMovil ? { fontSize: 24, marginTop: 8 } : {}),
+  }}
+>
                 ${comboPendiente.combo.precio.toLocaleString("es-CO")}
               </div>
-              <p style={styles.kfcModalDesc}>
+              <p
+  style={{
+    ...styles.kfcModalDesc,
+    ...(esMovil
+      ? {
+          fontSize: 13,
+          lineHeight: 1.4,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }
+      : {}),
+  }}
+>
                 {comboPendiente.combo.descripcion}
               </p>
             </div>
@@ -3393,7 +3446,16 @@ function renderPickupInfoCard() {
                 <button
                   key={salsa.nombre}
                   type="button"
-                  style={styles.kfcOptionCard}
+                  style={{
+  ...styles.kfcOptionCard,
+  ...(esMovil
+    ? {
+        padding: "12px 12px",
+        borderRadius: 16,
+        gap: 10,
+      }
+    : {}),
+}}
                   onClick={() => {
                     agregarCombo(
                       comboPendiente.combo,
@@ -3404,17 +3466,32 @@ function renderPickupInfoCard() {
                     setComboPendiente(null);
                   }}
                 >
-                  <div style={styles.kfcOptionLeft}>
-                    <div style={styles.kfcOptionEmoji}>{salsa.emoji}</div>
+                  <div style={{
+  ...styles.kfcOptionLeft,
+  ...(esMovil ? { gap: 10, flex: 1 } : {}),
+}}>
+                    <div style={{
+  ...styles.kfcOptionEmoji,
+  ...(esMovil ? { fontSize: 22 } : {}),
+}}>{salsa.emoji}</div>
                     <div>
-                      <div style={styles.kfcOptionTitle}>{salsa.nombre}</div>
-                      <div style={styles.kfcOptionText}>
+                      <div style={{
+  ...styles.kfcOptionTitle,
+  ...(esMovil ? { fontSize: 15, marginBottom: 2 } : {}),
+}}>{salsa.nombre}</div>
+                      <div style={{
+  ...styles.kfcOptionText,
+  ...(esMovil ? { fontSize: 12, lineHeight: 1.35 } : {}),
+}}>
                         {salsa.descripcion}
                       </div>
                     </div>
                   </div>
 
-                  <div style={styles.kfcOptionAction}>Elegir</div>
+                  <div style={{
+  ...styles.kfcOptionAction,
+  ...(esMovil ? { padding: "9px 12px", fontSize: 12 } : {}),
+}}>Elegir</div>
                 </button>
               ))}
             </div>
@@ -3951,46 +4028,53 @@ function renderPickupInfoCard() {
       style={styles.globalCartPanel}
       onClick={(e) => e.stopPropagation()}
     >
-      <div style={styles.globalCartHeaderPro}>
-        <div style={styles.globalCartHeaderLeft}>
-          <div style={styles.globalCartTopRow}>
-            <div style={styles.globalCartMiniPill}>
-              {panelCarritoVista === "carrito"
-                ? "🛒 TU PEDIDO"
-                : panelCarritoVista === "checkout"
-                ? "📦 CHECKOUT"
-                : panelCarritoVista === "auth_login"
-                ? "👤 INGRESAR"
-                : "🧪 CREAR PERFIL"}
+              <div
+          style={{
+            ...styles.globalCartHeaderPro,
+            ...(esMovil ? { padding: "14px 14px 10px", gap: 10 } : {}),
+          }}
+        >
+          <div style={styles.globalCartHeaderLeft}>
+            <div style={styles.globalCartTopRow}>
+              <div
+                style={{
+                  ...styles.globalCartMiniPill,
+                  ...(esMovil ? { padding: "6px 10px", fontSize: 11 } : {}),
+                }}
+              >
+                🧪 PEDIDO ACTIVO
+              </div>
+
+              <div
+                style={{
+                  ...styles.globalCartCountPill,
+                  ...(esMovil ? { padding: "6px 10px", fontSize: 11 } : {}),
+                }}
+              >
+                {totalItemsCarrito} item{totalItemsCarrito !== 1 ? "s" : ""}
+              </div>
             </div>
 
-            <div style={styles.globalCartCountPill}>
-              {totalItemsCarrito} item{totalItemsCarrito !== 1 ? "s" : ""}
-            </div>
+            <h2
+              style={{
+                ...styles.globalCartTitlePro,
+                ...(esMovil ? { fontSize: 34, lineHeight: 0.94 } : {}),
+              }}
+            >
+              TU PEDIDO
+            </h2>
+
+            <p
+              style={{
+                ...styles.globalCartSubPro,
+                ...(esMovil ? { fontSize: 14, lineHeight: 1.35, maxWidth: "100%" } : {}),
+              }}
+            >
+              Revisa tu experimento antes de continuar al checkout.
+            </p>
           </div>
 
-          <h2 style={styles.globalCartTitlePro}>
-            {panelCarritoVista === "carrito"
-              ? "Tu pedido del laboratorio"
-              : panelCarritoVista === "checkout"
-              ? "Finalizar pedido"
-              : panelCarritoVista === "auth_login"
-              ? "Iniciar sesión"
-              : "Crear perfil"}
-          </h2>
-
-          <p style={styles.globalCartSubPro}>
-            {panelCarritoVista === "carrito"
-              ? "Revisa tus productos antes de continuar."
-              : panelCarritoVista === "checkout"
-              ? "Confirma tus datos y termina tu pedido."
-              : panelCarritoVista === "auth_login"
-              ? "Ingresa con tu perfil para autocompletar tus datos."
-              : "Crea tu perfil y acelera tus próximos pedidos."}
-          </p>
-        </div>
-
-         <div
+          <div
             style={{
               display: "flex",
               flexDirection: "column",
@@ -3999,26 +4083,62 @@ function renderPickupInfoCard() {
               flexShrink: 0,
             }}
           >
-          <div style={styles.globalCartTopTotalCard}>
-            <div style={styles.globalCartTopTotalLabel}>Total</div>
-            <div style={styles.globalCartTopTotalValue}>
-              ${total.toLocaleString("es-CO")}
+            <div
+              style={{
+                ...styles.globalCartTopTotalCard,
+                ...(esMovil
+                  ? {
+                      minWidth: 128,
+                      padding: "12px 12px",
+                      borderRadius: 20,
+                    }
+                  : {}),
+              }}
+            >
+              <div style={styles.globalCartTopTotalLabel}>Total</div>
+              <div
+                style={{
+                  ...styles.globalCartTopTotalValue,
+                  ...(esMovil ? { fontSize: 28 } : {}),
+                }}
+              >
+                ${total.toLocaleString("es-CO")}
+              </div>
             </div>
-          </div>
 
-          <button
-            type="button"
-            style={styles.drawerCloseBtn}
-            onClick={cerrarPanelCarrito}
-          >
-            ✕
-          </button>
+            <button
+              type="button"
+              style={{
+                ...styles.drawerCloseBtn,
+                ...(esMovil
+                  ? {
+                      width: 58,
+                      height: 58,
+                      borderRadius: 18,
+                      fontSize: 24,
+                    }
+                  : {}),
+              }}
+              onClick={cerrarPanelCarrito}
+            >
+              ✕
+            </button>
+          </div>
         </div>
-      </div>
 
       {panelCarritoVista === "carrito" && (
         <>
-          <div style={styles.globalCartBody}>
+          <div
+  style={{
+    ...styles.globalCartBody,
+    ...(esMovil
+      ? {
+          padding: 14,
+          paddingBottom: 110,
+        }
+      : {}),
+  }}
+>
             {carrito.length === 0 ? (
               <div style={styles.emptyBox}>
                 No has agregado productos todavía.
@@ -4027,12 +4147,14 @@ function renderPickupInfoCard() {
               <div style={styles.drawerItemsWrap}>
                 {carrito.map((item) => (
                     <div
-                      key={item.cartKey}
-                      style={{
-                        ...styles.cartItemPro,
-                        gridTemplateColumns: esMovil ? "64px 1fr" : "72px 1fr auto",
-                      }}
->                    <div style={styles.cartItemThumbWrap}>
+  key={item.cartKey}
+  style={{
+    ...styles.cartItemPro,
+    gridTemplateColumns: esMovil ? "64px 1fr" : "72px 1fr auto",
+    ...(esMovil ? { gap: 10, padding: 10 } : {}),
+  }}
+>
+                  <div style={styles.cartItemThumbWrap}>
                       <img
                         src={item.imagen || "/images/producto-placeholder.png"}
                         alt={item.nombre}
@@ -4040,26 +4162,26 @@ function renderPickupInfoCard() {
                       />
                     </div>
 
-                    <div style={{ minWidth: 0 }}>
-                      <strong style={styles.cartItemTitlePro}>
-                        {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
-                      </strong>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+  <strong style={styles.cartItemTitlePro}>
+    {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
+  </strong>
 
-                      <div style={styles.cartItemMetaPro}>
-                        {item.experimento || "Experimento 1"}
-                      </div>
+  <div style={styles.cartItemMetaPro}>
+    {item.experimento || "Experimento 1"}
+  </div>
 
-                      {item.salsa && (
-                        <div
-                          style={{
-                            ...styles.cartItemMetaPro,
-                            color: "#ffd166",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Sabor: {item.salsa}
-                        </div>
-                      )}
+  {item.salsa && (
+    <div
+      style={{
+        ...styles.cartItemMetaPro,
+        color: "#ffd166",
+        fontWeight: "bold",
+      }}
+    >
+      Sabor: {item.salsa}
+    </div>
+  )}
 
                       {item.esCombo && Array.isArray(item.detalleCombo) && (
                         <div style={{ marginTop: 8 }}>
