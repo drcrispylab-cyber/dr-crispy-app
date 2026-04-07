@@ -2131,26 +2131,30 @@ function renderFranjaExpressActiva() {
   function renderHeroInicio() {
   return (
     <section
-      style={{
-        ...styles.labHero,
-        gridTemplateColumns: esMovil ? "1fr" : "1.08fr 0.92fr",
-      }}
-    >
+  style={{
+    ...styles.labHero,
+    gridTemplateColumns: esMovil ? "1fr" : "1.08fr 0.92fr",
+    ...(esMovil ? { padding: 18, gap: 18, marginBottom: 16 } : {}),
+  }}
+>
       <div style={styles.labHeroContent}>
         <div style={styles.heroMini}>🔥 LABORATORIO ACTIVO</div>
 
         <h2
           style={{
             ...styles.labHeroTitle,
-            fontSize: esMovil ? 40 : 92,
-            lineHeight: esMovil ? 0.95 : 0.9,
+            fontSize: esMovil ? 34 : 92,
+            lineHeight: esMovil ? 0.96 : 0.9,
           }}
         >
           NO ES POLLO. <br />
           ES UN EXPERIMENTO.
         </h2>
 
-        <p style={styles.labHeroText}>
+        <p style={{
+  ...styles.labHeroText,
+  ...(esMovil ? { fontSize: 14, lineHeight: 1.55, marginTop: 12 } : {}),
+}}>
           Crujiente calibrado, combos activados y pedido rápido.
           <br />
           Dr. Crispy Lab no vende pollo común: activa fórmulas con sabor de laboratorio.
@@ -2928,7 +2932,17 @@ function renderCarritoDesktop() {
             : "⚡ Recíbelo caliente. Domicilio incluido."}
         </div>
 
-        <button style={styles.whatsappBtn} onClick={abrirWhatsAppPedido}>
+        <button style={{
+  ...styles.whatsappBtn,
+  ...(esMovil
+    ? {
+        marginTop: 8,
+        padding: "12px 14px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}} onClick={abrirWhatsAppPedido}>
           Enviar pedido por WhatsApp
         </button>
 
@@ -2947,7 +2961,16 @@ function renderCarritoDesktop() {
             </p>
             <strong style={{ fontSize: 18 }}>{pedidoCreadoId}</strong>
             <button
-              style={styles.secondaryBtn}
+              style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
               onClick={() => {
                 setVista("seguimiento");
                 consultarMiSeguimiento();
@@ -3710,7 +3733,17 @@ function renderPickupInfoCard() {
     </div>
 
     <button
-      style={styles.whatsappBtn}
+      style={{
+  ...styles.whatsappBtn,
+  ...(esMovil
+    ? {
+        marginTop: 8,
+        padding: "12px 14px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
       onClick={abrirWhatsAppPedido}
     >
       Enviar pedido por WhatsApp
@@ -3798,7 +3831,16 @@ function renderPickupInfoCard() {
     <div style={styles.checkoutActionsRow}>
       <button
         type="button"
-        style={styles.secondaryBtn}
+        style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
         onClick={() => setUsarOtraDireccion((prev) => !prev)}
       >
         {usarOtraDireccion
@@ -4009,7 +4051,17 @@ function renderPickupInfoCard() {
   </div>
 
   <button
-    style={styles.whatsappBtn}
+    style={{
+  ...styles.whatsappBtn,
+  ...(esMovil
+    ? {
+        marginTop: 8,
+        padding: "12px 14px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
     onClick={abrirWhatsAppPedido}
   >
     Enviar pedido por WhatsApp
@@ -4133,8 +4185,8 @@ function renderPickupInfoCard() {
     ...styles.globalCartBody,
     ...(esMovil
       ? {
-          padding: 14,
-          paddingBottom: 110,
+          padding: 12,
+          paddingBottom: 150,
         }
       : {}),
   }}
@@ -4149,12 +4201,15 @@ function renderPickupInfoCard() {
                     <div
   key={item.cartKey}
   style={{
-    ...styles.cartItemPro,
-    gridTemplateColumns: esMovil ? "64px 1fr" : "72px 1fr auto",
-    ...(esMovil ? { gap: 10, padding: 10 } : {}),
-  }}
+  ...styles.cartItemPro,
+  gridTemplateColumns: esMovil ? "58px 1fr" : "72px 1fr auto",
+  ...(esMovil ? { gap: 8, padding: 8, borderRadius: 14 } : {}),
+}}
 >
-                  <div style={styles.cartItemThumbWrap}>
+                  <div style={{
+  ...styles.cartItemThumbWrap,
+  ...(esMovil ? { width: 58, height: 58, borderRadius: 12 } : {}),
+}}>
                       <img
                         src={item.imagen || "/images/producto-placeholder.png"}
                         alt={item.nombre}
@@ -4163,11 +4218,17 @@ function renderPickupInfoCard() {
                     </div>
 
                     <div style={{ minWidth: 0, flex: 1 }}>
-  <strong style={styles.cartItemTitlePro}>
+  <strong style={{
+  ...styles.cartItemTitlePro,
+  ...(esMovil ? { fontSize: 14, lineHeight: 1.15, marginBottom: 2 } : {}),
+}}>
     {item.esCombo ? `🔥 ${item.nombre}` : item.nombre}
   </strong>
 
-  <div style={styles.cartItemMetaPro}>
+  <div style={{
+  ...styles.cartItemMetaPro,
+  ...(esMovil ? { fontSize: 12, lineHeight: 1.3, marginTop: 2 } : {}),
+}}>
     {item.experimento || "Experimento 1"}
   </div>
 
@@ -4187,7 +4248,10 @@ function renderPickupInfoCard() {
                         <div style={{ marginTop: 8 }}>
                           {formatearDetalleCombo(item.detalleCombo).map(
                             (detalle, idx) => (
-                              <div key={idx} style={styles.cartItemMetaPro}>
+                              <div key={idx} style={{
+  ...styles.cartItemMetaPro,
+  ...(esMovil ? { fontSize: 12, lineHeight: 1.3, marginTop: 2 } : {}),
+}}>
                                 • {detalle}
                               </div>
                             )
@@ -4195,29 +4259,42 @@ function renderPickupInfoCard() {
                         </div>
                       )}
 
-                      <div style={styles.cartItemPricePro}>
+                      <div style={{
+  ...styles.cartItemPricePro,
+  ...(esMovil ? { marginTop: 6, fontSize: 13 } : {}),
+}}>
                         ${item.precio.toLocaleString("es-CO")} x {item.cantidad}
                       </div>
                     </div>
 
 <div
   style={{
-    ...styles.qtyBoxPro,
-    marginTop: esMovil ? 10 : 0,
-    justifySelf: esMovil ? "start" : "end",
-    gridColumn: esMovil ? "2 / 3" : "auto",
-  }}
+  ...styles.qtyBoxPro,
+  marginTop: esMovil ? 8 : 0,
+  justifySelf: esMovil ? "start" : "end",
+  gridColumn: esMovil ? "2 / 3" : "auto",
+  ...(esMovil ? { padding: "4px 6px", gap: 5 } : {}),
+}}
 >                  <button
-                        style={styles.qtyBtnPro}
+                        style={{
+  ...styles.qtyBtnPro,
+  ...(esMovil ? { width: 24, height: 24, fontSize: 13 } : {}),
+}}
                         onClick={() => cambiarCantidad(item.cartKey, -1)}
                       >
                         -
                       </button>
 
-                      <span style={styles.qtyValuePro}>{item.cantidad}</span>
+                      <span style={{
+  ...styles.qtyValuePro,
+  ...(esMovil ? { minWidth: 16, fontSize: 12 } : {}),
+}}>{item.cantidad}</span>
 
                       <button
-                        style={styles.qtyBtnPro}
+                        style={{
+  ...styles.qtyBtnPro,
+  ...(esMovil ? { width: 24, height: 24, fontSize: 13 } : {}),
+}}
                         onClick={() => cambiarCantidad(item.cartKey, 1)}
                       >
                         +
@@ -4229,14 +4306,38 @@ function renderPickupInfoCard() {
             )}
           </div>
 
-          <div style={styles.globalCartFooterPro}>
-            <div style={styles.cartSummaryCardPro}>
-              <div style={styles.summaryRow}>
+          <div
+  style={{
+    ...styles.globalCartFooterPro,
+    ...(esMovil
+      ? {
+          padding: "12px 14px calc(12px + env(safe-area-inset-bottom))",
+        }
+      : {}),
+  }}
+>
+            <div
+  style={{
+    ...styles.cartSummaryCardPro,
+    ...(esMovil ? { padding: 12, borderRadius: 14 } : {}),
+  }}
+>
+              <div
+  style={{
+    ...styles.summaryRow,
+    ...(esMovil ? { fontSize: 14, marginBottom: 6 } : {}),
+  }}
+>
                 <span>Subtotal</span>
                 <span>${subtotal.toLocaleString("es-CO")}</span>
               </div>
 
-              <div style={styles.summaryRow}>
+              <div
+  style={{
+    ...styles.summaryRow,
+    ...(esMovil ? { fontSize: 14, marginBottom: 6 } : {}),
+  }}
+>
                 <span>
   {tipoPedido === "recoger" ? "Recogida en el lab" : "Domicilio"}
 </span>
@@ -4245,16 +4346,35 @@ function renderPickupInfoCard() {
                 </span>
               </div>
 
-              <div style={styles.summaryTotal}>
+              <div
+  style={{
+    ...styles.summaryTotal,
+    ...(esMovil ? { fontSize: 20, marginTop: 10 } : {}),
+  }}
+>
                 <span>Total</span>
                 <span>${total.toLocaleString("es-CO")}</span>
               </div>
             </div>
 
-            <div style={styles.globalCartActions}>
+            <div
+  style={{
+    ...styles.globalCartActions,
+    ...(esMovil ? { gap: 8 } : {}),
+  }}
+>
               <button
                 type="button"
-                style={styles.secondaryBtn}
+                style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
                 onClick={cerrarPanelCarrito}
               >
                 Seguir comprando
@@ -4273,11 +4393,20 @@ function renderPickupInfoCard() {
             {/* 🔥 AQUÍ ESTÁ LA SOLUCIÓN REAL */}
             <div
               style={{
-                ...styles.cartStatusBar,
-                ...(laboratorioAbierto
-                  ? styles.cartStatusBarOpen
-                  : styles.cartStatusBarClosed),
-              }}
+  ...styles.cartStatusBar,
+  ...(laboratorioAbierto
+    ? styles.cartStatusBarOpen
+    : styles.cartStatusBarClosed),
+
+  ...(esMovil
+    ? {
+        marginTop: 8,
+        padding: 10,
+        fontSize: 12,
+        lineHeight: 1.3,
+      }
+    : {}),
+}}
             >
               {laboratorioAbierto ? (
                 <span>🟢 Estamos atendiendo. Tu pedido se preparará de inmediato.</span>
@@ -4289,7 +4418,12 @@ function renderPickupInfoCard() {
               )}
             </div>
 
-            <div style={styles.globalCartFooterHint}>
+            <div 
+  style={{
+    ...styles.globalCartFooterHint,
+    ...(esMovil ? { fontSize: 12, lineHeight: 1.3 } : {}),
+  }}
+>
               {tipoPedido === "recoger"
                 ? "⚡ ⚡ Estás en modo Express. Recoges en el lab sin costo de domicilio."
                 : "⚡ Pedido rápido, claro y listo para continuar"}
@@ -4314,7 +4448,16 @@ function renderPickupInfoCard() {
           <div style={styles.checkoutGuestActions}>
             <button
               type="button"
-              style={styles.secondaryBtn}
+              style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
               onClick={() => setPanelCarritoVista("auth_login")}
             >
               Ingresar
@@ -4322,7 +4465,17 @@ function renderPickupInfoCard() {
 
             <button
               type="button"
-              style={styles.confirmBtn}
+              style={{
+  ...styles.confirmBtn,
+  ...(esMovil
+    ? {
+        marginTop: 10,
+        padding: "12px 14px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
               onClick={() => setPanelCarritoVista("auth_registro")}
             >
               Crear perfil
@@ -4343,7 +4496,16 @@ function renderPickupInfoCard() {
 
             <button
               type="button"
-              style={styles.secondaryBtn}
+              style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
               onClick={cerrarSesionCliente}
             >
               Cerrar sesión
@@ -4461,11 +4623,34 @@ function renderPickupInfoCard() {
       </div>
     </div>
 
-    <div style={styles.globalCartFooterPro}>
-      <div style={styles.globalCartActions}>
+    <div
+  style={{
+    ...styles.globalCartFooterPro,
+    ...(esMovil
+      ? {
+          padding: "12px 14px calc(12px + env(safe-area-inset-bottom))",
+        }
+      : {}),
+  }}
+>
+      <div
+  style={{
+    ...styles.globalCartActions,
+    ...(esMovil ? { gap: 8 } : {}),
+  }}
+>
         <button
           type="button"
-          style={styles.secondaryBtn}
+          style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
           onClick={() => setPanelCarritoVista("carrito")}
         >
           ← Volver al carrito
@@ -4497,14 +4682,29 @@ function renderPickupInfoCard() {
         </div>
       )}
 
-      <div style={styles.globalCartFooterHint}>
+      <div
+  style={{
+    ...styles.globalCartFooterHint,
+    ...(esMovil ? { fontSize: 12, lineHeight: 1.3 } : {}),
+  }}
+>
         {tipoPedido === "recoger"
           ? "⚡ Express activado para recoger en el lab"
           : "⚡ Pedido rápido, claro y listo para continuar"}
       </div>
 
       <button
-        style={styles.whatsappBtn}
+        style={{
+  ...styles.whatsappBtn,
+  ...(esMovil
+    ? {
+        marginTop: 8,
+        padding: "12px 14px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
         onClick={abrirWhatsAppPedido}
       >
         Enviar pedido por WhatsApp
@@ -4551,11 +4751,34 @@ function renderPickupInfoCard() {
             </div>
           </div>
 
-          <div style={styles.globalCartFooterPro}>
-            <div style={styles.globalCartActions}>
+          <div
+  style={{
+    ...styles.globalCartFooterPro,
+    ...(esMovil
+      ? {
+          padding: "12px 14px calc(12px + env(safe-area-inset-bottom))",
+        }
+      : {}),
+  }}
+>
+            <div
+  style={{
+    ...styles.globalCartActions,
+    ...(esMovil ? { gap: 8 } : {}),
+  }}
+>
                             <button
                 type="button"
-                style={styles.secondaryBtn}
+                style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
                 onClick={() =>
                   setPanelCarritoVista(carrito.length > 0 ? "checkout" : "carrito")
                 }
@@ -4666,11 +4889,34 @@ function renderPickupInfoCard() {
             </div>
           </div>
 
-          <div style={styles.globalCartFooterPro}>
-            <div style={styles.globalCartActions}>
+          <div
+  style={{
+    ...styles.globalCartFooterPro,
+    ...(esMovil
+      ? {
+          padding: "12px 14px calc(12px + env(safe-area-inset-bottom))",
+        }
+      : {}),
+  }}
+>
+            <div
+  style={{
+    ...styles.globalCartActions,
+    ...(esMovil ? { gap: 8 } : {}),
+  }}
+>
                             <button
                 type="button"
-                style={styles.secondaryBtn}
+                style={{
+  ...styles.secondaryBtn,
+  ...(esMovil
+    ? {
+        padding: "11px 12px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
                 onClick={() =>
                   setPanelCarritoVista(carrito.length > 0 ? "checkout" : "carrito")
                 }
@@ -4706,10 +4952,11 @@ function renderPickupInfoCard() {
       <div style={styles.container}>
         <header
   style={{
-    ...styles.header,
-    flexDirection: esMovil ? "column" : "row",
-    alignItems: esMovil ? "flex-start" : "center",
-  }}
+  ...styles.header,
+  flexDirection: esMovil ? "column" : "row",
+  alignItems: esMovil ? "flex-start" : "center",
+  ...(esMovil ? { padding: 16, gap: 14, marginBottom: 16 } : {}),
+}}
 >
   <div style={styles.headerBrandBlock}>
     <div style={styles.headerTopLine}>
@@ -5433,11 +5680,19 @@ function renderPickupInfoCard() {
                         </button>
 
                         <button
-                          style={{
-                            ...styles.deleteBtn,
-                            ...(eliminandoPedidoId === pedido.id
-                              ? styles.disabledBtn
-                              : {}),
+  style={{
+    ...styles.deleteBtn,
+    ...(eliminandoPedidoId === pedido.id
+      ? styles.disabledBtn
+      : {}),
+
+    ...(esMovil
+      ? {
+          padding: "10px 12px",
+          borderRadius: 12,
+          fontSize: 13,
+        }
+      : {}),
                           }}
                           onClick={() => eliminarPedido(pedido.id)}
                           disabled={eliminandoPedidoId === pedido.id}
@@ -5587,7 +5842,17 @@ function renderPickupInfoCard() {
                   </p>
 
                   <button
-                    style={styles.confirmBtn}
+                    style={{
+  ...styles.confirmBtn,
+  ...(esMovil
+    ? {
+        marginTop: 10,
+        padding: "12px 14px",
+        borderRadius: 12,
+        fontSize: 14,
+      }
+    : {}),
+}}
                     onClick={() => cambiarEstado(pedido.id, "Entregado")}
                     disabled={pedido.estado === "Entregado"}
                   >
