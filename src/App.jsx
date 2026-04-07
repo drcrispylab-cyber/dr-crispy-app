@@ -1797,6 +1797,32 @@ Gracias por pedir con nosotros.`;
   const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, "_blank");
 }
+async function notificarEstadoPorBot(pedido, tipo) {
+  try {
+    const response = await fetch("http://localhost:3000/notificar-estado-webapp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pedido,
+        tipo,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error || "No se pudo notificar al cliente");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error notificando por bot:", error);
+    alert("No se pudo enviar la notificación por WhatsApp.");
+    return false;
+  }
+}
 
 function construirMensajeEstadoPedido(pedido, tipo) {
   const nombre = pedido?.cliente?.nombre || "cliente";
@@ -1851,14 +1877,104 @@ Soy Dr. Crispy Lab 🧪🍗
 
 Te escribimos sobre tu pedido ${id}.`;
 }
+async function notificarEstadoPorBot(pedido, tipo) {
+  try {
+    const response = await fetch("http://localhost:3000/notificar-estado-webapp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pedido,
+        tipo,
+      }),
+    });
 
-function cambiarEstadoYNotificar(pedido, nuevoEstado, tipoMensaje) {
-  cambiarEstado(pedido.id, nuevoEstado);
-  abrirWhatsAppCliente(pedido, construirMensajeEstadoPedido(pedido, tipoMensaje));
+    const data = await response.json();
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error || "No se pudo notificar al cliente");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error notificando por bot:", error);
+    alert("No se pudo enviar la notificación por WhatsApp.");
+    return false;
+  }
 }
-function actualizarPagoYNotificar(pedido, nuevoEstadoPago, tipoMensaje) {
-  actualizarPagoPedido(pedido.id, nuevoEstadoPago);
-  abrirWhatsAppCliente(pedido, construirMensajeEstadoPedido(pedido, tipoMensaje));
+
+async function cambiarEstadoYNotificar(pedido, nuevoEstado, tipoMensaje) {
+  await cambiarEstado(pedido.id, nuevoEstado);
+  await notificarEstadoPorBot(
+    {
+      ...pedido,
+      estado: nuevoEstado,
+    },
+    tipoMensaje
+  );
+}
+async function notificarEstadoPorBot(pedido, tipo) {
+  try {
+    const response = await fetch("http://localhost:3000/notificar-estado-webapp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pedido,
+        tipo,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error || "No se pudo notificar al cliente");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error notificando por bot:", error);
+    alert("No se pudo enviar la notificación por WhatsApp.");
+    return false;
+  }
+}
+async function actualizarPagoYNotificar(pedido, nuevoEstadoPago, tipoMensaje) {
+  await actualizarPagoPedido(pedido.id, nuevoEstadoPago);
+  await notificarEstadoPorBot(
+    {
+      ...pedido,
+      estadoPago: nuevoEstadoPago,
+    },
+    tipoMensaje
+  );
+}
+async function notificarEstadoPorBot(pedido, tipo) {
+  try {
+    const response = await fetch("http://localhost:3000/notificar-estado-webapp", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pedido,
+        tipo,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data?.ok) {
+      throw new Error(data?.error || "No se pudo notificar al cliente");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error notificando por bot:", error);
+    alert("No se pudo enviar la notificación por WhatsApp.");
+    return false;
+  }
 }
   function colorEstado(estado) {
     switch (estado) {
