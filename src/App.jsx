@@ -319,7 +319,7 @@ function App() {
 
   const [cliente, setCliente] = useState({
     nombre: "",
-    telefono: "",
+    telefono: "+57",
     direccion: "",
     referencia: "",
     pago: "Llave",
@@ -1774,7 +1774,92 @@ setCarrito([]);
       setEliminandoPedidoId("");
     }
   }
+  function abrirWhatsAppCliente(pedido, mensajeBase) {
+  const telefonoRaw = pedido?.cliente?.telefono || "";
 
+  const telefono = String(telefonoRaw).replace(/\D/g, "");
+
+  if (!telefono || telefono.length < 12) {
+    alert("Este pedido no tiene un teléfono válido para WhatsApp.");
+    return;
+  }
+
+  const mensaje =
+    mensajeBase ||
+    `Hola ${pedido?.cliente?.nombre || "cliente"} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Te escribimos sobre tu pedido ${pedido?.id || ""}.
+Estado actual: ${pedido?.estado || "Recibido"}.
+
+Gracias por pedir con nosotros.`;
+
+  const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, "_blank");
+}
+
+function construirMensajeEstadoPedido(pedido, tipo) {
+  const nombre = pedido?.cliente?.nombre || "cliente";
+  const id = pedido?.id || "";
+
+  const mensajes = {
+    recibido: `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Te confirmamos que tu pedido ${id} ya fue recibido correctamente.
+Ya lo registramos en el laboratorio y pronto avanzará al siguiente paso.`,
+
+    verificando_pago: `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Estamos verificando el pago de tu pedido ${id}.
+En cuanto quede confirmado, tu experimento avanzará en el laboratorio.`,
+
+    pago_verificado: `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Tu pago del pedido ${id} ya fue verificado correctamente ✅
+Todo en orden. Seguimos con tu pedido.`,
+
+    entra_laboratorio: `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Tu pago fue confirmado y tu experimento ${id} ya entra al laboratorio 🔥
+Ya comenzamos el proceso de preparación.`,
+
+    en_cocina: `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Tu pedido ${id} ya está en cocina.
+Estamos preparando tu experimento con todo. 🔥`,
+
+    en_camino: `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Tu pedido ${id} ya va en camino 🚚
+Muy pronto lo tendrás contigo.`,
+
+    entregado: `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Tu pedido ${id} fue entregado con éxito.
+Gracias por elegirnos. 💥`
+  };
+
+  return mensajes[tipo] || `Hola ${nombre} 👋
+Soy Dr. Crispy Lab 🧪🍗
+
+Te escribimos sobre tu pedido ${id}.`;
+}
+
+function cambiarEstadoYNotificar(pedido, nuevoEstado, tipoMensaje) {
+  cambiarEstado(pedido.id, nuevoEstado);
+  abrirWhatsAppCliente(pedido, construirMensajeEstadoPedido(pedido, tipoMensaje));
+}
+function actualizarPagoYNotificar(pedido, nuevoEstadoPago, tipoMensaje) {
+  actualizarPagoPedido(pedido.id, nuevoEstadoPago);
+  abrirWhatsAppCliente(pedido, construirMensajeEstadoPedido(pedido, tipoMensaje));
+}
   function colorEstado(estado) {
     switch (estado) {
       case "Recibido":
@@ -4720,10 +4805,16 @@ function renderPickupInfoCard() {
         />
 
         <Input
-          label="Teléfono"
-          value={cliente.telefono}
-          onChange={(e) => actualizarCliente("telefono", e.target.value)}
-        />
+  label="Teléfono"
+  value={(cliente.telefono || "").replace("+57", "")}
+  onChange={(e) => {
+    const limpio = e.target.value.replace(/\D/g, "");
+
+    if (limpio.length <= 10) {
+      actualizarCliente("telefono", `+57${limpio}`);
+    }
+  }}
+/>
 
         <div style={{ marginBottom: 14 }}>
           <label style={styles.label}>Modo de pedido</label>
@@ -5909,23 +6000,83 @@ function renderPickupInfoCard() {
                             </div>
 
                             <div style={styles.adminBlock}>
-                              <div style={styles.adminBlockTitle}>
-                                Cambiar estado
-                              </div>
-                              <div style={styles.statusButtons}>
-                                {ESTADOS.map((estado) => (
-                                  <button
-                                    key={estado}
-                                    style={styles.statusBtn}
-                                    onClick={() =>
-                                      cambiarEstado(pedido.id, estado)
-                                    }
-                                  >
-                                    {estado}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+  <div style={styles.adminBlockTitle}>Cambiar estado</div>
+
+  <div style={styles.statusButtons}>
+    <button
+      style={styles.statusBtn}
+      onClick={() => cambiarEstado(pedido.id, "Recibido")}
+    >
+      Recibido
+    </button>
+
+    <button
+      style={styles.whatsappQuickBtn}
+      onClick={() =>
+        cambiarEstadoYNotificar(pedido, "Recibido", "recibido")
+      }
+    >
+      Recibido + avisar
+    </button>
+
+    <button
+      style={styles.statusBtn}
+      onClick={() => cambiarEstado(pedido.id, "En cocina")}
+    >
+      En cocina
+    </button>
+
+    <button
+      style={styles.whatsappQuickBtn}
+      onClick={() =>
+        cambiarEstadoYNotificar(pedido, "En cocina", "entra_laboratorio")
+      }
+    >
+      Entra al laboratorio + avisar
+    </button>
+
+    <button
+      style={styles.whatsappQuickBtn}
+      onClick={() =>
+        cambiarEstadoYNotificar(pedido, "En cocina", "en_cocina")
+      }
+    >
+      En cocina + avisar
+    </button>
+
+    <button
+      style={styles.statusBtn}
+      onClick={() => cambiarEstado(pedido.id, "En camino")}
+    >
+      En camino
+    </button>
+
+    <button
+      style={styles.whatsappQuickBtn}
+      onClick={() =>
+        cambiarEstadoYNotificar(pedido, "En camino", "en_camino")
+      }
+    >
+      En camino + avisar
+    </button>
+
+    <button
+      style={styles.statusBtn}
+      onClick={() => cambiarEstado(pedido.id, "Entregado")}
+    >
+      Entregado
+    </button>
+
+    <button
+      style={styles.whatsappQuickBtn}
+      onClick={() =>
+        cambiarEstadoYNotificar(pedido, "Entregado", "entregado")
+      }
+    >
+      Entregado + avisar
+    </button>
+  </div>
+</div>
 
                             <div style={styles.adminBlock}>
                               <div style={styles.adminBlockTitle}>
@@ -5959,63 +6110,142 @@ function renderPickupInfoCard() {
                             </div>
 
                             <div style={styles.adminBlock}>
-                              <div style={styles.adminBlockTitle}>
-                                Gestión de pago
-                              </div>
+  <div style={styles.adminBlockTitle}>Gestión de pago</div>
+
+  <div style={styles.statusButtons}>
+    <button
+      style={styles.statusBtn}
+      onClick={() => actualizarPagoPedido(pedido.id, "Pendiente")}
+    >
+      Pendiente
+    </button>
+
+    <button
+      style={styles.whatsappQuickBtn}
+      onClick={() =>
+        actualizarPagoYNotificar(
+          pedido,
+          "Pendiente de verificación",
+          "verificando_pago"
+        )
+      }
+    >
+      Verificando pago + avisar
+    </button>
+
+    <button
+      style={styles.whatsappQuickBtn}
+      onClick={() =>
+        actualizarPagoYNotificar(
+          pedido,
+          "Pagado",
+          "pago_verificado"
+        )
+      }
+    >
+      Pago verificado + avisar
+    </button>
+
+    <button
+      style={styles.statusBtn}
+      onClick={() => actualizarPagoPedido(pedido.id, "Rechazado")}
+    >
+      Rechazado
+    </button>
+  </div>
+</div>
+                            <div style={styles.adminBlock}>
+                              <div style={styles.adminBlockTitle}>Avisos rápidos por WhatsApp</div>
+
                               <div style={styles.statusButtons}>
                                 <button
-                                  style={styles.statusBtn}
+                                  style={styles.whatsappQuickBtn}
                                   onClick={() =>
-                                    actualizarPagoPedido(
-                                      pedido.id,
-                                      "Pendiente"
+                                    abrirWhatsAppCliente(
+                                      pedido,
+                                      `Hola ${pedido?.cliente?.nombre || "cliente"} 👋
+                            Soy Dr. Crispy Lab 🧪🍗
+
+                            Te confirmamos que tu pedido ${pedido?.id || ""} ya fue recibido correctamente y ya entró al laboratorio.
+
+                            Gracias por pedir con nosotros.`
                                     )
                                   }
                                 >
-                                  Pendiente
+                                  Avisar recibido
                                 </button>
 
                                 <button
-                                  style={styles.statusBtn}
+                                  style={styles.whatsappQuickBtn}
                                   onClick={() =>
-                                    actualizarPagoPedido(
-                                      pedido.id,
-                                      "Pendiente de verificación"
+                                    abrirWhatsAppCliente(
+                                      pedido,
+                                      `Hola ${pedido?.cliente?.nombre || "cliente"} 👋
+                            Soy Dr. Crispy Lab 🧪🍗
+
+                            Tu pedido ${pedido?.id || ""} ya está en cocina. Ya estamos preparando tu experimento con todo. 🔥`
                                     )
                                   }
                                 >
-                                  Verificar
+                                  Avisar en cocina
                                 </button>
 
                                 <button
-                                  style={styles.statusBtn}
+                                  style={styles.whatsappQuickBtn}
                                   onClick={() =>
-                                    actualizarPagoPedido(pedido.id, "Pagado")
-                                  }
-                                >
-                                  Pagado
-                                </button>
+                                    abrirWhatsAppCliente(
+                                      pedido,
+                                      `Hola ${pedido?.cliente?.nombre || "cliente"} 👋
+                            Soy Dr. Crispy Lab 🧪🍗
 
-                                <button
-                                  style={styles.statusBtn}
-                                  onClick={() =>
-                                    actualizarPagoPedido(
-                                      pedido.id,
-                                      "Rechazado"
+                            Tu pedido ${pedido?.id || ""} ya va en camino 🚚
+                            Muy pronto lo tendrás contigo.`
                                     )
                                   }
                                 >
-                                  Rechazado
+                                  Avisar en camino
+                                </button>
+
+                                <button
+                                  style={styles.whatsappQuickBtn}
+                                  onClick={() =>
+                                    abrirWhatsAppCliente(
+                                      pedido,
+                                      `Hola ${pedido?.cliente?.nombre || "cliente"} 👋
+                            Soy Dr. Crispy Lab 🧪🍗
+
+                            Tu pedido ${pedido?.id || ""} fue entregado con éxito.
+                            Gracias por elegirnos. 💥`
+                                    )
+                                  }
+                                >
+                                  Avisar entregado
                                 </button>
                               </div>
                             </div>
-
                             <div style={styles.adminFooterActions}>
                               <button
                                 style={styles.printBtn}
                                 onClick={() => imprimirTicketPedido(pedido)}
                               >
                                 Imprimir ticket
+                              </button>
+
+                              <button
+                                style={styles.whatsappAdminBtn}
+                                onClick={() =>
+                                  abrirWhatsAppCliente(
+                                    pedido,
+                                    `Hola ${pedido?.cliente?.nombre || "cliente"} 👋
+                            Soy Dr. Crispy Lab 🧪🍗
+
+                            Tu pedido ${pedido?.id || ""} está en estado: ${pedido?.estado || "Recibido"}.
+
+                            Cualquier duda estamos atentos.`
+                                  )
+                                }
+                              >
+                                📲 WhatsApp cliente
                               </button>
 
                               <button
@@ -7541,6 +7771,106 @@ checkoutGuestPromptText: {
     flexWrap: "wrap",
     marginBottom: 18,
   },
+  adminShell: {
+    display: "grid",
+    gap: 20,
+  },
+  adminHero: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1.6fr) minmax(280px, 0.9fr)",
+    gap: 18,
+    background:
+      "radial-gradient(circle at top right, rgba(255,0,0,0.18), transparent 30%), linear-gradient(135deg, rgba(18,18,18,0.98), rgba(7,7,7,1))",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 24,
+    padding: 22,
+    boxShadow: "0 18px 45px rgba(0,0,0,0.28)",
+  },
+  adminHeroContent: {
+    display: "grid",
+    gap: 14,
+    alignContent: "start",
+  },
+  adminHeroBadge: {
+    display: "inline-flex",
+    width: "fit-content",
+    background: "rgba(255,0,0,0.10)",
+    border: "1px solid rgba(255,0,0,0.22)",
+    color: "#ffd4d4",
+    borderRadius: 999,
+    padding: "8px 12px",
+    fontSize: 12,
+    fontWeight: 800,
+    letterSpacing: 0.5,
+  },
+  adminHeroTitle: {
+    margin: 0,
+    fontSize: 32,
+    lineHeight: 1.05,
+    letterSpacing: 0.4,
+  },
+  adminHeroSubtitle: {
+    margin: "8px 0 0 0",
+    color: "#cfcfcf",
+    fontSize: 15,
+    lineHeight: 1.5,
+    maxWidth: 620,
+  },
+  adminHeroMetaRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: 12,
+    marginTop: 2,
+  },
+  adminMiniStat: {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 18,
+    padding: 14,
+    display: "grid",
+    gap: 6,
+  },
+  adminMiniStatLabel: {
+    fontSize: 12,
+    color: "#9f9f9f",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  adminMiniStatValue: {
+    fontSize: 16,
+    color: "#fff",
+  },
+  adminHeroActions: {
+    display: "grid",
+    gap: 12,
+    alignContent: "start",
+  },
+  adminActionBtn: {
+    background: "#161616",
+    color: "#fff",
+    border: "1px solid rgba(255,255,255,0.10)",
+    padding: "14px 16px",
+    borderRadius: 16,
+    cursor: "pointer",
+    fontWeight: 700,
+    fontSize: 14,
+    transition: "all 0.2s ease",
+  },
+  adminActionBtnPrimary: {
+    background: "linear-gradient(135deg, #ff1c1c, #b30000)",
+    border: "1px solid rgba(255,80,80,0.38)",
+    boxShadow: "0 10px 25px rgba(255,0,0,0.20)",
+  },
+  adminActionBtnDanger: {
+    background: "rgba(255,0,0,0.10)",
+    color: "#ffd2d2",
+    border: "1px solid rgba(255,0,0,0.22)",
+    padding: "14px 16px",
+    borderRadius: 16,
+    cursor: "pointer",
+    fontWeight: 700,
+    fontSize: 14,
+  },
   logoutBtn: {
     background: "#1b1b1b",
     color: "#fff",
@@ -7555,6 +7885,135 @@ checkoutGuestPromptText: {
     borderRadius: 18,
     padding: 18,
     marginBottom: 18,
+  },
+  adminOrdersGrid: {
+    display: "grid",
+    gap: 18,
+  },
+  adminOrderCard: {
+    background:
+      "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.98))",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 22,
+    padding: 18,
+    boxShadow: "0 14px 34px rgba(0,0,0,0.18)",
+    display: "grid",
+    gap: 14,
+  },
+  adminOrderTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 14,
+    flexWrap: "wrap",
+    alignItems: "flex-start",
+  },
+  adminOrderId: {
+    fontSize: 20,
+    fontWeight: 800,
+    marginBottom: 4,
+  },
+  adminOrderClient: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: "#fff",
+  },
+  adminChipRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  adminChip: {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 999,
+    padding: "9px 12px",
+    fontSize: 13,
+    color: "#e7e7e7",
+  },
+  adminInfoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: 12,
+  },
+  adminInfoCard: {
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 16,
+    padding: 14,
+    minHeight: 82,
+  },
+  adminInfoLabel: {
+    fontSize: 12,
+    color: "#9f9f9f",
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  adminProductsBox: {
+    background: "rgba(255,0,0,0.04)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 18,
+    padding: 16,
+    display: "grid",
+    gap: 10,
+  },
+  adminProductsTitle: {
+    fontWeight: 800,
+    fontSize: 14,
+    color: "#fff",
+  },
+  adminProductsList: {
+    display: "grid",
+    gap: 8,
+  },
+  adminProductItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    alignItems: "flex-start",
+    color: "#e8e8e8",
+    fontSize: 14,
+    lineHeight: 1.45,
+    paddingBottom: 8,
+    borderBottom: "1px dashed rgba(255,255,255,0.08)",
+  },
+  adminTotalBar: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 14,
+    alignItems: "center",
+    flexWrap: "wrap",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: 18,
+    padding: "14px 16px",
+  },
+  adminTotalLabel: {
+    color: "#bdbdbd",
+    fontWeight: 600,
+  },
+  adminTotalValue: {
+    fontSize: 26,
+    fontWeight: 800,
+    color: "#ff5a5a",
+  },
+  adminBlock: {
+    display: "grid",
+    gap: 10,
+    paddingTop: 6,
+  },
+  adminBlockTitle: {
+    fontSize: 13,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    color: "#a7a7a7",
+    fontWeight: 800,
+  },
+  adminFooterActions: {
+    display: "flex",
+    gap: 10,
+    flexWrap: "wrap",
+    marginTop: 2,
   },
   orderHeader: {
     display: "flex",
@@ -7691,30 +8150,74 @@ checkoutGuestPromptText: {
     marginBottom: 18,
   },
   kpiCard: {
-    background: "#181818",
-    border: "1px solid #2a2a2a",
-    borderRadius: 18,
-    padding: 16,
+    background:
+      "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.98))",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 20,
+    padding: 18,
+    minHeight: 110,
+    boxShadow: "0 10px 24px rgba(0,0,0,0.14)",
   },
   kpiLabel: {
     color: "#bdbdbd",
-    fontSize: 14,
-    marginBottom: 8,
+    fontSize: 13,
+    marginBottom: 10,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontWeight: 700,
   },
-  kpiValue: {
-    fontSize: 30,
+ kpiValue: {
+    fontSize: 28,
     fontWeight: "bold",
     color: "#ff4a4a",
+    lineHeight: 1.15,
+    wordBreak: "break-word",
+  },
+  adminFilterPanel: {
+    background:
+      "linear-gradient(180deg, rgba(18,18,18,0.98), rgba(10,10,10,0.98))",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderRadius: 22,
+    padding: 18,
+    display: "grid",
+    gap: 14,
+  },
+  adminFilterHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    flexWrap: "wrap",
+    alignItems: "center",
+  },
+  adminSectionEyebrow: {
+    fontSize: 12,
+    color: "#ff9e9e",
+    letterSpacing: 1,
+    fontWeight: 800,
+    marginBottom: 6,
+  },
+  adminSectionTitle: {
+    margin: 0,
+    fontSize: 22,
+    lineHeight: 1.1,
+  },
+  adminResultsPill: {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 999,
+    padding: "10px 14px",
+    fontWeight: 700,
+    color: "#f0f0f0",
   },
   filtersBox: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
     gap: 14,
-    marginBottom: 18,
+    marginBottom: 0,
   },
   filterItem: {
-    background: "#181818",
-    border: "1px solid #2a2a2a",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
     borderRadius: 18,
     padding: 16,
   },
@@ -10114,7 +10617,27 @@ comboModalFooterPrice: {
   color: "#ff3535",
   textShadow: "0 0 16px rgba(255,0,0,0.20)",
 },
-
+whatsappAdminBtn: {
+    background: "linear-gradient(135deg, #1f9d55, #0f7a3d)",
+    color: "#fff",
+    border: "1px solid rgba(120,255,170,0.18)",
+    padding: "12px 14px",
+    borderRadius: 12,
+    cursor: "pointer",
+    fontWeight: 800,
+    fontSize: 14,
+    boxShadow: "0 10px 22px rgba(0,0,0,0.16)",
+  },
+    whatsappQuickBtn: {
+    background: "rgba(37, 211, 102, 0.10)",
+    color: "#dfffea",
+    border: "1px solid rgba(37, 211, 102, 0.22)",
+    padding: "10px 12px",
+    borderRadius: 12,
+    cursor: "pointer",
+    fontWeight: 700,
+    fontSize: 13,
+  },
 };
 
 export default App;
