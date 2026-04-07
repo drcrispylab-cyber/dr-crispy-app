@@ -3279,7 +3279,7 @@ function renderPickupInfoCard() {
         style={{
           ...styles.kfcModalLayout,
           gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-          gridTemplateRows: esMovil ? "132px minmax(0, 1fr)" : "1fr",
+          gridTemplateRows: esMovil ? "128px minmax(0, 1fr)" : "1fr",
         }}
       >
         <div style={styles.kfcModalImageWrap}>
@@ -3314,7 +3314,22 @@ function renderPickupInfoCard() {
 >
                 ${formulaSeleccionada.precio.toLocaleString("es-CO")}
               </div>
-              <p style={styles.kfcModalDesc}>
+              <p
+  style={{
+    ...styles.kfcModalDesc,
+    ...(esMovil
+      ? {
+          fontSize: 13,
+          lineHeight: 1.35,
+          marginTop: 8,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }
+      : {}),
+  }}
+>
                 {formulaSeleccionada.descripcion}
               </p>
             </div>
@@ -3334,12 +3349,22 @@ function renderPickupInfoCard() {
                 <div style={styles.kfcModalSectionTitle}>
                   ¿Qué sabor deseas?
                 </div>
-                <div style={styles.kfcModalSectionSub}>
+                <div
+  style={{
+    ...styles.kfcModalSectionSub,
+    ...(esMovil ? { fontSize: 11, marginTop: 2 } : {}),
+  }}
+>
                   Es necesario elegir uno
                 </div>
               </div>
 
-              <div style={styles.kfcStepBubble}>1 / 1</div>
+              <div
+  style={{
+    ...styles.kfcStepBubble,
+    ...(esMovil ? { padding: "6px 9px", fontSize: 11 } : {}),
+  }}
+>1 / 1</div>
             </div>
 
             <div
@@ -3356,9 +3381,9 @@ function renderPickupInfoCard() {
   ...styles.kfcOptionCard,
   ...(esMovil
     ? {
-        padding: "12px 12px",
-        borderRadius: 16,
-        gap: 10,
+        padding: "10px 10px",
+        borderRadius: 14,
+        gap: 8,
       }
     : {}),
 }}
@@ -3376,20 +3401,29 @@ function renderPickupInfoCard() {
                 >
                   <div style={{
   ...styles.kfcOptionLeft,
-  ...(esMovil ? { gap: 10, flex: 1 } : {}),
+  ...(esMovil ? { gap: 8, flex: 1 } : {}),
 }}>
                     <div style={{
   ...styles.kfcOptionEmoji,
-  ...(esMovil ? { fontSize: 22 } : {}),
+  ...(esMovil ? { fontSize: 20 } : {}),
 }}>{salsa.emoji}</div>
                     <div>
                       <div style={{
   ...styles.kfcOptionTitle,
-  ...(esMovil ? { fontSize: 15, marginBottom: 2 } : {}),
+  ...(esMovil ? { fontSize: 14, marginBottom: 2 } : {}),
 }}>{salsa.nombre}</div>
                       <div style={{
   ...styles.kfcOptionText,
-  ...(esMovil ? { fontSize: 12, lineHeight: 1.35 } : {}),
+  ...(esMovil
+    ? {
+        fontSize: 11,
+        lineHeight: 1.25,
+        display: "-webkit-box",
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: "vertical",
+        overflow: "hidden",
+      }
+    : {}),
 }}>
                         {salsa.descripcion}
                       </div>
@@ -3398,14 +3432,19 @@ function renderPickupInfoCard() {
 
                   <div style={{
   ...styles.kfcOptionAction,
-  ...(esMovil ? { padding: "9px 12px", fontSize: 12 } : {}),
+  ...(esMovil ? { padding: "8px 10px", fontSize: 11 } : {}),
 }}>Elegir</div>
                 </button>
               ))}
             </div>
           </div>
 
-          <div style={styles.kfcModalFooterNote}>
+          <div
+  style={{
+    ...styles.kfcModalFooterNote,
+    ...(esMovil ? { marginTop: 8, fontSize: 11, lineHeight: 1.3 } : {}),
+  }}
+>
             Selecciona un sabor para agregar este producto al carrito.
           </div>
         </div>
@@ -3431,7 +3470,7 @@ function renderPickupInfoCard() {
         style={{
           ...styles.kfcModalLayout,
           gridTemplateColumns: esMovil ? "1fr" : "320px 1fr",
-          gridTemplateRows: esMovil ? "132px minmax(0, 1fr)" : "1fr",
+          gridTemplateRows: esMovil ? "128px minmax(0, 1fr)" : "1fr",
         }}
       >
         <div style={styles.kfcModalImageWrap}>
@@ -3450,7 +3489,12 @@ function renderPickupInfoCard() {
               <div style={styles.kfcModalMiniBadge}>
                 🔥 PERSONALIZA TU COMBO
               </div>
-              <h2 style={styles.kfcModalTitle}>
+              <h2
+  style={{
+    ...styles.kfcModalTitle,
+    ...(esMovil ? { fontSize: 32, lineHeight: 0.96 } : {}),
+  }}
+>
                 {comboPendiente.combo.nombre}
               </h2>
               <div
@@ -3489,14 +3533,38 @@ function renderPickupInfoCard() {
             </button>
           </div>
 
-          <div style={styles.kfcComboSummaryBox}>
-            <div style={styles.kfcComboSummaryTitle}>
+          <div
+  style={{
+    ...styles.kfcComboSummaryBox,
+    ...(esMovil
+      ? {
+          padding: 10,
+          marginBottom: 10,
+          borderRadius: 12,
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }
+      : {}),
+  }}
+>
+            <div
+  style={{
+    ...styles.kfcComboSummaryTitle,
+    ...(esMovil ? { fontSize: 12, marginBottom: 6 } : {}),
+  }}
+>
               Incluye este combo:
             </div>
 
             <div style={styles.kfcComboSummaryList}>
               {comboPendiente.combo.itemsInternos.map((item) => (
-                <div key={item.id} style={styles.kfcComboSummaryItem}>
+                <div
+  key={item.id}
+  style={{
+    ...styles.kfcComboSummaryItem,
+    ...(esMovil ? { fontSize: 12, lineHeight: 1.3 } : {}),
+  }}
+>
                   • {item.nombre} x{item.cantidad}
                 </div>
               ))}
@@ -3504,17 +3572,37 @@ function renderPickupInfoCard() {
           </div>
 
           <div style={styles.kfcModalSection}>
-            <div style={styles.kfcModalSectionHeader}>
+            <div
+  style={{
+    ...styles.kfcModalSectionHeader,
+    ...(esMovil ? { marginBottom: 8, gap: 8 } : {}),
+  }}
+>
               <div>
-                <div style={styles.kfcModalSectionTitle}>
+                <div
+  style={{
+    ...styles.kfcModalSectionTitle,
+    ...(esMovil ? { fontSize: 17 } : {}),
+  }}
+>
                   ¿Qué sabor deseas?
                 </div>
-                <div style={styles.kfcModalSectionSub}>
+                <div
+  style={{
+    ...styles.kfcModalSectionSub,
+    ...(esMovil ? { fontSize: 11, marginTop: 2 } : {}),
+  }}
+>
                   Es necesario elegir uno
                 </div>
               </div>
 
-              <div style={styles.kfcStepBubble}>1 / 1</div>
+              <div
+  style={{
+    ...styles.kfcStepBubble,
+    ...(esMovil ? { padding: "6px 9px", fontSize: 11 } : {}),
+  }}
+>1 / 1</div>
             </div>
 
             <div
@@ -3531,9 +3619,9 @@ function renderPickupInfoCard() {
   ...styles.kfcOptionCard,
   ...(esMovil
     ? {
-        padding: "12px 12px",
-        borderRadius: 16,
-        gap: 10,
+        padding: "10px 10px",
+        borderRadius: 14,
+        gap: 8,
       }
     : {}),
 }}
