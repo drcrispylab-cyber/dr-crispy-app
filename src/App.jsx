@@ -1272,6 +1272,52 @@ function usarDireccionGuardada(direccionId) {
         return orden[a.estado] - orden[b.estado];
       });
   }, [pedidos]);
+    const pedidosActivosAdmin = useMemo(() => {
+    return pedidos.filter((p) => p.estado !== "Entregado").length;
+  }, [pedidos]);
+
+  const pedidosPendientesPagoAdmin = useMemo(() => {
+    return pedidos.filter((p) => {
+      const estadoPago = String(p?.estadoPago || "Pendiente").toLowerCase();
+      return estadoPago !== "pagado";
+    }).length;
+  }, [pedidos]);
+
+  const entregadosHoyAdmin = useMemo(() => {
+    const hoy = new Date().toLocaleDateString("es-CO");
+
+    return pedidos.filter((pedido) => {
+      if (pedido.estado !== "Entregado") return false;
+
+      const fechaPedido = new Date(pedido.fecha);
+      if (isNaN(fechaPedido.getTime())) {
+        return String(pedido.fecha).includes(hoy);
+      }
+
+      return fechaPedido.toLocaleDateString("es-CO") === hoy;
+    }).length;
+  }, [pedidos]);
+
+  const totalVendidoHoyAdmin = useMemo(() => {
+    const hoy = new Date().toLocaleDateString("es-CO");
+
+    return pedidos.reduce((acc, pedido) => {
+      const fechaPedido = new Date(pedido.fecha);
+
+      const esHoy = isNaN(fechaPedido.getTime())
+        ? String(pedido.fecha).includes(hoy)
+        : fechaPedido.toLocaleDateString("es-CO") === hoy;
+
+      if (!esHoy) return acc;
+
+      return acc + Number(pedido.total || 0);
+    }, 0);
+  }, [pedidos]);
+
+  const ticketPromedioHoyAdmin = useMemo(() => {
+    if (!pedidosDelDia) return 0;
+    return Math.round(totalVendidoHoyAdmin / pedidosDelDia);
+  }, [pedidosDelDia, totalVendidoHoyAdmin]);
 
   function construirTextoWhatsApp() {
         const lineas = [
@@ -5456,403 +5502,552 @@ function renderPickupInfoCard() {
           </section>
         )}
 
-        {puedeVerAdmin && vista === "admin" && adminLogueado && (
+                {puedeVerAdmin && vista === "admin" && adminLogueado && (
           <section style={styles.panel}>
-            <div style={styles.adminTop}>
-              <div>
-                <h2 style={styles.panelTitle}>🧾 PANEL ADMIN PRO</h2>
-                <p style={{ color: "#cfcfcf", margin: 0 }}>
-                  Sesión: {adminUser?.nombre}
-                </p>
-              </div>
-
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button
-                  style={{
-                    ...styles.logoutBtn,
-                    ...(modoCocina ? styles.navBtnActive : {}),
-                  }}
-                  onClick={() => setModoCocina((prev) => !prev)}
-                >
-                  {modoCocina ? "Salir modo cocina" : "Modo cocina"}
-                </button>
-
-                <button style={styles.logoutBtn} onClick={cargarPedidosAdmin}>
-                  Recargar
-                </button>
-
-                <button
-                  style={styles.logoutBtn}
-                  onClick={() => {
-                    setAdminLogueado(false);
-                    setAdminUser(null);
-                    setLoginAdmin({ username: "", password: "" });
-                    setPedidos([]);
-                    setFiltroEstadoAdmin("Todos");
-                    setBusquedaAdmin("");
-                    setModoCocina(false);
-                    pedidosInicialesCargadosRef.current = false;
-                    window.location.hash = "";
-                    setRutaPrivada("");
-                    setVista("cliente");
-                    setSeccionCliente("inicio");
-                  }}
-                >
-                  Cerrar sesión
-                </button>
-              </div>
-            </div>
-
-            {modoCocina ? (
-              <div>
-                <div style={styles.kpiGrid}>
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>Pendientes</div>
-                    <div style={styles.kpiValue}>{pedidosCocina.length}</div>
+            <div style={styles.adminShell}>
+              <div style={styles.adminHero}>
+                <div style={styles.adminHeroContent}>
+                  <div style={styles.adminHeroBadge}>
+                    🔴 Centro de operación del laboratorio
                   </div>
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>Recibidos</div>
-                    <div style={styles.kpiValue}>
-                      {
-                        pedidosCocina.filter((p) => p.estado === "Recibido")
-                          .length
-                      }
+
+                  <div>
+                    <h2 style={styles.adminHeroTitle}>PANEL ADMIN PRO</h2>
+                    <p style={styles.adminHeroSubtitle}>
+                      Gestiona pedidos, pagos, cocina y reparto desde un solo
+                      lugar.
+                    </p>
+                  </div>
+
+                  <div style={styles.adminHeroMetaRow}>
+                    <div style={styles.adminMiniStat}>
+                      <span style={styles.adminMiniStatLabel}>Sesión</span>
+                      <strong style={styles.adminMiniStatValue}>
+                        {adminUser?.nombre || "Administrador"}
+                      </strong>
                     </div>
-                  </div>
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>En cocina</div>
-                    <div style={styles.kpiValue}>
-                      {
-                        pedidosCocina.filter((p) => p.estado === "En cocina")
-                          .length
-                      }
-                    </div>
-                  </div>
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>En camino</div>
-                    <div style={styles.kpiValue}>
-                      {
-                        pedidosCocina.filter((p) => p.estado === "En camino")
-                          .length
-                      }
-                    </div>
-                  </div>
-                </div>
 
-                {pedidosCocina.length === 0 ? (
-                  <div style={styles.emptyBox}>No hay pedidos pendientes.</div>
-                ) : (
-                  <div
-                    style={{
-                      ...styles.cocinaGrid,
-                      gridTemplateColumns: esMovil
-                        ? "1fr"
-                        : "repeat(2, minmax(0, 1fr))",
-                    }}
-                  >
-                    {pedidosCocina.map((pedido) => (
-                      <div key={pedido.id} style={styles.cocinaCard}>
-                        <div style={styles.cocinaTop}>
-                          <div>
-                            <div style={styles.cocinaId}>{pedido.id}</div>
-                            <div style={styles.cocinaCliente}>
-                              {pedido.cliente.nombre}
-                            </div>
-                          </div>
-
-                          <div
-                            style={{
-                              ...styles.statusBadge,
-                              ...colorEstado(pedido.estado),
-                            }}
-                          >
-                            {pedido.estado}
-                          </div>
-                        </div>
-
-                        <div style={styles.cocinaDireccion}>
-                                                  📍 {pedido.cliente.direccion}
-                        </div>
-
-                        <div style={{ marginTop: 12 }}>
-                          {pedido.items.map((item, idx) => (
-                            <div key={idx} style={styles.cocinaItem}>
-                              <strong>{item.experimento || "Experimento 1"}</strong>
-                              {" • "}
-                              {item.nombre} x{item.cantidad}
-                              {item.salsa ? ` • ${item.salsa}` : ""}
-                            </div>
-                          ))}
-                        </div>
-
-                        <div style={styles.cocinaActions}>
-                          <button
-                            style={styles.cocinaBtn}
-                            onClick={() => cambiarEstado(pedido.id, "Recibido")}
-                          >
-                            Recibido
-                          </button>
-                          <button
-                            style={styles.cocinaBtn}
-                            onClick={() => cambiarEstado(pedido.id, "En cocina")}
-                          >
-                            En cocina
-                          </button>
-                          <button
-                            style={styles.cocinaBtn}
-                            onClick={() => cambiarEstado(pedido.id, "En camino")}
-                          >
-                            En camino
-                          </button>
-                          <button
-                            style={styles.printBtn}
-                            onClick={() => imprimirTicketPedido(pedido)}
-                          >
-                            Imprimir
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <>
-                <div style={styles.kpiGrid}>
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>Pedidos totales</div>
-                    <div style={styles.kpiValue}>{pedidos.length}</div>
-                  </div>
-
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>Pedidos de hoy</div>
-                    <div style={styles.kpiValue}>{pedidosDelDia}</div>
-                  </div>
-
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>En cocina</div>
-                    <div style={styles.kpiValue}>
-                      {pedidos.filter((p) => p.estado === "En cocina").length}
-                    </div>
-                  </div>
-
-                  <div style={styles.kpiCard}>
-                    <div style={styles.kpiLabel}>En camino</div>
-                    <div style={styles.kpiValue}>
-                      {pedidos.filter((p) => p.estado === "En camino").length}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={styles.filtersBox}>
-                  <div style={styles.filterItem}>
-                    <label style={styles.label}>Filtrar por estado</label>
-                    <select
-                      style={styles.input}
-                      value={filtroEstadoAdmin}
-                      onChange={(e) => setFiltroEstadoAdmin(e.target.value)}
-                    >
-                      {FILTROS_ESTADO.map((estado) => (
-                        <option key={estado}>{estado}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div style={styles.filterItem}>
-                    <label style={styles.label}>
-                      Buscar por ID, nombre o teléfono
-                    </label>
-                    <input
-                      style={styles.input}
-                      value={busquedaAdmin}
-                      onChange={(e) => setBusquedaAdmin(e.target.value)}
-                      placeholder="Ej: PED-001 / Luis / 315..."
-                    />
-                  </div>
-                </div>
-
-                {pedidosAdminFiltrados.length === 0 ? (
-                  <div style={styles.emptyBox}>No hay pedidos para mostrar.</div>
-                ) : (
-                  pedidosAdminFiltrados.map((pedido) => (
-                    <div key={pedido.id} style={styles.orderCard}>
-                      <div style={styles.orderHeader}>
-                        <div>
-                          <h3 style={{ margin: 0 }}>{pedido.id}</h3>
-                          <p style={styles.orderMeta}>
-                            {pedido.cliente.nombre} • {pedido.cliente.telefono}
-                          </p>
-                          <p style={styles.orderMeta}>{pedido.fecha}</p>
-                        </div>
-
-                        <div
-                          style={{
-                            ...styles.statusBadge,
-                            ...colorEstado(pedido.estado),
-                          }}
-                        >
-                          {pedido.estado}
-                        </div>
-                      </div>
-
-                      <p>
-                        <strong>Dirección:</strong> {pedido?.cliente?.direccion}
-                      </p>
-                      <p>
-                        <strong>Referencia:</strong>{" "}
-                        {pedido?.cliente?.referencia || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Método de pago:</strong>{" "}
-                        {pedido?.metodoPago ||
-                          pedido?.cliente?.pago ||
-                          "No definido"}
-                      </p>
-                      <p>
-                        <strong>Estado del pago:</strong>{" "}
-                        {pedido?.estadoPago || "Pendiente"}
-                      </p>
-                      <p>
-                        <strong>Repartidor:</strong>{" "}
-                        {pedido?.repartidor || "Sin asignar"}
-                      </p>
-
-                      <div style={{ marginTop: 12 }}>
-                        <strong>Productos:</strong>
-                        <ul>
-                          {pedido.items.map((item, idx) => (
-                            <li key={idx}>
-                              {item.experimento ? `${item.experimento} | ` : ""}
-                              {item.nombre} x{item.cantidad}
-                              {item.salsa ? ` - ${item.salsa}` : ""} - $
-                              {(item.precio * item.cantidad).toLocaleString("es-CO")}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <h3 style={{ color: "#ff4b4b" }}>
-                        Total: ${pedido.total.toLocaleString("es-CO")}
-                      </h3>
-
-                      <div style={styles.statusButtons}>
-                        {ESTADOS.map((estado) => (
-                          <button
-                            key={estado}
-                            style={styles.statusBtn}
-                            onClick={() => cambiarEstado(pedido.id, estado)}
-                          >
-                            {estado}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div style={{ marginTop: 12 }}>
-                        <p style={styles.label}>Asignar repartidor:</p>
-                        <div style={styles.statusButtons}>
-                          <button
-                            style={styles.statusBtn}
-                            onClick={() =>
-                              asignarRepartidor(pedido.id, "Domiciliario 1")
-                            }
-                          >
-                            Domiciliario 1
-                          </button>
-                          <button
-                            style={styles.statusBtn}
-                            onClick={() =>
-                              asignarRepartidor(pedido.id, "Domiciliario 2")
-                            }
-                          >
-                            Domiciliario 2
-                          </button>
-                        </div>
-                      </div>
-
-                      <div style={{ marginTop: 12 }}>
-                        <p style={styles.label}>Gestión de pago:</p>
-                        <div style={styles.statusButtons}>
-                          <button
-                            style={styles.statusBtn}
-                            onClick={() =>
-                              actualizarPagoPedido(pedido.id, "Pendiente")
-                            }
-                          >
-                            Pendiente
-                          </button>
-                          <button
-                            style={styles.statusBtn}
-                            onClick={() =>
-                              actualizarPagoPedido(
-                                pedido.id,
-                                "Pendiente de verificación"
-                              )
-                            }
-                          >
-                            Verificar
-                          </button>
-                          <button
-                            style={styles.statusBtn}
-                            onClick={() =>
-                              actualizarPagoPedido(pedido.id, "Pagado")
-                            }
-                          >
-                            Pagado
-                          </button>
-                          <button
-                            style={styles.statusBtn}
-                            onClick={() =>
-                              actualizarPagoPedido(pedido.id, "Rechazado")
-                            }
-                          >
-                            Rechazado
-                          </button>
-                        </div>
-                      </div>
-
-                      <div
+                    <div style={styles.adminMiniStat}>
+                      <span style={styles.adminMiniStatLabel}>Laboratorio</span>
+                      <strong
                         style={{
-                          marginTop: 12,
-                          display: "flex",
-                          gap: 10,
-                          flexWrap: "wrap",
+                          ...styles.adminMiniStatValue,
+                          color: laboratorioAbierto ? "#8dffb2" : "#ffb0b0",
                         }}
                       >
-                        <button
-                          style={styles.printBtn}
-                          onClick={() => imprimirTicketPedido(pedido)}
-                        >
-                          Imprimir ticket
-                        </button>
+                        {laboratorioAbierto ? "Abierto" : "Fuera de horario"}
+                      </strong>
+                    </div>
 
-                        <button
-  style={{
-    ...styles.deleteBtn,
-    ...(eliminandoPedidoId === pedido.id
-      ? styles.disabledBtn
-      : {}),
+                    <div style={styles.adminMiniStat}>
+                      <span style={styles.adminMiniStatLabel}>Activos</span>
+                      <strong style={styles.adminMiniStatValue}>
+                        {pedidosActivosAdmin}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
 
-    ...(esMovil
-      ? {
-          padding: "10px 12px",
-          borderRadius: 12,
-          fontSize: 13,
-        }
-      : {}),
-                          }}
-                          onClick={() => eliminarPedido(pedido.id)}
-                          disabled={eliminandoPedidoId === pedido.id}
-                        >
-                          {eliminandoPedidoId === pedido.id
-                            ? "Eliminando..."
-                            : "Eliminar pedido"}
-                        </button>
+                <div style={styles.adminHeroActions}>
+                  <button
+                    style={{
+                      ...styles.adminActionBtn,
+                      ...(modoCocina ? styles.adminActionBtnPrimary : {}),
+                    }}
+                    onClick={() => setModoCocina((prev) => !prev)}
+                  >
+                    {modoCocina ? "Salir modo cocina" : "Entrar modo cocina"}
+                  </button>
+
+                  <button
+                    style={styles.adminActionBtn}
+                    onClick={cargarPedidosAdmin}
+                  >
+                    Recargar pedidos
+                  </button>
+
+                  <button
+                    style={styles.adminActionBtnDanger}
+                    onClick={() => {
+                      setAdminLogueado(false);
+                      setAdminUser(null);
+                      setLoginAdmin({ username: "", password: "" });
+                      setPedidos([]);
+                      setFiltroEstadoAdmin("Todos");
+                      setBusquedaAdmin("");
+                      setModoCocina(false);
+                      pedidosInicialesCargadosRef.current = false;
+                      window.location.hash = "";
+                      setRutaPrivada("");
+                      setVista("cliente");
+                      setSeccionCliente("inicio");
+                    }}
+                  >
+                    Cerrar sesión
+                  </button>
+                </div>
+              </div>
+
+              {modoCocina ? (
+                <div>
+                  <div style={styles.kpiGrid}>
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Pendientes</div>
+                      <div style={styles.kpiValue}>{pedidosCocina.length}</div>
+                    </div>
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Recibidos</div>
+                      <div style={styles.kpiValue}>
+                        {
+                          pedidosCocina.filter((p) => p.estado === "Recibido")
+                            .length
+                        }
                       </div>
                     </div>
-                  ))
-                )}
-              </>
-            )}
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>En cocina</div>
+                      <div style={styles.kpiValue}>
+                        {
+                          pedidosCocina.filter((p) => p.estado === "En cocina")
+                            .length
+                        }
+                      </div>
+                    </div>
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>En camino</div>
+                      <div style={styles.kpiValue}>
+                        {
+                          pedidosCocina.filter((p) => p.estado === "En camino")
+                            .length
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  {pedidosCocina.length === 0 ? (
+                    <div style={styles.emptyBox}>No hay pedidos pendientes.</div>
+                  ) : (
+                    <div
+                      style={{
+                        ...styles.cocinaGrid,
+                        gridTemplateColumns: esMovil
+                          ? "1fr"
+                          : "repeat(2, minmax(0, 1fr))",
+                      }}
+                    >
+                      {pedidosCocina.map((pedido) => (
+                        <div key={pedido.id} style={styles.cocinaCard}>
+                          <div style={styles.cocinaTop}>
+                            <div>
+                              <div style={styles.cocinaId}>{pedido.id}</div>
+                              <div style={styles.cocinaCliente}>
+                                {pedido.cliente.nombre}
+                              </div>
+                            </div>
+
+                            <div
+                              style={{
+                                ...styles.statusBadge,
+                                ...colorEstado(pedido.estado),
+                              }}
+                            >
+                              {pedido.estado}
+                            </div>
+                          </div>
+
+                          <div style={styles.cocinaDireccion}>
+                            📍 {pedido.cliente.direccion}
+                          </div>
+
+                          <div style={{ marginTop: 12 }}>
+                            {pedido.items.map((item, idx) => (
+                              <div key={idx} style={styles.cocinaItem}>
+                                <strong>
+                                  {item.experimento || "Experimento 1"}
+                                </strong>
+                                {" • "}
+                                {item.nombre} x{item.cantidad}
+                                {item.salsa ? ` • ${item.salsa}` : ""}
+                              </div>
+                            ))}
+                          </div>
+
+                          <div style={styles.cocinaActions}>
+                            <button
+                              style={styles.cocinaBtn}
+                              onClick={() =>
+                                cambiarEstado(pedido.id, "Recibido")
+                              }
+                            >
+                              Recibido
+                            </button>
+                            <button
+                              style={styles.cocinaBtn}
+                              onClick={() =>
+                                cambiarEstado(pedido.id, "En cocina")
+                              }
+                            >
+                              En cocina
+                            </button>
+                            <button
+                              style={styles.cocinaBtn}
+                              onClick={() =>
+                                cambiarEstado(pedido.id, "En camino")
+                              }
+                            >
+                              En camino
+                            </button>
+                            <button
+                              style={styles.printBtn}
+                              onClick={() => imprimirTicketPedido(pedido)}
+                            >
+                              Imprimir
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div style={styles.kpiGrid}>
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Pedidos totales</div>
+                      <div style={styles.kpiValue}>{pedidos.length}</div>
+                    </div>
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Pedidos activos</div>
+                      <div style={styles.kpiValue}>{pedidosActivosAdmin}</div>
+                    </div>
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Pendientes de pago</div>
+                      <div style={styles.kpiValue}>
+                        {pedidosPendientesPagoAdmin}
+                      </div>
+                    </div>
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Entregados hoy</div>
+                      <div style={styles.kpiValue}>{entregadosHoyAdmin}</div>
+                    </div>
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Vendido hoy</div>
+                      <div style={styles.kpiValue}>
+                        ${totalVendidoHoyAdmin.toLocaleString("es-CO")}
+                      </div>
+                    </div>
+
+                    <div style={styles.kpiCard}>
+                      <div style={styles.kpiLabel}>Ticket promedio hoy</div>
+                      <div style={styles.kpiValue}>
+                        ${ticketPromedioHoyAdmin.toLocaleString("es-CO")}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={styles.adminFilterPanel}>
+                    <div style={styles.adminFilterHeader}>
+                      <div>
+                        <div style={styles.adminSectionEyebrow}>
+                          FILTROS OPERATIVOS
+                        </div>
+                        <h3 style={styles.adminSectionTitle}>
+                          Encuentra más rápido cada pedido
+                        </h3>
+                      </div>
+
+                      <div style={styles.adminResultsPill}>
+                        {pedidosAdminFiltrados.length} pedido
+                        {pedidosAdminFiltrados.length === 1 ? "" : "s"} visible
+                        {pedidosAdminFiltrados.length === 1 ? "" : "s"}
+                      </div>
+                    </div>
+
+                    <div style={styles.filtersBox}>
+                      <div style={styles.filterItem}>
+                        <label style={styles.label}>Filtrar por estado</label>
+                        <select
+                          style={styles.input}
+                          value={filtroEstadoAdmin}
+                          onChange={(e) =>
+                            setFiltroEstadoAdmin(e.target.value)
+                          }
+                        >
+                          {FILTROS_ESTADO.map((estado) => (
+                            <option key={estado}>{estado}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div style={styles.filterItem}>
+                        <label style={styles.label}>
+                          Buscar por ID, nombre o teléfono
+                        </label>
+                        <input
+                          style={styles.input}
+                          value={busquedaAdmin}
+                          onChange={(e) => setBusquedaAdmin(e.target.value)}
+                          placeholder="Ej: PED-001 / Luis / 315..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {pedidosAdminFiltrados.length === 0 ? (
+                    <div style={styles.emptyBox}>No hay pedidos para mostrar.</div>
+                  ) : (
+                    <div style={styles.adminOrdersGrid}>
+                      {pedidosAdminFiltrados.map((pedido) => {
+                        const metodoPago =
+                          pedido?.metodoPago ||
+                          pedido?.cliente?.pago ||
+                          "No definido";
+
+                        const estadoPago = pedido?.estadoPago || "Pendiente";
+
+                        return (
+                          <div key={pedido.id} style={styles.adminOrderCard}>
+                            <div style={styles.adminOrderTop}>
+                              <div>
+                                <div style={styles.adminOrderId}>
+                                  {pedido.id}
+                                </div>
+                                <div style={styles.adminOrderClient}>
+                                  {pedido.cliente.nombre}
+                                </div>
+                                <p style={styles.orderMeta}>
+                                  {pedido.cliente.telefono}
+                                </p>
+                                <p style={styles.orderMeta}>{pedido.fecha}</p>
+                              </div>
+
+                              <div
+                                style={{
+                                  ...styles.statusBadge,
+                                  ...colorEstado(pedido.estado),
+                                }}
+                              >
+                                {pedido.estado}
+                              </div>
+                            </div>
+
+                            <div style={styles.adminChipRow}>
+                              <div style={styles.adminChip}>
+                                💳 {metodoPago}
+                              </div>
+                              <div style={styles.adminChip}>
+                                🧾 {estadoPago}
+                              </div>
+                              <div style={styles.adminChip}>
+                                🚚 {pedido?.repartidor || "Sin asignar"}
+                              </div>
+                            </div>
+
+                            <div style={styles.adminInfoGrid}>
+                              <div style={styles.adminInfoCard}>
+                                <div style={styles.adminInfoLabel}>
+                                  Dirección
+                                </div>
+                                <div style={styles.adminInfoValue}>
+                                  {pedido?.cliente?.direccion || "No definida"}
+                                </div>
+                              </div>
+
+                              <div style={styles.adminInfoCard}>
+                                <div style={styles.adminInfoLabel}>
+                                  Referencia
+                                </div>
+                                <div style={styles.adminInfoValue}>
+                                  {pedido?.cliente?.referencia || "N/A"}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={styles.adminProductsBox}>
+                              <div style={styles.adminProductsTitle}>
+                                Productos del pedido
+                              </div>
+
+                              <div style={styles.adminProductsList}>
+                                {pedido.items.map((item, idx) => (
+                                  <div
+                                    key={idx}
+                                    style={styles.adminProductItem}
+                                  >
+                                    <span>
+                                      {item.experimento
+                                        ? `${item.experimento} • `
+                                        : ""}
+                                      {item.nombre} x{item.cantidad}
+                                      {item.salsa ? ` • ${item.salsa}` : ""}
+                                    </span>
+                                    <strong>
+                                      $
+                                      {(
+                                        item.precio * item.cantidad
+                                      ).toLocaleString("es-CO")}
+                                    </strong>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div style={styles.adminTotalBar}>
+                              <span style={styles.adminTotalLabel}>
+                                Total del pedido
+                              </span>
+                              <strong style={styles.adminTotalValue}>
+                                ${Number(pedido.total || 0).toLocaleString("es-CO")}
+                              </strong>
+                            </div>
+
+                            <div style={styles.adminBlock}>
+                              <div style={styles.adminBlockTitle}>
+                                Cambiar estado
+                              </div>
+                              <div style={styles.statusButtons}>
+                                {ESTADOS.map((estado) => (
+                                  <button
+                                    key={estado}
+                                    style={styles.statusBtn}
+                                    onClick={() =>
+                                      cambiarEstado(pedido.id, estado)
+                                    }
+                                  >
+                                    {estado}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div style={styles.adminBlock}>
+                              <div style={styles.adminBlockTitle}>
+                                Asignar repartidor
+                              </div>
+                              <div style={styles.statusButtons}>
+                                <button
+                                  style={styles.statusBtn}
+                                  onClick={() =>
+                                    asignarRepartidor(
+                                      pedido.id,
+                                      "Domiciliario 1"
+                                    )
+                                  }
+                                >
+                                  Domiciliario 1
+                                </button>
+
+                                <button
+                                  style={styles.statusBtn}
+                                  onClick={() =>
+                                    asignarRepartidor(
+                                      pedido.id,
+                                      "Domiciliario 2"
+                                    )
+                                  }
+                                >
+                                  Domiciliario 2
+                                </button>
+                              </div>
+                            </div>
+
+                            <div style={styles.adminBlock}>
+                              <div style={styles.adminBlockTitle}>
+                                Gestión de pago
+                              </div>
+                              <div style={styles.statusButtons}>
+                                <button
+                                  style={styles.statusBtn}
+                                  onClick={() =>
+                                    actualizarPagoPedido(
+                                      pedido.id,
+                                      "Pendiente"
+                                    )
+                                  }
+                                >
+                                  Pendiente
+                                </button>
+
+                                <button
+                                  style={styles.statusBtn}
+                                  onClick={() =>
+                                    actualizarPagoPedido(
+                                      pedido.id,
+                                      "Pendiente de verificación"
+                                    )
+                                  }
+                                >
+                                  Verificar
+                                </button>
+
+                                <button
+                                  style={styles.statusBtn}
+                                  onClick={() =>
+                                    actualizarPagoPedido(pedido.id, "Pagado")
+                                  }
+                                >
+                                  Pagado
+                                </button>
+
+                                <button
+                                  style={styles.statusBtn}
+                                  onClick={() =>
+                                    actualizarPagoPedido(
+                                      pedido.id,
+                                      "Rechazado"
+                                    )
+                                  }
+                                >
+                                  Rechazado
+                                </button>
+                              </div>
+                            </div>
+
+                            <div style={styles.adminFooterActions}>
+                              <button
+                                style={styles.printBtn}
+                                onClick={() => imprimirTicketPedido(pedido)}
+                              >
+                                Imprimir ticket
+                              </button>
+
+                              <button
+                                style={{
+                                  ...styles.deleteBtn,
+                                  ...(eliminandoPedidoId === pedido.id
+                                    ? styles.disabledBtn
+                                    : {}),
+                                  ...(esMovil
+                                    ? {
+                                        padding: "10px 12px",
+                                        borderRadius: 12,
+                                        fontSize: 13,
+                                      }
+                                    : {}),
+                                }}
+                                onClick={() => eliminarPedido(pedido.id)}
+                                disabled={eliminandoPedidoId === pedido.id}
+                              >
+                                {eliminandoPedidoId === pedido.id
+                                  ? "Eliminando..."
+                                  : "Eliminar pedido"}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </section>
         )}
 
