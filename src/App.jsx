@@ -6036,13 +6036,13 @@ drawerCart: {
   },
 
   drawerCloseBtn: {
-  width: esMovil ? 58 : 72,
-  height: esMovil ? 58 : 72,
-  borderRadius: esMovil ? 18 : 22,
+  width: 72,
+  height: 72,
+  borderRadius: 22,
   border: "1px solid rgba(255,255,255,0.08)",
   background: "rgba(255,255,255,0.03)",
   color: "#fff",
-  fontSize: esMovil ? 24 : 28,
+  fontSize: 28,
   cursor: "pointer",
   alignSelf: "flex-end",
 },
@@ -6126,11 +6126,11 @@ globalCartBody: {
 },
 
 globalCartHeaderPro: {
-  padding: esMovil ? "14px 14px 10px" : "18px 18px 14px",
+  padding: "18px 18px 14px",
   borderBottom: "1px solid rgba(255,255,255,0.08)",
   display: "flex",
   justifyContent: "space-between",
-  gap: esMovil ? 10 : 12,
+  gap: 12,
   flexShrink: 0,
 },
 
@@ -6192,18 +6192,18 @@ globalCartSubPro: {
 },
 
 globalCartTopTotalCard: {
-  minWidth: esMovil ? 128 : 156,
-  padding: esMovil ? "12px 12px" : "16px 16px",
-  borderRadius: esMovil ? 20 : 24,
+  minWidth: 120,
   background:
-    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+    "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03))",
   border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 16,
+  padding: "12px 14px",
   textAlign: "right",
 },
 
 globalCartTopTotalLabel: {
-  color: "#bcbcbc",
-  fontSize: esMovil ? 11 : 13,
+  color: "#cfcfcf",
+  fontSize: 12,
   fontWeight: "bold",
   textTransform: "uppercase",
   letterSpacing: 0.8,
@@ -6212,8 +6212,8 @@ globalCartTopTotalLabel: {
 globalCartTopTotalValue: {
   color: "#fff",
   fontWeight: "bold",
-  fontSize: esMovil ? 28 : 36,
-  lineHeight: 1,
+  fontSize: 34,
+  lineHeight: 0.95,
   marginTop: 6,
 },
 
