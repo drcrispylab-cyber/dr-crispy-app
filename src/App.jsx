@@ -1972,47 +1972,62 @@ function renderCatalogCard({
   onAgregar,
 }) {
   const cardKey = `catalog-${id}`;
-const badgeStyle =
-  badge === "MÁS PEDIDO"
-    ? {
-        background: "linear-gradient(135deg, #ff0000, #ff4d4d)",
-        border: "1px solid rgba(255,0,0,0.35)",
-        color: "#fff",
-      }
-    : badge === "RECOMENDADO"
-    ? {
-        background: "linear-gradient(135deg, #ffd166, #ffb703)",
-        border: "1px solid rgba(255,209,102,0.35)",
-        color: "#1a1a1a",
-      }
-    : badge === "NUEVO"
-    ? {
-        background: "linear-gradient(135deg, #7b2ff7, #f107a3)",
-        border: "1px solid rgba(123,47,247,0.35)",
-        color: "#fff",
-      }
-    : badge === "RÁPIDO"
-    ? {
-        background: "linear-gradient(135deg, #ffd166, #ffb703)",
-        border: "1px solid rgba(255,209,102,0.35)",
-        color: "#1a1a1a",
-      }
-    : {
-        background: "rgba(255,255,255,0.1)",
-        border: "1px solid rgba(255,255,255,0.12)",
-        color: "#fff",
-      };
+
+  const badgeStyle =
+    badge === "MÁS PEDIDO"
+      ? {
+          background: "linear-gradient(135deg, #ff0000, #ff4d4d)",
+          border: "1px solid rgba(255,0,0,0.35)",
+          color: "#fff",
+        }
+      : badge === "RECOMENDADO"
+      ? {
+          background: "linear-gradient(135deg, #ffd166, #ffb703)",
+          border: "1px solid rgba(255,209,102,0.35)",
+          color: "#1a1a1a",
+        }
+      : badge === "NUEVO"
+      ? {
+          background: "linear-gradient(135deg, #7b2ff7, #f107a3)",
+          border: "1px solid rgba(123,47,247,0.35)",
+          color: "#fff",
+        }
+      : badge === "RÁPIDO"
+      ? {
+          background: "linear-gradient(135deg, #ffd166, #ffb703)",
+          border: "1px solid rgba(255,209,102,0.35)",
+          color: "#1a1a1a",
+        }
+      : {
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid rgba(255,255,255,0.12)",
+          color: "#fff",
+        };
+
   return (
     <div
       key={id}
       style={{
         ...styles.kfcCard,
         ...(cardHover === cardKey ? styles.kfcCardHover : {}),
+        ...(esMovil
+          ? {
+              gridTemplateColumns: "82px 1fr",
+              gap: 10,
+              padding: 10,
+              borderRadius: 16,
+            }
+          : {}),
       }}
       onMouseEnter={() => setCardHover(cardKey)}
       onMouseLeave={() => setCardHover("")}
     >
-      <div style={styles.kfcCardImageWrap}>
+      <div
+        style={{
+          ...styles.kfcCardImageWrap,
+          ...(esMovil ? { width: 82, height: 82, borderRadius: 12 } : {}),
+        }}
+      >
         <img
           src={imagen || "/images/producto-placeholder.png"}
           alt={nombre}
@@ -2021,28 +2036,71 @@ const badgeStyle =
       </div>
 
       <div style={styles.kfcCardContent}>
-        <div style={styles.kfcCardPrice}>${precio.toLocaleString("es-CO")}</div>
+        <div
+          style={{
+            ...styles.kfcCardPrice,
+            ...(esMovil ? { fontSize: 18, marginBottom: 6 } : {}),
+          }}
+        >
+          ${precio.toLocaleString("es-CO")}
+        </div>
 
-        <h3 style={styles.kfcCardTitle}>{nombre}</h3>
+        <h3
+          style={{
+            ...styles.kfcCardTitle,
+            ...(esMovil ? { fontSize: 18 } : {}),
+          }}
+        >
+          {nombre}
+        </h3>
 
-        <p style={styles.kfcCardDesc}>{descripcion}</p>
+        <p
+          style={{
+            ...styles.kfcCardDesc,
+            ...(esMovil
+              ? {
+                  fontSize: 12,
+                  lineHeight: 1.3,
+                  WebkitLineClamp: 2,
+                }
+              : {}),
+          }}
+        >
+          {descripcion}
+        </p>
 
         {badge ? (
-  <div
-    style={{
-      ...styles.kfcCardBadge,
-      ...badgeStyle,
-    }}
-  >
-    {badge}
-  </div>
-) : null}
+          <div
+            style={{
+              ...styles.kfcCardBadge,
+              ...badgeStyle,
+              ...(esMovil
+                ? {
+                    marginTop: 8,
+                    marginBottom: 8,
+                    padding: "5px 8px",
+                    fontSize: 10,
+                  }
+                : {}),
+            }}
+          >
+            {badge}
+          </div>
+        ) : null}
 
         <button
           type="button"
           style={{
             ...styles.kfcCardBtn,
             ...(botonAnimando === cardKey ? styles.addBtnPop : {}),
+            ...(esMovil
+              ? {
+                  padding: "9px 12px",
+                  fontSize: 12,
+                  borderRadius: 999,
+                  width: "100%",
+                }
+              : {}),
           }}
           onClick={(e) => {
             e.stopPropagation();
