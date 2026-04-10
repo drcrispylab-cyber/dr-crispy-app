@@ -1951,6 +1951,30 @@ function obtenerTipoPedidoLabel(pedido) {
 
   return "Domicilio";
 }
+
+function obtenerEtiquetaPedido(pedido) {
+  const estado = String(pedido?.estado || "");
+  const estadoPago = String(pedido?.estadoPago || "Pendiente");
+
+  if (estadoPago === "Pendiente de verificación") {
+    return { texto: "REVISAR PAGO", tipo: "warning" };
+  }
+
+  if (estado === "Recibido") {
+    return { texto: "ATENDER YA", tipo: "danger" };
+  }
+
+  if (estado === "En cocina") {
+    return { texto: "EN PROCESO", tipo: "process" };
+  }
+
+  if (estado === "En camino") {
+    return { texto: "EN CAMINO", tipo: "info" };
+  }
+
+  return { texto: "CONTROLADO", tipo: "ok" };
+}
+
   function abrirWhatsAppCliente(pedido, mensajeBase) {
   const telefonoRaw = pedido?.cliente?.telefono || "";
   const telefono = String(telefonoRaw).replace(/\D/g, "");
@@ -6286,6 +6310,55 @@ function renderPickupInfoCard() {
                                 <div style={styles.adminOrderId}>
                                   {pedido.id}
                                 </div>
+                                
+                                {(() => {
+  const etiqueta = obtenerEtiquetaPedido(pedido);
+
+  return (
+    <div
+      style={{
+        padding: "4px 10px",
+        borderRadius: 10,
+        fontSize: 11,
+        fontWeight: 800,
+        display: "inline-block",
+        marginTop: 6,
+        background:
+          etiqueta.tipo === "danger"
+            ? "rgba(255, 82, 82, 0.15)"
+            : etiqueta.tipo === "warning"
+            ? "rgba(255, 193, 7, 0.15)"
+            : etiqueta.tipo === "process"
+            ? "rgba(255, 0, 0, 0.12)"
+            : etiqueta.tipo === "info"
+            ? "rgba(33,150,243,0.12)"
+            : "rgba(46, 204, 113, 0.12)",
+        color:
+          etiqueta.tipo === "danger"
+            ? "#ffb3b3"
+            : etiqueta.tipo === "warning"
+            ? "#ffe082"
+            : etiqueta.tipo === "process"
+            ? "#ff8a80"
+            : etiqueta.tipo === "info"
+            ? "#bbdefb"
+            : "#c8f7dc",
+        border:
+          etiqueta.tipo === "danger"
+            ? "1px solid rgba(255,82,82,0.3)"
+            : etiqueta.tipo === "warning"
+            ? "1px solid rgba(255,193,7,0.3)"
+            : etiqueta.tipo === "process"
+            ? "1px solid rgba(255,0,0,0.25)"
+            : etiqueta.tipo === "info"
+            ? "1px solid rgba(33,150,243,0.25)"
+            : "1px solid rgba(46,204,113,0.25)",
+      }}
+    >
+      {etiqueta.texto}
+    </div>
+  );
+})()}
                                 <div style={styles.adminOrderClient}>
                                   {pedido.cliente.nombre}
                                 </div>
