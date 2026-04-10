@@ -401,6 +401,13 @@ function App() {
   const [cargandoAdmin, setCargandoAdmin] = useState(false);
   const [cargandoRepartidor, setCargandoRepartidor] = useState(false);
   const [eliminandoPedidoId, setEliminandoPedidoId] = useState("");
+  
+  const [usarNuevaDireccionCheckout, setUsarNuevaDireccionCheckout] = useState(false);
+
+  const [nuevaDireccionCheckout, setNuevaDireccionCheckout] = useState({
+    direccion: "",
+    referencia: "",
+  });
 
   const [mensaje, setMensaje] = useState({ tipo: "", texto: "" });
   const [toast, setToast] = useState({
@@ -593,6 +600,37 @@ const combosDestacados = [
     setMostrarPromptPerfil(false);
     setPanelCarritoAbierto(true);
     setPanelCarritoVista(modo === "registro" ? "auth_registro" : "auth_login");
+  }
+
+  function prepararCheckoutDomicilio() {
+    const direccionGuardada =
+      clienteSesion?.direccion ||
+      cliente?.direccion ||
+      "";
+
+    const referenciaGuardada =
+      clienteSesion?.referencia ||
+      cliente?.referencia ||
+      "";
+
+    if (direccionGuardada) {
+      actualizarCliente("direccion", direccionGuardada);
+    }
+
+    if (referenciaGuardada) {
+      actualizarCliente("referencia", referenciaGuardada);
+    }
+
+    setUsarNuevaDireccionCheckout(false);
+    setNuevaDireccionCheckout({
+      direccion: "",
+      referencia: "",
+    });
+
+    setDrawerCarritoAbierto(false);
+    setPanelCarritoAbierto(true);
+    setPanelCarritoVista("checkout");
+    setCheckoutMovilAbierto(true);
   }
 
 function irAlCheckoutDesdePanel() {
@@ -4262,6 +4300,11 @@ function renderPickupInfoCard() {
         marginTop: 0,
       }}
       onClick={() => {
+        if (tipoPedido === "domicilio") {
+          prepararCheckoutDomicilio();
+          return;
+        }
+
         setDrawerCarritoAbierto(false);
         setPanelCarritoAbierto(true);
         setPanelCarritoVista("checkout");
@@ -4331,8 +4374,91 @@ function renderPickupInfoCard() {
                 ✕
               </button>
             </div>
+ {tipoPedido === "domicilio" && (
+    <div style={styles.checkoutAddressBox}>
+      <div style={styles.checkoutAddressTitle}>
+        Dirección de entrega
+      </div>
 
+      {!usarNuevaDireccionCheckout ? (
+        <>
+          <div style={styles.checkoutAddressCard}>
+            <div style={styles.checkoutAddressLine}>
+              📍 {cliente?.direccion || clienteSesion?.direccion || "Sin dirección guardada"}
+            </div>
+
+            <div style={styles.checkoutAddressRef}>
+              {cliente?.referencia || clienteSesion?.referencia || "Sin referencia"}
+            </div>
+          </div>
+
+          <div style={styles.checkoutAddressActions}>
+            <button
+              type="button"
+              style={styles.secondaryBtn}
+              onClick={() => setUsarNuevaDireccionCheckout(true)}
+            >
+              Usar otra dirección
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <Input
+            label="Nueva dirección"
+            value={nuevaDireccionCheckout.direccion}
+            onChange={(e) =>
+              setNuevaDireccionCheckout((prev) => ({
+                ...prev,
+                direccion: e.target.value,
+              }))
+            }
+          />
+
+          <Input
+            label="Referencia"
+            value={nuevaDireccionCheckout.referencia}
+            onChange={(e) =>
+              setNuevaDireccionCheckout((prev) => ({
+                ...prev,
+                referencia: e.target.value,
+              }))
+            }
+          />
+
+          <div style={styles.checkoutAddressActions}>
+            <button
+              type="button"
+              style={styles.secondaryBtn}
+              onClick={() => {
+                actualizarCliente("direccion", nuevaDireccionCheckout.direccion);
+                actualizarCliente("referencia", nuevaDireccionCheckout.referencia);
+                setUsarNuevaDireccionCheckout(false);
+              }}
+            >
+              Usar esta dirección
+            </button>
+
+            <button
+              type="button"
+              style={styles.secondaryBtn}
+              onClick={() => {
+                setUsarNuevaDireccionCheckout(false);
+                setNuevaDireccionCheckout({
+                  direccion: "",
+                  referencia: "",
+                });
+              }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  )}
             <div style={styles.checkoutMobileBody}>
+
               {clienteSesion?.id ? (
   <div style={styles.checkoutProfileBox}>
     <div style={styles.checkoutProfileTop}>
@@ -9424,6 +9550,50 @@ checkoutProfileDataCard: {
   border: "1px solid rgba(255,255,255,0.07)",
   borderRadius: 14,
   padding: 12,
+},
+
+checkoutAddressBox: {
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(255,255,255,0.06)",
+  borderRadius: 16,
+  padding: 14,
+  marginBottom: 14,
+},
+
+checkoutAddressTitle: {
+  fontSize: 13,
+  fontWeight: 800,
+  textTransform: "uppercase",
+  letterSpacing: 0.8,
+  color: "#ffd166",
+  marginBottom: 10,
+},
+
+checkoutAddressCard: {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.07)",
+  borderRadius: 14,
+  padding: 12,
+},
+
+checkoutAddressLine: {
+  color: "#fff",
+  fontWeight: 700,
+  lineHeight: 1.45,
+},
+
+checkoutAddressRef: {
+  color: "#bdbdbd",
+  marginTop: 6,
+  lineHeight: 1.4,
+  fontSize: 13,
+},
+
+checkoutAddressActions: {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  marginTop: 12,
 },
 
 productCardPro: {
