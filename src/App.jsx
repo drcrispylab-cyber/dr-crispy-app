@@ -1932,7 +1932,25 @@ setCarrito([]);
       "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.98))",
   };
 }
+function obtenerTipoPedidoLabel(pedido) {
+  const tipo =
+    pedido?.tipoPedido ||
+    pedido?.cliente?.tipoPedido ||
+    pedido?.modoPedido ||
+    "";
 
+  const tipoNormalizado = String(tipo).toLowerCase();
+
+  if (
+    tipoNormalizado.includes("recoger") ||
+    tipoNormalizado.includes("express") ||
+    tipoNormalizado.includes("lab")
+  ) {
+    return "Recoger en el lab";
+  }
+
+  return "Domicilio";
+}
   function abrirWhatsAppCliente(pedido, mensajeBase) {
   const telefonoRaw = pedido?.cliente?.telefono || "";
   const telefono = String(telefonoRaw).replace(/\D/g, "");
