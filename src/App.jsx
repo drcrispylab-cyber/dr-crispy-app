@@ -307,6 +307,27 @@ const EXPERIMENTOS = [
 
 const ESTADOS = ["Recibido", "En cocina", "En camino", "Entregado"];
 const FILTROS_ESTADO = ["Todos", ...ESTADOS];
+const FILTROS_PAGO_ADMIN = [
+  "Todos",
+  "Pendiente",
+  "Pendiente de verificación",
+  "Pagado",
+  "Rechazado",
+];
+
+const FILTROS_TIPO_PEDIDO_ADMIN = [
+  "Todos",
+  "Domicilio",
+  "Recoger en el lab",
+];
+
+const ORDENES_ADMIN = [
+  { value: "recientes", label: "Más recientes" },
+  { value: "antiguos", label: "Más antiguos" },
+  { value: "mayor_total", label: "Mayor valor" },
+  { value: "menor_total", label: "Menor valor" },
+  { value: "prioridad", label: "Prioridad operativa" },
+];
 
 function App() {
   const [vista, setVista] = useState("cliente");
@@ -403,6 +424,9 @@ function App() {
   const [filtroEstadoAdmin, setFiltroEstadoAdmin] = useState("Todos");
   const [busquedaAdmin, setBusquedaAdmin] = useState("");
   const [modoCocina, setModoCocina] = useState(false);
+  const [filtroPagoAdmin, setFiltroPagoAdmin] = useState("Todos");
+  const [filtroTipoPedidoAdmin, setFiltroTipoPedidoAdmin] = useState("Todos");
+  const [ordenAdmin, setOrdenAdmin] = useState("recientes");
 
   const [formulaSeleccionada, setFormulaSeleccionada] = useState(null);
   const [comboPendiente, setComboPendiente] = useState(null);
@@ -1243,21 +1267,87 @@ function usarDireccionGuardada(direccionId) {
   }, [pedidos]);
 
   const pedidosAdminFiltrados = useMemo(() => {
-    const texto = busquedaAdmin.trim().toLowerCase();
+  const lista = [...pedidos].filter((pedido) => {
+    const coincideEstado =
+      filtroEstadoAdmin === "Todos" || pedido.estado === filtroEstadoAdmin;
 
-    return pedidos.filter((pedido) => {
-      const coincideEstado =
-        filtroEstadoAdmin === "Todos" || pedido.estado === filtroEstadoAdmin;
+    const estadoPago = String(pedido?.estadoPago || "Pendiente");
+    const coincidePago =
+      filtroPagoAdmin === "Todos" || estadoPago === filtroPagoAdmin;
 
-      const coincideBusqueda =
-        !texto ||
-        String(pedido.id).toLowerCase().includes(texto) ||
-        String(pedido?.cliente?.nombre || "").toLowerCase().includes(texto) ||
-        String(pedido?.cliente?.telefono || "").toLowerCase().includes(texto);
+    const tipoPedidoLabel = obtenerTipoPedidoLabel(pedido);
+    const coincideTipo =
+      filtroTipoPedidoAdmin === "Todos" ||
+      tipoPedidoLabel === filtroTipoPedidoAdmin;
 
-      return coincideEstado && coincideBusqueda;
-    });
-  }, [pedidos, filtroEstadoAdmin, busquedaAdmin]);
+    const textoBusqueda = busquedaAdmin.trim().toLowerCase();
+
+    const coincideBusqueda =
+      !textoBusqueda ||
+      String(pedido?.id || "").toLowerCase().includes(textoBusqueda) ||
+      String(pedido?.cliente?.nombre || "")
+        .toLowerCase()
+        .includes(textoBusqueda) ||
+      String(pedido?.cliente?.telefono || "")
+        .toLowerCase()
+        .includes(textoBusqueda);
+
+    return coincideEstado && coincidePago && coincideTipo && coincideBusqueda;
+  });
+
+  const prioridadPedido = (pedido) => {
+    let puntos = 0;
+
+    if (pedido.estado === "Recibido") puntos += 5;
+    if (pedido.estado === "En cocina") puntos += 4;
+    if (pedido.estado === "En camino") puntos += 3;
+
+    const estadoPago = String(pedido?.estadoPago || "Pendiente");
+    if (estadoPago === "Pendiente de verificación") puntos += 5;
+    if (estadoPago === "Pendiente") puntos += 3;
+    if (estadoPago === "Rechazado") puntos += 1;
+
+    if (obtenerTipoPedidoLabel(pedido) === "Domicilio") puntos += 2;
+
+    const total = Number(pedido?.total || 0);
+    if (total >= 80000) puntos += 2;
+    if (total >= 100000) puntos += 1;
+
+    return puntos;
+  };
+
+  lista.sort((a, b) => {
+    if (ordenAdmin === "antiguos") {
+      return new Date(a.fecha || 0) - new Date(b.fecha || 0);
+    }
+
+    if (ordenAdmin === "mayor_total") {
+      return Number(b.total || 0) - Number(a.total || 0);
+    }
+
+    if (ordenAdmin === "menor_total") {
+      return Number(a.total || 0) - Number(b.total || 0);
+    }
+
+    if (ordenAdmin === "prioridad") {
+      const diffPrioridad = prioridadPedido(b) - prioridadPedido(a);
+      if (diffPrioridad !== 0) return diffPrioridad;
+
+      return new Date(b.fecha || 0) - new Date(a.fecha || 0);
+    }
+
+    return new Date(b.fecha || 0) - new Date(a.fecha || 0);
+  });
+
+  return lista;
+}, [
+  pedidos,
+  filtroEstadoAdmin,
+  filtroPagoAdmin,
+  filtroTipoPedidoAdmin,
+  busquedaAdmin,
+  ordenAdmin,
+]);
 
   const pedidosCocina = useMemo(() => {
     return pedidos
@@ -1774,6 +1864,75 @@ setCarrito([]);
       setEliminandoPedidoId("");
     }
   }
+
+  function obtenerEstiloPrioridadPedido(pedido) {
+  const estado = String(pedido?.estado || "");
+  const estadoPago = String(pedido?.estadoPago || "Pendiente");
+  const tipoPedido = obtenerTipoPedidoLabel(pedido);
+  const total = Number(pedido?.total || 0);
+
+  if (estadoPago === "Pendiente de verificación") {
+    return {
+      border: "1px solid rgba(255,193,7,0.38)",
+      boxShadow: "0 0 0 1px rgba(255,193,7,0.08), 0 14px 34px rgba(255,193,7,0.08)",
+      background:
+        "linear-gradient(180deg, rgba(40,30,10,0.96), rgba(18,14,6,0.98))",
+    };
+  }
+
+  if (estado === "Recibido") {
+    return {
+      border: "1px solid rgba(255,87,34,0.34)",
+      boxShadow: "0 0 0 1px rgba(255,87,34,0.08), 0 14px 34px rgba(255,87,34,0.10)",
+      background:
+        "linear-gradient(180deg, rgba(34,18,12,0.98), rgba(20,10,8,0.98))",
+    };
+  }
+
+  if (estado === "En cocina") {
+    return {
+      border: "1px solid rgba(255,0,0,0.28)",
+      boxShadow: "0 0 0 1px rgba(255,0,0,0.08), 0 14px 34px rgba(255,0,0,0.10)",
+      background:
+        "linear-gradient(180deg, rgba(34,14,14,0.98), rgba(18,10,10,0.98))",
+    };
+  }
+
+  if (estado === "En camino") {
+    return {
+      border: "1px solid rgba(33,150,243,0.30)",
+      boxShadow: "0 0 0 1px rgba(33,150,243,0.08), 0 14px 34px rgba(33,150,243,0.08)",
+      background:
+        "linear-gradient(180deg, rgba(12,20,34,0.98), rgba(8,12,18,0.98))",
+    };
+  }
+
+  if (tipoPedido === "Recoger en el lab") {
+    return {
+      border: "1px solid rgba(255,235,59,0.24)",
+      boxShadow: "0 0 0 1px rgba(255,235,59,0.06), 0 14px 34px rgba(255,235,59,0.05)",
+      background:
+        "linear-gradient(180deg, rgba(32,30,14,0.98), rgba(18,16,10,0.98))",
+    };
+  }
+
+  if (total >= 100000) {
+    return {
+      border: "1px solid rgba(156,39,176,0.28)",
+      boxShadow: "0 0 0 1px rgba(156,39,176,0.07), 0 14px 34px rgba(156,39,176,0.08)",
+      background:
+        "linear-gradient(180deg, rgba(26,14,30,0.98), rgba(16,10,18,0.98))",
+    };
+  }
+
+  return {
+    border: "1px solid rgba(255,255,255,0.07)",
+    boxShadow: "0 14px 34px rgba(0,0,0,0.18)",
+    background:
+      "linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.98))",
+  };
+}
+
   function abrirWhatsAppCliente(pedido, mensajeBase) {
   const telefonoRaw = pedido?.cliente?.telefono || "";
   const telefono = String(telefonoRaw).replace(/\D/g, "");
@@ -5916,6 +6075,52 @@ function renderPickupInfoCard() {
                     </div>
                   </div>
 
+                  <div style={styles.kpiCard}>
+  <div style={styles.kpiLabel}>Pagos verificados</div>
+  <div style={styles.kpiValue}>
+    {
+      pedidos.filter(
+        (p) => String(p?.estadoPago || "Pendiente") === "Pagado"
+      ).length
+    }
+  </div>
+</div>
+
+<div style={styles.kpiCard}>
+  <div style={styles.kpiLabel}>Por verificar</div>
+  <div style={styles.kpiValue}>
+    {
+      pedidos.filter(
+        (p) =>
+          String(p?.estadoPago || "Pendiente") ===
+          "Pendiente de verificación"
+      ).length
+    }
+  </div>
+</div>
+
+<div style={styles.kpiCard}>
+  <div style={styles.kpiLabel}>Domicilios</div>
+  <div style={styles.kpiValue}>
+    {
+      pedidos.filter(
+        (p) => obtenerTipoPedidoLabel(p) === "Domicilio"
+      ).length
+    }
+  </div>
+</div>
+
+<div style={styles.kpiCard}>
+  <div style={styles.kpiLabel}>Recoger en lab</div>
+  <div style={styles.kpiValue}>
+    {
+      pedidos.filter(
+        (p) => obtenerTipoPedidoLabel(p) === "Recoger en el lab"
+      ).length
+    }
+  </div>
+</div>
+
                   <div style={styles.adminFilterPanel}>
                     <div style={styles.adminFilterHeader}>
                       <div>
@@ -5962,6 +6167,80 @@ function renderPickupInfoCard() {
                         />
                       </div>
                     </div>
+                    <div style={styles.filtersBox}>
+  <div style={styles.filterItem}>
+    <label style={styles.label}>Filtrar por estado</label>
+    <select
+      style={styles.input}
+      value={filtroEstadoAdmin}
+      onChange={(e) =>
+        setFiltroEstadoAdmin(e.target.value)
+      }
+    >
+      {FILTROS_ESTADO.map((estado) => (
+        <option key={estado}>{estado}</option>
+      ))}
+    </select>
+  </div>
+
+  <div style={styles.filterItem}>
+    <label style={styles.label}>
+      Buscar por ID, nombre o teléfono
+    </label>
+    <input
+      style={styles.input}
+      value={busquedaAdmin}
+      onChange={(e) => setBusquedaAdmin(e.target.value)}
+      placeholder="Ej: PED-001 / Luis / 315..."
+    />
+  </div>
+
+  {/* 🔥 AQUÍ PEGAS LOS NUEVOS FILTROS */}
+
+  <div style={styles.filterItem}>
+    <label style={styles.label}>Filtrar por pago</label>
+    <select
+      style={styles.input}
+      value={filtroPagoAdmin}
+      onChange={(e) => setFiltroPagoAdmin(e.target.value)}
+    >
+      {FILTROS_PAGO_ADMIN.map((estado) => (
+        <option key={estado}>{estado}</option>
+      ))}
+    </select>
+  </div>
+
+  <div style={styles.filterItem}>
+    <label style={styles.label}>Tipo de pedido</label>
+    <select
+      style={styles.input}
+      value={filtroTipoPedidoAdmin}
+      onChange={(e) =>
+        setFiltroTipoPedidoAdmin(e.target.value)
+      }
+    >
+      {FILTROS_TIPO_PEDIDO_ADMIN.map((tipo) => (
+        <option key={tipo}>{tipo}</option>
+      ))}
+    </select>
+  </div>
+
+  <div style={styles.filterItem}>
+    <label style={styles.label}>Ordenar por</label>
+    <select
+      style={styles.input}
+      value={ordenAdmin}
+      onChange={(e) => setOrdenAdmin(e.target.value)}
+    >
+      {ORDENES_ADMIN.map((opcion) => (
+        <option key={opcion.value} value={opcion.value}>
+          {opcion.label}
+        </option>
+      ))}
+    </select>
+  </div>
+
+</div>
                   </div>
 
                   {pedidosAdminFiltrados.length === 0 ? (
@@ -5977,7 +6256,13 @@ function renderPickupInfoCard() {
                         const estadoPago = pedido?.estadoPago || "Pendiente";
 
                         return (
-                          <div key={pedido.id} style={styles.adminOrderCard}>
+                       <div
+  key={pedido.id}
+  style={{
+    ...styles.adminOrderCard,
+    ...obtenerEstiloPrioridadPedido(pedido),
+  }}
+> 
                             <div style={styles.adminOrderTop}>
                               <div>
                                 <div style={styles.adminOrderId}>
@@ -6003,16 +6288,43 @@ function renderPickupInfoCard() {
                             </div>
 
                             <div style={styles.adminChipRow}>
-                              <div style={styles.adminChip}>
-                                💳 {metodoPago}
-                              </div>
-                              <div style={styles.adminChip}>
-                                🧾 {estadoPago}
-                              </div>
-                              <div style={styles.adminChip}>
-                                🚚 {pedido?.repartidor || "Sin asignar"}
-                              </div>
-                            </div>
+  <div style={styles.adminChip}>
+    💳 {metodoPago}
+  </div>
+
+  <div
+    style={{
+      ...styles.adminChip,
+      ...(estadoPago === "Pagado"
+        ? styles.adminChipSuccess
+        : estadoPago === "Pendiente de verificación"
+        ? styles.adminChipWarning
+        : estadoPago === "Rechazado"
+        ? styles.adminChipDanger
+        : styles.adminChipNeutral),
+    }}
+  >
+    🧾 {estadoPago}
+  </div>
+
+  <div style={styles.adminChip}>
+    🚚 {pedido?.repartidor || "Sin asignar"}
+  </div>
+
+  {/* 🔥 NUEVO CHIP DE TIPO DE PEDIDO */}
+  <div
+    style={{
+      ...styles.adminChip,
+      ...(obtenerTipoPedidoLabel(pedido) === "Recoger en el lab"
+        ? styles.adminChipPickup
+        : styles.adminChipDelivery),
+    }}
+  >
+    {obtenerTipoPedidoLabel(pedido) === "Recoger en el lab"
+      ? "⚡ Recoger en el lab"
+      : "🏠 Domicilio"}
+  </div>
+</div>
 
                             <div style={styles.adminInfoGrid}>
                               <div style={styles.adminInfoCard}>
@@ -9202,6 +9514,42 @@ checkoutMobileResumeTotal: {
   fontWeight: "bold",
   fontSize: 24,
   marginTop: 10,
+},
+
+adminChipNeutral: {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.08)",
+  color: "#e7e7e7",
+},
+
+adminChipSuccess: {
+  background: "rgba(46, 204, 113, 0.10)",
+  border: "1px solid rgba(46, 204, 113, 0.24)",
+  color: "#caffde",
+},
+
+adminChipWarning: {
+  background: "rgba(255, 193, 7, 0.10)",
+  border: "1px solid rgba(255, 193, 7, 0.24)",
+  color: "#ffe9a6",
+},
+
+adminChipDanger: {
+  background: "rgba(255, 82, 82, 0.10)",
+  border: "1px solid rgba(255, 82, 82, 0.24)",
+  color: "#ffd1d1",
+},
+
+adminChipPickup: {
+  background: "rgba(255, 235, 59, 0.10)",
+  border: "1px solid rgba(255, 235, 59, 0.22)",
+  color: "#fff1a8",
+},
+
+adminChipDelivery: {
+  background: "rgba(33, 150, 243, 0.10)",
+  border: "1px solid rgba(33, 150, 243, 0.22)",
+  color: "#cfe9ff",
 },
 
 checkoutTrustText: {
