@@ -1244,27 +1244,27 @@ function usarDireccionGuardada(direccionId) {
   const horarioTexto =
     "Martes a sábado: 4:00 PM a 9:00 PM • Domingos y lunes festivos: 12:00 PM a 9:00 PM";
 
-  const laboratorioAbierto = useMemo(() => {
-  const HORA_CIERRE = 21 * 60;
+  const laboratorioAbierto = true;//useMemo(() => {
+ // const HORA_CIERRE = 21 * 60;
 
   // Domingo
-  if (diaSemana === 0) {
-    return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
-  }
+  //if (diaSemana === 0) {
+    //return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
+  //}
 
-  // Lunes festivo
-  if (diaSemana === 1 && esLunesFestivo) {
-    return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
-  }
+  //// Lunes festivo
+  //if (diaSemana === 1 && esLunesFestivo) {
+   // return horaActualMinutos >= 12 * 60 && horaActualMinutos < HORA_CIERRE;
+  //}
 
   // Lunes normal
-  if (diaSemana === 1) {
-    return false;
-  }
+  //if (diaSemana === 1) {
+    //return false;
+  //}
 
   // Martes a sábado
-  return horaActualMinutos >= 16 * 60 && horaActualMinutos < HORA_CIERRE;
-}, [diaSemana, horaActualMinutos, esLunesFestivo]);
+  //return horaActualMinutos >= 16 * 60 && horaActualMinutos < HORA_CIERRE;
+//}, [diaSemana, horaActualMinutos, esLunesFestivo]);
 
   const subtotal = useMemo(() => {
     return carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
